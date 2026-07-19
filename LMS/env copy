@@ -1,0 +1,31 @@
+# This is sample .env file, replace this with yours to run
+# Bản copy của file .env, thay đổi với thông số phù hợp với máy bạn để chạy
+# =========================================================================
+# 1. CẤU HÌNH SERVER CHẠY NODE.JS
+# =========================================================================
+PORT=3000
+NODE_ENV=development
+
+# =========================================================================
+# 2. CẤU HÌNH KẾT NỐI DATABASE MYSQL
+# =========================================================================
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=mat_khau_cua_ban_o_day
+DB_NAME=simple_lms
+DB_PORT=3306
+
+# =========================================================================
+# 3. CẤU HÌNH BẢO MẬT & XÁC THỰC JWT (JSON WEB TOKEN)
+# =========================================================================
+# Thay đổi chuỗi này thành một chuỗi ngẫu nhiên dài và khó đoán để bảo mật token
+JWT_SECRET=lms_sieu_bao_mat_key_2026_@#$
+JWT_EXPIRES_IN=7d
+
+# =========================================================================
+# 4. CẤU HÌNH LƯU TRỮ FILE (Dành cho Ngày 9-10 khi làm upload Video/Ảnh)
+# Tùy chọn: Sau này đăng ký Cloudinary thì điền các thông số này vào
+# =========================================================================
+CLOUDINARY_CLOUD_NAME=dien_cloud_name_vao_day
+CLOUDINARY_API_KEY=dien_api_key_vao_day
+CLOUDINARY_API_SECRET=dien_api_secret_vao_day

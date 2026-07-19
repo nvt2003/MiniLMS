@@ -1,0 +1,67 @@
+.alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.alert-box {
+  width: 380px;
+  max-width: 90%;
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,.2);
+  animation: popup .2s ease;
+}
+
+.alert-box h3 {
+  margin: 0 0 15px;
+}
+
+.alert-box p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.alert-box button {
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  float: right;
+}
+
+.alert-box button:hover {
+  opacity: .9;
+}
+
+@keyframes popup {
+  from {
+    transform: scale(.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.alert-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.cancel-btn {
+    background: #ddd !important;
+    color: #333;
+}
+
+.cancel-btn:hover {
+    background: #cfcfcf !important;
+}
