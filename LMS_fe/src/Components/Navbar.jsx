@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { io } from "socket.io-client";
-const Backend = import.meta.env.VITA_API_BASE_URL;
+const Backend = import.meta.env.VITE_API_BASE_URL;
+const SocketURL = import.meta.env.VITE_SOCKET_URL;
 import useAlert from "./Alert/useAlert";
 
 const Navbar = () => {
@@ -22,7 +23,7 @@ const Navbar = () => {
     if (!userData?.id) return;
 
     // 1. Kết nối tới server Socket.io
-    const socket = io(Backend);
+    const socket = io(SocketURL);
 
     // 2. Tham gia vào phòng riêng dựa theo ID người dùng để nhận tin nhắn cá nhân
     socket.emit("join_user_room", userData.id);

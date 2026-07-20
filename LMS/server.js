@@ -33,8 +33,9 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: FRONT_END }
 });
+console.log("Socket.IO initialized");
+
 io.on('connection', (socket) => {
-  // Khi học sinh kết nối, bắt họ join vào room riêng theo ID của họ
   socket.on('join_user_room', (studentId) => {
     socket.join(`student_${studentId}`);
     console.log(`Học sinh ${studentId} đã kết nối vào phòng cá nhân.`);
@@ -47,7 +48,5 @@ io.on('connection', (socket) => {
 
 global.io = io;
 const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`Server đang chạy mượt mà tại cổng ${PORT}`);
-// });
+
 server.listen(PORT, () => console.log(`Server chạy tại port ${PORT}`));

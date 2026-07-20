@@ -4,8 +4,8 @@ const FRONT_END = process.env.FRONT_END;
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, // Email của bạn (ví dụ: lms-admin@gmail.com)
-    pass: process.env.EMAIL_PASS  // Mật khẩu ứng dụng 16 ký tự của Google
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS  
   }
 });
 
