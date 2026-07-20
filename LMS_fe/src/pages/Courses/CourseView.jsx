@@ -12,6 +12,7 @@ const CourseView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
   const { showAlert } = useAlert();
   const [isCurrentSubmitting, SetIsCurrentSubmitting] = useState(false);
 
@@ -107,14 +108,17 @@ const CourseView = () => {
               {course?.description}
             </p>
           </div>
-
-          <button
-            disabled={isCurrentSubmitting}
-            onClick={() => handleEnroll(course.id)}
-            className={`p-2 font-bold rounded-xl text-sm transition text-white ${isCurrentSubmitting ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"}`}
-          >
-            {isCurrentSubmitting ? "Đang đăng ký..." : "Đăng ký học"}
-          </button>
+          {isStudent ? (
+            <button
+              disabled={isCurrentSubmitting}
+              onClick={() => handleEnroll(course.id)}
+              className={`p-2 font-bold rounded-xl text-sm transition text-white ${isCurrentSubmitting ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"}`}
+            >
+              {isCurrentSubmitting ? "Đang đăng ký..." : "Đăng ký học"}
+            </button>
+          ) : (
+            ""
+          )}
         </div>
       </div>
 
@@ -139,7 +143,10 @@ const CourseView = () => {
                   {/* Thumbnail */}
                   <div className="relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
                     <ImageModal
-                      src={lesson.thumbnail_url}
+                      src={
+                        lesson.thumbnail_url ||
+                        "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
+                      }
                       alt={lesson.title}
                       className="w-full h-full object-cover"
                     />
