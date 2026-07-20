@@ -18,9 +18,14 @@ const CourseController = {
   //search
   getCourses: async (req, res) => {
     try {
-      const { search, teacherId } = req.query;
+      const { search, teacherId, page, limit } = req.query;
       // Gọi model xử lý lọc dữ liệu
-      const courses = await CourseModel.searchAndFilter({ search, teacherId });
+      const courses = await CourseModel.searchAndFilter({
+        search,
+        teacherId,
+        page: page ? Number(page) : null,
+        limit: limit ? Number(limit) : null,
+      });
 
       return res.status(200).json({
         message: 'Lấy danh sách khóa học thành công!',

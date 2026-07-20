@@ -55,30 +55,41 @@ const lessonController = {
       );
       // ---
       setImmediate(async () => {
-        try {
-          const course = await CourseModel.getDetailWithLessons(courseId);
-          const students = await NotificationModel.getStudentsAndEmailsByCourse(courseId);
-
-          students.forEach(student => {
-            // 1. GỬI REALTIME QUA SOCKET (Chỉ những ai đang online mới nhận được ngay)
-            if (global.io) {
-              global.io.to(`student_${student.student_id}`).emit('new_lesson_notification', {
+        const course = await CourseModel.getDetailWithLessons(courseId);
+        const students = await NotificationModel.getStudentsAndEmailsByCourse(courseId);
+        for (const student of students){
+          try {
+          if (global.io) {
+            global.io
+              .to(`student_${student.student_id}`)
+              .emit('new_lesson_notification', {
                 title: `Bài học mới: ${course.title}`,
                 message: `Bài học "${title}" vừa được thêm vào.`,
                 link: `/learning/${courseId}/lesson/${newLessonId}`
               });
+          }
+          }
+          catch(err) {
+            console.log("Socket lỗi:", err);
+          }
+          console.log("global.io:", !!global.io);
+console.log("room:", `student_${student.student_id}`);
+          try {
+            if(student.email){
+              await sendNewLessonEmail(
+                student.email,
+                course.title,
+                title,
+                courseId
+              );
             }
-
-            // 2. GỬI EMAIL (Ai cũng nhận được, kể cả đang offline)
-            if (student.email) {
-              sendNewLessonEmail(student.email, course.title, title, courseId);
-            }
-          });
-        } catch (err) {
-          console.error("Lỗi xử lý thông báo ngầm:", err);
+          }
+          catch(err) {
+            console.log("Email lỗi:", err);
+          }
         }
-      });
-      
+            });
+            
       return res.status(201).json({
         message: 'Tạo bài học mới thành công!',
         data: {

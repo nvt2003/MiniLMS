@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [viewMode, setViewMode] = useState("grid");
   const navigate = useNavigate();
   const { showAlert, confirm } = useAlert();
 
@@ -19,14 +20,13 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       if (userRole === "teacher") {
-        // Giáo viên: Lấy toàn bộ danh sách khóa học hệ thống công khai để quản lý
         console.log("/courses?teacherId=", userData.id);
         const res = await api.get("/courses", {
           params: {
             teacherId: userData.id,
           },
         });
-        setCourses(res?.data?.data || []);
+        setCourses(res?.data?.data?.data || []);
       } else {
         if (userRole === "student") {
           // Học sinh: Lấy danh sách khóa học ĐÃ ĐĂNG KÝ kèm tiến độ (%)
@@ -129,6 +129,7 @@ const Dashboard = () => {
                   Quản lý và cập nhật nội dung bài giảng của bạn tại đây.
                 </p>
               </div>
+
               <button
                 onClick={() => navigate("/teacher/create-course")}
                 className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition shadow-lg shadow-blue-100 text-sm"
@@ -140,57 +141,117 @@ const Dashboard = () => {
             <h3 className="text-lg font-bold text-slate-700 mb-4">
               Danh sách khóa học trên hệ thống
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <div
-                  key={course.id}
-                  className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between"
-                >
-                  <div>
-                    <ImageModal
-                      src={course.thumbnail_url}
-                      alt={course.title}
-                      className="w-full h-64 object-cover rounded-lg"
-                    />
-                    <h4 className="font-bold text-slate-800 text-lg mb-2 line-clamp-1">
-                      {course.title}
-                    </h4>
-                    <p className="text-slate-500 text-sm line-clamp-2 mb-4">
-                      {course.description}
-                    </p>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() =>
+                  setViewMode(viewMode === "grid" ? "list" : "grid")
+                }
+                className="px-4 py-2 bg-white border rounded-xl hover:bg-slate-100 text-sm"
+              >
+                {viewMode === "grid" ? "🔲 Lưới" : "📋 Danh sách"}
+              </button>
+            </div>
+            {viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {courses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between"
+                  >
+                    <div>
+                      <ImageModal
+                        src={
+                          course.thumbnail_url ||
+                          "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
+                        }
+                        alt={course.title}
+                        className="w-full h-64 object-cover rounded-lg"
+                      />
+                      <h4 className="font-bold text-slate-800 text-lg mb-2 line-clamp-1">
+                        {course.title}
+                      </h4>
+                      <p className="text-slate-500 text-sm line-clamp-2 mb-4">
+                        {course.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 mt-2">
+                      <button
+                        onClick={() => navigate(`/teacher/course/${course.id}`)}
+                        className="w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-xl text-xs transition hover:bg-blue-100"
+                      >
+                        Quản lý bài học →
+                      </button>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            navigate(`/teacher/edit-course/${course.id}`)
+                          }
+                          className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition"
+                        >
+                          Sửa thông tin
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteCourse(course.id, course.title)
+                          }
+                          className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl text-xs transition"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </div>
                   </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                {courses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="flex justify-between items-center px-5 py-4 border-b last:border-b-0 hover:bg-slate-50"
+                  >
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-slate-800">
+                        {course.title}
+                      </h4>
+                      <p className="text-sm text-slate-500 line-clamp-1">
+                        {course.description}
+                      </p>
+                    </div>
 
-                  {/* HÀNG NÚT ĐIỀU KHIỂN MỚI */}
-                  <div className="space-y-2 mt-2">
-                    <button
-                      onClick={() => navigate(`/teacher/course/${course.id}`)}
-                      className="w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-xl text-xs transition hover:bg-blue-100"
-                    >
-                      Quản lý bài học →
-                    </button>
+                    <div className="flex gap-2 ml-4">
+                      <button
+                        onClick={() => navigate(`/teacher/course/${course.id}`)}
+                        className="px-3 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100"
+                      >
+                        Bài học
+                      </button>
 
-                    <div className="flex gap-2">
                       <button
                         onClick={() =>
                           navigate(`/teacher/edit-course/${course.id}`)
                         }
-                        className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition"
+                        className="px-3 py-2 bg-slate-100 rounded-lg text-sm hover:bg-slate-200"
                       >
-                        Sửa thông tin
+                        Sửa
                       </button>
+
                       <button
                         onClick={() =>
                           handleDeleteCourse(course.id, course.title)
                         }
-                        className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl text-xs transition"
+                        className="px-3 py-2 bg-red-50 text-red-600 rounded-lg text-sm hover:bg-red-100"
                       >
                         Xóa
                       </button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -219,58 +280,130 @@ const Dashboard = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.map((course) => (
-                  <div
-                    key={course.id}
-                    className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between"
+              <div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() =>
+                      setViewMode(viewMode === "grid" ? "list" : "grid")
+                    }
+                    className="px-4 py-2 bg-white border rounded-xl hover:bg-slate-100 text-sm"
                   >
-                    <div>
-                      <ImageModal
-                        src={course.thumbnail_url}
-                        alt={course.title}
-                        className="w-full h-64 object-cover rounded-lg"
-                      />
-                      <h4
-                        className="font-bold text-slate-800 text-lg mb-2 line-clamp-1"
-                        onClick={() => navigate(`/course/${course.id}`)}
+                    {viewMode === "grid" ? "🔲 Lưới" : "📋 Danh sách"}
+                  </button>
+                </div>
+                {viewMode === "grid" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {courses.map((course) => (
+                      <div
+                        key={course.id}
+                        className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between"
                       >
-                        {course.title}
-                      </h4>
+                        <div>
+                          <ImageModal
+                            src={
+                              course.thumbnail_url ||
+                              "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
+                            }
+                            alt={course.title}
+                            className="w-full h-64 object-cover rounded-lg"
+                          />
 
-                      {/* Thanh Tiến Độ Học Tập (%) */}
-                      <div className="mt-4 mb-5">
-                        <div className="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-                          <span>Tiến độ</span>
-                          <span className="text-blue-600 font-bold">
-                            {course.progress_percentage || 0}%
-                          </span>
+                          <h4
+                            className="font-bold text-slate-800 text-lg mb-2 cursor-pointer hover:text-blue-600"
+                            onClick={() => navigate(`/course/${course.id}`)}
+                          >
+                            {course.title}
+                          </h4>
+
+                          <div className="mt-4 mb-5">
+                            <div className="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+                              <span>Tiến độ</span>
+                              <span className="text-blue-600 font-bold">
+                                {course.progress_percentage || 0}%
+                              </span>
+                            </div>
+
+                            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                              <div
+                                className="bg-blue-600 h-full transition-all duration-500"
+                                style={{
+                                  width: `${course.progress_percentage || 0}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-blue-600 h-full transition-all duration-500"
-                            style={{
-                              width: `${course.progress_percentage || 0}%`,
-                            }}
-                          ></div>
+
+                        <button
+                          onClick={() => navigate(`/course/${course.id}`)}
+                          className="w-full py-2.5 mb-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm"
+                        >
+                          Vào học ngay
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            handleUnenroll(course.id, course.title)
+                          }
+                          className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl text-sm"
+                        >
+                          Hủy tham gia
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    {courses.map((course) => (
+                      <div
+                        key={course.id}
+                        className="flex items-center justify-between px-6 py-4 border-b last:border-b-0 hover:bg-slate-50"
+                      >
+                        <div className="flex-1">
+                          <h4
+                            className="font-semibold text-slate-800 cursor-pointer hover:text-blue-600"
+                            onClick={() => navigate(`/course/${course.id}`)}
+                          >
+                            {course.title}
+                          </h4>
+
+                          <div className="flex items-center gap-3 mt-2">
+                            <div className="flex-1 max-w-xs bg-slate-200 h-2 rounded-full overflow-hidden">
+                              <div
+                                className="bg-blue-600 h-full"
+                                style={{
+                                  width: `${course.progress_percentage || 0}%`,
+                                }}
+                              />
+                            </div>
+
+                            <span className="text-sm font-semibold text-blue-600">
+                              {course.progress_percentage || 0}%
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 ml-6">
+                          <button
+                            onClick={() => navigate(`/course/${course.id}`)}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
+                          >
+                            Vào học
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              handleUnenroll(course.id, course.title)
+                            }
+                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm"
+                          >
+                            Hủy
+                          </button>
                         </div>
                       </div>
-                    </div>
-
-                    <button
-                      onClick={() => navigate(`/course/${course.id}`)}
-                      className="w-full py-2.5 m-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition shadow-md shadow-blue-100"
-                    >
-                      Vào học ngay
-                    </button>
-                    <button
-                      onClick={() => handleUnenroll(course.id, course.title)}
-                      className="w-full py-2.5 m-1 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl text-sm transition shadow-md shadow-blue-100"
-                    >
-                      Hủy tham gia
-                    </button>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>

@@ -60,29 +60,81 @@ update: async (courseId, title, description, thumbnailUrl) => {
     const [result] = await db.query('DELETE FROM courses WHERE id = ?', [id]);
     return result.affectedRows > 0; // Trả về true nếu xóa thành công
   },
-  searchAndFilter: async (filters) => {
-    const { search, teacherId } = filters;
-    let query = `SELECT * FROM courses WHERE 1=1`;
-    let queryParams = [];
+  // searchAndFilter: async (filters) => {
+  //   const { search, teacherId } = filters;
+  //   let query = `SELECT * FROM courses WHERE 1=1`;
+  //   let queryParams = [];
 
-    // 1. Nếu có từ khóa tìm kiếm (tìm gần đúng trong title hoặc description)
+  //   // 1. Nếu có từ khóa tìm kiếm (tìm gần đúng trong title hoặc description)
+  //   if (search) {
+  //     query += ` AND (title LIKE ? OR description LIKE ?)`;
+  //     const searchParam = `%${search}%`;
+  //     queryParams.push(searchParam, searchParam);
+  //   }
+
+  //   // 2. Nếu có lọc theo giảng viên
+  //   if (teacherId) {
+  //     query += ` AND teacher_id = ?`;
+  //     queryParams.push(teacherId);
+  //   }
+
+  //   // Sắp xếp khóa học mới nhất lên đầu
+  //   query += ` ORDER BY created_at DESC`;
+
+  //   const [rows] = await db.query(query, queryParams);
+  //   return rows;
+  // }
+
+  //pagination
+  searchAndFilter: async ({ search, teacherId, page, limit }) => {
+    let query = `
+      SELECT c.*, u.name AS teacher_name
+      FROM courses c
+      JOIN users u ON c.teacher_id = u.id
+      WHERE 1 = 1
+    `;
+
+    let countQuery = `
+      SELECT COUNT(*) AS total
+      FROM courses c
+      WHERE 1 = 1
+    `;
+
+    const params = [];
+    const countParams = [];
+
     if (search) {
-      query += ` AND (title LIKE ? OR description LIKE ?)`;
-      const searchParam = `%${search}%`;
-      queryParams.push(searchParam, searchParam);
+      query += ` AND (c.title LIKE ? OR c.description LIKE ?)`;
+      countQuery += ` AND (c.title LIKE ? OR c.description LIKE ?)`;
+
+      params.push(`%${search}%`, `%${search}%`);
+      countParams.push(`%${search}%`, `%${search}%`);
     }
 
-    // 2. Nếu có lọc theo giảng viên
     if (teacherId) {
-      query += ` AND teacher_id = ?`;
-      queryParams.push(teacherId);
+      query += ` AND c.teacher_id = ?`;
+      countQuery += ` AND c.teacher_id = ?`;
+
+      params.push(teacherId);
+      countParams.push(teacherId);
     }
 
-    // Sắp xếp khóa học mới nhất lên đầu
-    query += ` ORDER BY created_at DESC`;
+    query += ` ORDER BY c.created_at DESC`;
 
-    const [rows] = await db.query(query, queryParams);
-    return rows;
+    if (page && limit) {
+      query += ` LIMIT ? OFFSET ?`;
+      params.push(limit, (page - 1) * limit);
+    }
+
+    const [courses] = await db.query(query, params);
+    const [[{ total }]] = await db.query(countQuery, countParams);
+
+    return {
+      data: courses,
+      total,
+      page,
+      totalPages: page && limit ? Math.ceil(total / limit) : 1,
+    };
   }
 };
 
