@@ -18,13 +18,16 @@ const CourseDetailManager = () => {
   // 1. Hàm tải toàn bộ thông tin khóa học và danh sách bài học
   const fetchCourseDetail = async () => {
     try {
-      // Sử dụng API getCourseDetail sẵn có ở CourseController của bạn
       const res = await api.get(`/courses/${id}`);
 
       setCourse(res.data.data);
-      // Giả định dữ liệu trả về dạng: { id, title, description, lessons: [...] }
       setLessons(res.data.data.lessons || []);
     } catch (err) {
+      if (
+        err?.response?.status === 404 &&
+        err.response?.data?.message.includes("Không tìm thấy")
+      )
+        navigate("*");
       setError(
         err.response?.data?.message || "Không thể tải thông tin khóa học.",
       );

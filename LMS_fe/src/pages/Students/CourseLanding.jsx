@@ -20,6 +20,11 @@ const CourseLanding = () => {
         const res = await api.get(`/courses/${id}`);
         setCourse(res.data.data);
       } catch (err) {
+        if (
+          err?.response?.status === 404 &&
+          err.response?.data?.message.includes("Không tìm thấy")
+        )
+          navigate("*");
         setError(
           err.response?.data?.message || "Không thể tải thông tin khóa học.",
         );
@@ -155,7 +160,10 @@ const CourseLanding = () => {
                   {/* Thumbnail */}
                   <div className="relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
                     <ImageModal
-                      src={lesson.thumbnail_url}
+                      src={
+                        lesson.thumbnail_url ||
+                        "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
+                      }
                       alt={lesson.title}
                       className="w-full h-full object-cover"
                     />

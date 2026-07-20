@@ -15,40 +15,6 @@ const LearningSpace = () => {
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [completedLessonIds, setCompletedLessonIds] = useState(new Set());
 
-  // 1. Lấy dữ liệu toàn bộ cấu trúc khóa học và bài học hiện tại
-  // useEffect(() => {
-  //   const fetchLearningData = async () => {
-  //     try {
-  //       // Tận dụng API chi tiết khóa học để lấy đồng thời danh sách bài học
-  //       const res = await api.get(`/courses/${courseId}`);
-  //       setCourse(res.data.data);
-
-  //       // Tìm bài học cụ thể mà học sinh đang chọn trên URL
-  //       const lessonsList = res.data.data.lessons || [];
-  //       const activeLesson = lessonsList.find(
-  //         (l) => String(l.id) === String(lessonId),
-  //       );
-
-  //       setCurrentLesson(activeLesson || lessonsList[0]);
-  //     } catch (err) {
-  //       console.error("Lỗi tải không gian học tập", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   const fetchCompletedLessons = async () => {
-  //     try {
-  //       const res = await api.get(`/student/completed-lessons/${courseId}`);
-  //       setCompletedLessonIds(new Set(res.data.data));
-  //       console.log(res.data);
-  //       console.log(completedLessonIds);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   };
-  //   fetchLearningData();
-  //   fetchCompletedLessons();
-  // }, [courseId, lessonId]);
   useEffect(() => {
     // 1. Gọi API lấy thông tin khóa học (chỉ cần chạy lại khi courseId thay đổi)
     const fetchCourseData = async () => {
@@ -56,6 +22,11 @@ const LearningSpace = () => {
         const res = await api.get(`/courses/${courseId}`);
         setCourse(res.data.data);
       } catch (err) {
+        if (
+          err?.response?.status === 404 &&
+          err.response?.data?.message.includes("Không tìm thấy")
+        )
+          navigate("*");
         console.error("Lỗi tải thông tin khóa học", err);
       }
     };
@@ -86,6 +57,11 @@ const LearningSpace = () => {
         const res = await api.get(`/lessons/${lessonId}`);
         setCurrentLesson(res.data.data);
       } catch (err) {
+        if (
+          err?.response?.status === 404 &&
+          err.response?.data?.message.includes("Không tìm thấy")
+        )
+          navigate("*");
         console.error("Lỗi tải chi tiết bài học", err);
       } finally {
         setLoading(false);
@@ -93,7 +69,7 @@ const LearningSpace = () => {
     };
 
     fetchActiveLesson();
-  }, [lessonId]); // Hook này chỉ chạy khi lessonId thay đổi
+  }, [lessonId]);
   const handleCompleteLesson = async (lessonId) => {
     try {
       setLoadingComplete(true);
