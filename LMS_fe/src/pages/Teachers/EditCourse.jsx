@@ -98,7 +98,7 @@ const EditCourse = () => {
             Chỉnh sửa khóa học
           </h2>
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/dashbroad")}
             className="text-sm font-semibold text-slate-500 hover:text-slate-800"
           >
             ← Quay lại

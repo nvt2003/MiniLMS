@@ -67,7 +67,7 @@ const EditLesson = () => {
       });
 
       showAlert("success", "Thành công", "Cập nhật bài học thành công!");
-      navigate(-1);
+      navigate(`/teacher/course/${id}`);
     } catch (err) {
       setError(err.response?.data?.message || "Có lỗi xảy ra khi cập nhật.");
     } finally {
@@ -82,7 +82,7 @@ const EditLesson = () => {
     <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(`/teacher/course/${id}`)}
           className="mb-6 text-sm font-semibold text-slate-500 hover:text-blue-600 flex items-center gap-1"
         >
           ← Quay lại
@@ -203,7 +203,7 @@ const EditLesson = () => {
           <div className="flex gap-4 justify-end pt-4 border-t">
             <button
               type="button"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(`/teacher/course/${id}`)}
               className="px-6 py-3 rounded-xl bg-slate-100 font-medium"
             >
               Hủy

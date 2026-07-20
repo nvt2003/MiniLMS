@@ -35,7 +35,7 @@ const CreateCourse = () => {
       await api.post("/courses", data);
 
       showAlert("success", "Thành công", "Tạo khóa học thành công!");
-      navigate(-1);
+      navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Có lỗi xảy ra");
     }

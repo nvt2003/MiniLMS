@@ -160,7 +160,7 @@ const CreateLesson = () => {
 
       showAlert("success", "Thành công", "Tạo bài học thành công!");
 
-      navigate(-1);
+      navigate(`/teacher/course/${courseId}`);
     } catch (err) {
       setError(err.response?.data?.message || "Có lỗi xảy ra khi tạo bài học.");
     } finally {
@@ -172,7 +172,7 @@ const CreateLesson = () => {
     <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(`/teacher/course/${courseId}`)}
           className="mb-6 text-sm font-semibold text-slate-500 hover:text-blue-600 flex items-center gap-1 transition"
         >
           ← Quay lại
@@ -288,7 +288,7 @@ const CreateLesson = () => {
           <div className="flex gap-4 justify-end pt-4 border-t border-slate-100">
             <button
               type="button"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(`/teacher/course/${courseId}`)}
               className="px-6 py-3 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-medium transition"
             >
               Hủy bỏ
