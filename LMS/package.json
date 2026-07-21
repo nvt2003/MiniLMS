@@ -11,5 +11,9 @@
     "nodemailer": "^9.0.3",
     "socket.io": "^4.8.3",
     "streamifier": "^0.1.1"
+  },
+  "name":"LMS",
+  "scripts": {
+    "start": "node server.js"
   }
 }

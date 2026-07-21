@@ -16,7 +16,7 @@ const EnrollmentModel = {
       'SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?',
       [studentId, courseId]
     );
-    return rows.length > 0; // Trả về true nếu đã đăng ký rồi
+    return rows.length > 0;
   },
 
   // 3. Lấy danh sách các khóa học mà học viên ĐÃ đăng ký

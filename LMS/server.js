@@ -14,7 +14,7 @@ const cors = require("cors");
 const corsOptions = {
   origin:FRONT_END,
   methods:["GET","POST","PUT","DELETE"],
-  allowHeaders:["Content-Type","Authorization"]
+  allowedHeaders:["Content-Type","Authorization"]
 }
 
 app.use(cors(corsOptions));
@@ -33,7 +33,6 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: FRONT_END }
 });
-console.log("Socket.IO initialized");
 
 io.on('connection', (socket) => {
   socket.on('join_user_room', (studentId) => {
