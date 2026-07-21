@@ -9,6 +9,7 @@ const lessonRoutes = require('./src/routes/lessionRoutes');
 const enrollmentRoutes = require('./src/routes/enrollmentRoutes');
 const lessonImagesRoutes = require('./src/routes/imageRoutes');
 const questionRoutes = require('./src/routes/questionRoutes');
+const initCleanOrphanImagesJob = require('./src/jobs/cleanOrphanImagesJob');
 const FRONT_END = process.env.FRONT_END;
 const app = express();
 const cors = require("cors");
@@ -49,6 +50,9 @@ io.on('connection', (socket) => {
 });
 
 global.io = io;
+
+initCleanOrphanImagesJob();
+
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => console.log(`Server chạy tại port ${PORT}`));
