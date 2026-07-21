@@ -7,7 +7,8 @@ const courseRoutes = require('./src/routes/courseRoutes');
 const studentRoutes = require('./src/routes/studentRoutes');
 const lessonRoutes = require('./src/routes/lessionRoutes');
 const enrollmentRoutes = require('./src/routes/enrollmentRoutes');
-const lessonImagesRoutes = require('./src/routes/lessonImageRoutes')
+const lessonImagesRoutes = require('./src/routes/imageRoutes');
+const questionRoutes = require('./src/routes/questionRoutes');
 const FRONT_END = process.env.FRONT_END;
 const app = express();
 const cors = require("cors");
@@ -27,7 +28,9 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/lessonImages',lessonImagesRoutes)
+app.use('/api/lessonImages',lessonImagesRoutes);
+app.use('/api/images',lessonImagesRoutes);
+app.use('/api/question',questionRoutes)
 
 const server = http.createServer(app);
 const io = new Server(server, {
