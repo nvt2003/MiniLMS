@@ -25,67 +25,6 @@ const CreateLesson = () => {
       setVideoFile(e.target.files[0]);
     }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (!title) return setError("Vui lòng nhập tiêu đề bài học!");
-
-  //   setLoading(true);
-  //   setError("");
-
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("courseId", courseId);
-  //     formData.append("title", title);
-  //     formData.append("content", content);
-  //     formData.append("position", position);
-  //     formData.append("imageIds", JSON.stringify(imageIds));
-  //     if (thumbnail) {
-  //       formData.append("thumbnail", thumbnail);
-  //     }
-  //     if (videoFile) {
-  //       formData.append("video", videoFile);
-  //     }
-
-  //     //Xóa ảnh bị xóa trong quá trình viết bài
-  //     const parser = new DOMParser();
-
-  //     const doc = parser.parseFromString(content, "text/html");
-
-  //     const currentUrls = [...doc.querySelectorAll("img")].map(
-  //       (img) => img.src,
-  //     );
-  //     const imageIds = uploadedImages
-  //       .filter((image) => currentUrls.includes(image.url))
-  //       .map((image) => image.id);
-  //     const deletedImages = uploadedImages.filter(
-  //       (img) => !currentUrls.includes(img.url),
-  //     );
-  //     for (const img of deletedImages) {
-  //       await api.delete(`/lesson-images/${img.id}`);
-  //     }
-
-  //     await api.post("/lessons", formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-
-  //     showAlert(
-  //       "success",
-  //       "Thành công",
-  //       "Tạo bài học và tải video lên thành công!",
-  //     );
-  //     navigate(-1);
-  //   } catch (err) {
-  //     setError(
-  //       err.response?.data?.message ||
-  //         "Có lỗi xảy ra trong quá trình upload video.",
-  //     );
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
 

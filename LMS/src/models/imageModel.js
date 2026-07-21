@@ -43,9 +43,9 @@ module.exports = {
 
       await db.execute(
         `UPDATE images
-        SET imageable_type = 'lesson', imageable_id = ?
+        SET imageable_type = ?, imageable_id = ?
         WHERE id IN (${placeholders})`,
-        [lessonId, ...imageIds]
+        [imageableType, imageableId, ...imageIds]
       );
     },
     // Lấy danh sách ảnh thuộc về 1 entity (ở đây là lesson)

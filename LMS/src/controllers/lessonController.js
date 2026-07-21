@@ -51,7 +51,7 @@ const lessonController = {
         // ---- CẬP NHẬT ẢNH CHO BÀI HỌC (ĐÃ SỬA) ----
         const imageIds = JSON.parse(req.body.imageIds || "[]");
         
-        imageModel.updateImageable(imageIds, 'lesson', newLessonId);
+        await imageModel.updateImageable(imageIds, 'lesson', newLessonId);
         // nếu giữ hàm updateLessonId
         //await imageModel.updateLessonId(imageIds, newLessonId);
         // ------------------------------------------
@@ -139,7 +139,7 @@ const lessonController = {
     try {
       const { id } = req.params;
       const { title, content, position} = req.body;
-      const lesson = await LessonModel.findById(id);
+      const lesson = await LessonModel.findDetailForEdit(id);
 
       if (!lesson) {
         return res.status(404).json({
