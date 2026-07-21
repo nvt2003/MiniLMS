@@ -56,4 +56,19 @@ module.exports = {
       );
       return rows;
     },
+    deleteImage: async (imageId, teacherId) => {
+      // 1. Lấy public_id để xóa trên Cloudinary
+      const [rows] = await db.query(
+        `SELECT public_id FROM images WHERE id = ?`,
+        [imageId]
+      );
+      if (!rows.length) return null;
+
+      const publicId = rows[0].public_id;
+
+      // 2. Xóa khỏi database
+      await db.query(`DELETE FROM images WHERE id = ?`, [imageId]);
+
+      return publicId;
+    }
 }
