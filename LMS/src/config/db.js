@@ -25,7 +25,7 @@ const pool = mysql.createPool({
 
   ssl: {
     ca: fs.readFileSync(
-      path.join(__dirname, 'config/ca.pem')
+      path.join(__dirname, 'ca.pem')
     )
   },
 
