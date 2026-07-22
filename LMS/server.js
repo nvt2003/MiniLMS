@@ -9,6 +9,7 @@ const lessonRoutes = require('./src/routes/lessionRoutes');
 const enrollmentRoutes = require('./src/routes/enrollmentRoutes');
 const lessonImagesRoutes = require('./src/routes/imageRoutes');
 const questionRoutes = require('./src/routes/questionRoutes');
+const examRoutes = require('./src/routes/examRoutes');
 const initCleanOrphanImagesJob = require('./src/jobs/cleanOrphanImagesJob');
 const FRONT_END = process.env.FRONT_END;
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/lessonImages',lessonImagesRoutes);
 app.use('/api/images',lessonImagesRoutes);
 app.use('/api/questions',questionRoutes)
+app.use('/api/exams',examRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {

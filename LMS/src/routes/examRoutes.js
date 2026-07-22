@@ -3,7 +3,7 @@ const router = express.Router();
 const ExamController = require('../controllers/ExamController');
 const {verifyToken, restrictTo} = require('../middlewares/verifyToken'); // Đường dẫn tới middleware verifyToken
 
-router.get('/teacher', verifyToken, ExamController.getTeacherExams);
+router.get('/', verifyToken, ExamController.getTeacherExams);
 router.get('/:id', verifyToken, ExamController.getExamDetail);
 router.post('/', verifyToken, restrictTo('teacher'), ExamController.createExam);
 router.post('/:id/questions', verifyToken, restrictTo('teacher'), ExamController.addQuestionsToExam);
