@@ -31,7 +31,7 @@ app.use('/api/lessons', lessonRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/lessonImages',lessonImagesRoutes);
 app.use('/api/images',lessonImagesRoutes);
-app.use('/api/question',questionRoutes)
+app.use('/api/questions',questionRoutes)
 
 const server = http.createServer(app);
 const io = new Server(server, {
