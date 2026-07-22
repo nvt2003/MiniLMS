@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Trash2, Edit } from "lucide-react";
+import { Plus, Search, Trash2, Edit, Eye } from "lucide-react";
 import api from "../services/api";
 import QuestionFormModal from "./QuestionFormModal";
+import QuestionDetailModal from "./QuestionDetailModal";
 import useAlert from "../../Components/Alert/useAlert";
 import { data } from "react-router-dom";
+import Navbar from "../../Components/Navbar";
 
 export default function QuestionManagement() {
   const [questions, setQuestions] = useState([]);
@@ -14,6 +16,9 @@ export default function QuestionManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedQuestionId, setSelectedQuestionId] = useState(null);
   const { showAlert, confirm } = useAlert();
+
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailQuestionId, setDetailQuestionId] = useState(null);
 
   const fetchQuestions = async () => {
     setLoading(true);
@@ -51,7 +56,10 @@ export default function QuestionManagement() {
     setSelectedQuestionId(id);
     setIsModalOpen(true);
   };
-
+  const handleViewDetail = (id) => {
+    setDetailQuestionId(id);
+    setIsDetailOpen(true);
+  };
   const handleDelete = async (id) => {
     if (!confirm("Bạn có chắc chắn muốn xóa câu hỏi này?")) return;
     try {
@@ -72,6 +80,7 @@ export default function QuestionManagement() {
         fontFamily: "sans-serif",
       }}
     >
+      <Navbar />
       <h2>Quản lý câu hỏi</h2>
 
       {/* Filter & Actions */}
@@ -172,6 +181,16 @@ export default function QuestionManagement() {
                 </div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewDetail(q.id);
+                    }}
+                    className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Xem chi tiết"
+                  >
+                    <Eye size={18} />
+                  </button>
+                  <button
                     onClick={() => handleEdit(q.id)}
                     style={{
                       border: "none",
@@ -206,6 +225,16 @@ export default function QuestionManagement() {
         onClose={() => setIsModalOpen(false)}
         questionId={selectedQuestionId}
         onSuccess={fetchQuestions}
+      />
+      {/* Modal Xem chi tiết */}
+      <QuestionDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        questionId={detailQuestionId}
+        onEdit={(id) => {
+          setEditingQuestionId(id);
+          setIsFormOpen(true);
+        }}
       />
     </div>
   );
