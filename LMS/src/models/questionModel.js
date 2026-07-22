@@ -1,31 +1,79 @@
 const db = require('../config/db');
 
 const QuestionModel = {
-  getQuestions: async ({ teacherId, questionType, keyword }) => {
-    let sql = `
-      SELECT id, parent_id, teacher_id, content, question_type, is_correct, score_weight, created_at
-      FROM questions
-      WHERE teacher_id = ? AND parent_id IS NULL
-    `;
+  // getQuestions: async ({ teacherId, questionType, keyword }) => {
+  //   let sql = `
+  //     SELECT id, parent_id, teacher_id, content, question_type, is_correct, score_weight, created_at
+  //     FROM questions
+  //     WHERE teacher_id = ? AND parent_id IS NULL
+  //   `;
+  //   const params = [teacherId];
+
+  //   // Lọc theo loại câu hỏi ('single', 'multiple', 'essay')
+  //   if (questionType) {
+  //     sql += ` AND question_type = ?`;
+  //     params.push(questionType);
+  //   }
+
+  //   // Tìm kiếm từ khóa theo nội dung câu hỏi
+  //   if (keyword) {
+  //     sql += ` AND content LIKE ?`;
+  //     params.push(`%${keyword}%`);
+  //   }
+
+  //   // Sắp xếp câu hỏi mới nhất lên đầu
+  //   sql += ` ORDER BY created_at DESC`;
+
+  //   const [rows] = await db.query(sql, params);
+  //   return rows;
+  // },
+  getQuestions: async ({ teacherId, questionType, keyword, page = 1, limit = 10 }) => {
+    // 1. Chuyển đổi page và limit về kiểu số nguyên
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 10;
+    const offset = (pageNum - 1) * limitNum;
+
+    // 2. Tạo phần điều kiện WHERE chung
+    let whereSql = ` WHERE teacher_id = ? AND parent_id IS NULL`;
     const params = [teacherId];
 
-    // Lọc theo loại câu hỏi ('single', 'multiple', 'essay')
     if (questionType) {
-      sql += ` AND question_type = ?`;
+      whereSql += ` AND question_type = ?`;
       params.push(questionType);
     }
 
-    // Tìm kiếm từ khóa theo nội dung câu hỏi
     if (keyword) {
-      sql += ` AND content LIKE ?`;
+      whereSql += ` AND content LIKE ?`;
       params.push(`%${keyword}%`);
     }
 
-    // Sắp xếp câu hỏi mới nhất lên đầu
-    sql += ` ORDER BY created_at DESC`;
+    // 3. Đếm tổng số câu hỏi thỏa mãn điều kiện (Query 1)
+    const countSql = `SELECT COUNT(*) AS total FROM questions ${whereSql}`;
+    const [countRows] = await db.query(countSql, params);
+    const totalItems = countRows[0]?.total || 0;
 
-    const [rows] = await db.query(sql, params);
-    return rows;
+    // 4. Lấy danh sách câu hỏi theo trang (Query 2)
+    // Lưu ý: LIMIT và OFFSET dùng chuỗi template thay vì placeholder (?) để tránh lỗi kiểu dữ liệu ở một số driver MySQL
+    const dataSql = `
+      SELECT id, parent_id, teacher_id, content, question_type, is_correct, score_weight, created_at
+      FROM questions
+      ${whereSql}
+      ORDER BY created_at DESC
+      LIMIT ${limitNum} OFFSET ${offset}
+    `;
+
+    const [rows] = await db.query(dataSql, params);
+
+    // 5. Trả về dữ liệu kèm thông tin phân trang
+    return {
+      data: rows,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limitNum),
+        currentPage: pageNum,
+        limit: limitNum,
+      },
+    };
   },
   getQuestionDetail: async (questionId, teacherId) => {
     // Lấy câu hỏi chính

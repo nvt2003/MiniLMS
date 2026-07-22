@@ -8,27 +8,20 @@ const QuestionController = {
   getQuestions: async (req, res) => {
     try {
       const teacherId = req.user.id;
-      const { question_type, search } = req.query;
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const { question_type, search, page, limit } = req.query;
       const offset = (page - 1) * limit;
-      const questions = await Question.findAll({
-        limit: limit,
-        offset: offset,
-        order: [['createdAt', 'DESC']],
-      });
-      const totalPages = Math.ceil(totalItems / limit);
-
-      return res.json({
-        success: true,
-        data: questions,
-        pagination: {
-          totalItems,
-          totalPages,
-          currentPage: page,
-          limit,
-        },
-      });
+      const result = await QuestionModel.getQuestions({
+      teacherId,
+      questionType: question_type,
+      keyword: search,
+      page,
+      limit,
+    });
+    return res.json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination,
+    });
       // const questions = await QuestionModel.getQuestions({
       //   teacherId,
       //   questionType: question_type,
