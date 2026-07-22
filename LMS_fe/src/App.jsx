@@ -4,7 +4,7 @@ import Register from "./pages/Users/Register";
 import CreateCourse from "./pages/Teachers/CreateCourse";
 import Dashboard from "./pages/Dashboard";
 import EditCourse from "./pages/Teachers/EditCourse";
-import BrowseCourses from "./pages/BrowseCourses";
+import BrowseCourses from "./pages/Courses/BrowseCourses";
 import CourseLanding from "./pages/Students/CourseLanding";
 import LearningSpace from "./pages/Students/LearningSpace";
 import CourseDetailManager from "./pages/Teachers/CourseDetailManager";
@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/Users/ForgotPassword";
 import ResetPassword from "./pages/Users/ResetPassword";
 import NotFound from "./pages/NotFound";
 import ViewCourse from "./pages/Courses/CourseView";
+import QuestionManagement from "./pages/Questions/QuestionManagement";
 
 function App() {
   return (
@@ -50,6 +51,8 @@ function App() {
         <Route path="/reset-pwd" element={<ResetPassword />} />
 
         <Route path="/view-course/:id" element={<ViewCourse />} />
+
+        <Route path="/teacher/questions" element={<QuestionManagement />} />
       </Routes>
     </BrowserRouter>
   );

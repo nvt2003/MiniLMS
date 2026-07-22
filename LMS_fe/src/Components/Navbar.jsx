@@ -91,12 +91,15 @@ const Navbar = () => {
           <Link to="/dashboard" className="hover:text-blue-600 transition">
             Khóa học của tôi
           </Link>
-          {userRole !== "teacher" && (
+          <Link to="/browse-courses" className="hover:text-blue-600 transition">
+            Khám phá khóa học
+          </Link>
+          {userRole === "teacher" && (
             <Link
-              to="/browse-courses"
+              to="/teacher/questions"
               className="hover:text-blue-600 transition"
             >
-              Khám phá khóa học
+              Tạo câu hỏi
             </Link>
           )}
         </div>
