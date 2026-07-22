@@ -9,17 +9,36 @@ const QuestionController = {
     try {
       const teacherId = req.user.id;
       const { question_type, search } = req.query;
-
-      const questions = await QuestionModel.getQuestions({
-        teacherId,
-        questionType: question_type,
-        keyword: search,
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const offset = (page - 1) * limit;
+      const questions = await Question.findAll({
+        limit: limit,
+        offset: offset,
+        order: [['createdAt', 'DESC']],
       });
+      const totalPages = Math.ceil(totalItems / limit);
 
-      res.json({
+      return res.json({
         success: true,
         data: questions,
+        pagination: {
+          totalItems,
+          totalPages,
+          currentPage: page,
+          limit,
+        },
       });
+      // const questions = await QuestionModel.getQuestions({
+      //   teacherId,
+      //   questionType: question_type,
+      //   keyword: search,
+      // });
+
+      // res.json({
+      //   success: true,
+      //   data: questions,
+      // });
     } catch (err) {
       console.error(err);
 
