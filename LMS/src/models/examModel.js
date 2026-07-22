@@ -1,29 +1,93 @@
 const db = require('../config/db'); 
 
 const ExamModel = {
-  // Lấy danh sách đề thi do giáo viên tạo HOẶC các đề được công khai (is_public = 1)
-  getTeacherExams: async (teacherId) => {
+  // // Lấy danh sách đề thi do giáo viên tạo HOẶC các đề được công khai (is_public = 1)
+  // getTeacherExams: async (teacherId) => {
+  //   const [rows] = await db.query(
+  //     `SELECT 
+  //       e.id, 
+  //       e.course_id, 
+  //       e.creator_id, 
+  //       u.name AS creator_name,
+  //       e.title, 
+  //       e.description, 
+  //       e.type, 
+  //       e.grading_method, 
+  //       e.duration_minutes, 
+  //       e.is_public, 
+  //       e.created_at
+  //      FROM exams e
+  //      JOIN users u ON e.creator_id = u.id
+  //      WHERE (e.creator_id = ? OR e.is_public = 1)
+  //      ORDER BY e.created_at DESC`,
+  //     [teacherId]
+  //   );
+
+  //   return rows;
+  // },
+  // Lấy danh sách đề thi kèm lọc & phân trang
+  getTeacherExams: async ({ teacherId, search, type, is_public, course_id, page = 1, limit = 10 }) => {
+    const offset = (page - 1) * limit;
+    const whereConditions = ['(e.creator_id = ? OR e.is_public = 1)'];
+    const params = [teacherId];
+
+    // Lọc theo từ khóa tiêu đề
+    if (search) {
+      whereConditions.push('e.title LIKE ?');
+      params.push(`%${search}%`);
+    }
+
+    // Lọc theo loại đề (practice / test)
+    if (type) {
+      whereConditions.push('e.type = ?');
+      params.push(type);
+    }
+
+    // Lọc theo trạng thái công khai (1 / 0)
+    if (is_public !== undefined && is_public !== '') {
+      whereConditions.push('e.is_public = ?');
+      params.push(is_public);
+    }
+
+    // Lọc theo khóa học
+    if (course_id) {
+      whereConditions.push('e.course_id = ?');
+      params.push(course_id);
+    }
+
+    const whereClause = whereConditions.join(' AND ');
+
+    // 1. Đếm tổng số bản ghi
+    const [countRows] = await db.query(
+      `SELECT COUNT(*) AS total FROM exams e WHERE ${whereClause}`,
+      params
+    );
+    const total = countRows[0].total;
+
+    // 2. Lấy dữ liệu phân trang
+    const queryParams = [...params, parseInt(limit), parseInt(offset)];
     const [rows] = await db.query(
       `SELECT 
-        e.id, 
-        e.course_id, 
-        e.creator_id, 
-        u.name AS creator_name,
-        e.title, 
-        e.description, 
-        e.type, 
-        e.grading_method, 
-        e.duration_minutes, 
-        e.is_public, 
-        e.created_at
+        e.id, e.course_id, c.title AS course_title, e.creator_id, u.name AS creator_name,
+        e.title, e.description, e.type, e.grading_method, e.duration_minutes, e.is_public, e.created_at
        FROM exams e
        JOIN users u ON e.creator_id = u.id
-       WHERE (e.creator_id = ? OR e.is_public = 1)
-       ORDER BY e.created_at DESC`,
-      [teacherId]
+       LEFT JOIN courses c ON e.course_id = c.id
+       WHERE ${whereClause}
+       ORDER BY e.created_at DESC
+       LIMIT ? OFFSET ?`,
+      queryParams
     );
 
-    return rows;
+    return {
+      exams: rows,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    };
   },
   // Lấy chi tiết đề thi kèm danh sách câu hỏi
   getExamDetail: async (examId) => {

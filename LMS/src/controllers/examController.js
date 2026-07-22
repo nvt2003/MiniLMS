@@ -3,21 +3,27 @@ const ExamModel = require('../models/ExamModel');
 const ExamController = {
   getTeacherExams: async (req, res) => {
     try {
-      const teacherId = req.user.id; // Lấy ID từ middleware verifyToken
+      const teacherId = req.user.id;
+      const { search, type, is_public, course_id, page, limit } = req.query;
 
-      const exams = await ExamModel.getTeacherExams(teacherId);
+      const result = await ExamModel.getTeacherExams({
+        teacherId,
+        search,
+        type,
+        is_public,
+        course_id,
+        page: parseInt(page) || 1,
+        limit: parseInt(limit) || 10
+      });
 
       res.json({
         success: true,
-        data: exams,
+        data: result.exams,
+        pagination: result.pagination
       });
     } catch (err) {
       console.error(err);
-
-      res.status(500).json({
-        success: false,
-        message: "Lỗi server",
-      });
+      res.status(500).json({ success: false, message: "Lỗi server" });
     }
   },
   getExamDetail: async (req, res) => {
