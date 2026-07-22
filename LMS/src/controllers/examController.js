@@ -50,20 +50,27 @@ const ExamController = {
       const creator_id = req.user.id;
       const { title, description, type, grading_method, duration_minutes, is_public, course_id } = req.body;
 
-      if (!title) {
-        return res.status(400).json({ success: false, message: "Tiêu đề đề thi là bắt buộc" });
-      }
+      if (!title || !title.trim()) {
+      return res.status(400).json({ success: false, message: "Tiêu đề đề thi là bắt buộc" });
+    }
 
-      const newExamId = await ExamModel.createExam({
-        course_id,
-        creator_id,
-        title,
-        description,
-        type,
-        grading_method,
-        duration_minutes,
-        is_public
-      });
+    const VALID_GRADING_METHODS = ['auto', 'manual', 'hybrid'];
+    
+    let safeGradingMethod = 'auto';
+    if (grading_method && VALID_GRADING_METHODS.includes(grading_method)) {
+      safeGradingMethod = grading_method;
+    }
+
+    const newExamId = await ExamModel.createExam({
+      course_id: course_id || null,
+      creator_id,
+      title: title.trim(),
+      description: description || "",
+      type: type || "practice",
+      grading_method: safeGradingMethod,
+      duration_minutes: parseInt(duration_minutes) || 45,
+      is_public: is_public ?? 1
+    });
 
       res.status(201).json({
         success: true,
@@ -105,6 +112,7 @@ const ExamController = {
       res.status(500).json({ success: false, message: "Lỗi server" });
     }
   },
+  
   updateExam: async (req, res) => {
     try {
       const examId = req.params.id;

@@ -136,60 +136,92 @@ const ExamModel = {
     return result.insertId;
   },
   // Thêm danh sách câu hỏi vào đề thi (Transaction để đảm bảo toàn vẹn dữ liệu)
+  // addQuestionsToExam: async (examId, questions) => {
+  //   const connection = await db.getConnection();
+  //   try {
+  //     await connection.beginTransaction();
+
+  //     const values = questions.map((q, index) => [
+  //       examId,
+  //       q.question_id,
+  //       q.position || index + 1,
+  //       q.points || 1.00
+  //     ]);
+
+  //     await connection.query(
+  //       `INSERT INTO exam_questions (exam_id, question_id, position, points)
+  //        VALUES ?
+  //        ON DUPLICATE KEY UPDATE position = VALUES(position), points = VALUES(points)`,
+  //       [values]
+  //     );
+
+  //     await connection.commit();
+  //     return true;
+  //   } catch (error) {
+  //     await connection.rollback();
+  //     throw error;
+  //   } finally {
+  //     connection.release();
+  //   }
+  // },
+  // // Cập nhật thông tin đề thi
+  // updateExam: async (examId, examData) => {
+  //   const {
+  //     title,
+  //     description,
+  //     type,
+  //     grading_method,
+  //     duration_minutes,
+  //     is_public,
+  //     course_id
+  //   } = examData;
+
+  //   const [result] = await db.query(
+  //     `UPDATE exams 
+  //      SET title = COALESCE(?, title),
+  //          description = COALESCE(?, description),
+  //          type = COALESCE(?, type),
+  //          grading_method = COALESCE(?, grading_method),
+  //          duration_minutes = COALESCE(?, duration_minutes),
+  //          is_public = COALESCE(?, is_public),
+  //          course_id = COALESCE(?, course_id)
+  //      WHERE id = ?`,
+  //     [title, description, type, grading_method, duration_minutes, is_public, course_id, examId]
+  //   );
+
+  //   return result.affectedRows > 0;
+  // },
+  
   addQuestionsToExam: async (examId, questions) => {
     const connection = await db.getConnection();
     try {
       await connection.beginTransaction();
 
-      const values = questions.map((q, index) => [
+      // 1. Xóa toàn bộ câu hỏi cũ của đề thi này
+      await connection.query('DELETE FROM exam_questions WHERE exam_id = ?', [examId]);
+
+      // 2. Thêm lại danh sách câu hỏi mới
+      const values = questions.map((q) => [
         examId,
         q.question_id,
-        q.position || index + 1,
-        q.points || 1.00
+        q.position,
+        q.points
       ]);
 
-      await connection.query(
-        `INSERT INTO exam_questions (exam_id, question_id, position, points)
-         VALUES ?
-         ON DUPLICATE KEY UPDATE position = VALUES(position), points = VALUES(points)`,
-        [values]
-      );
+      if (values.length > 0) {
+        await connection.query(
+          'INSERT INTO exam_questions (exam_id, question_id, position, points) VALUES ?',
+          [values]
+        );
+      }
 
       await connection.commit();
-      return true;
     } catch (error) {
       await connection.rollback();
       throw error;
     } finally {
       connection.release();
     }
-  },
-  // Cập nhật thông tin đề thi
-  updateExam: async (examId, examData) => {
-    const {
-      title,
-      description,
-      type,
-      grading_method,
-      duration_minutes,
-      is_public,
-      course_id
-    } = examData;
-
-    const [result] = await db.query(
-      `UPDATE exams 
-       SET title = COALESCE(?, title),
-           description = COALESCE(?, description),
-           type = COALESCE(?, type),
-           grading_method = COALESCE(?, grading_method),
-           duration_minutes = COALESCE(?, duration_minutes),
-           is_public = COALESCE(?, is_public),
-           course_id = COALESCE(?, course_id)
-       WHERE id = ?`,
-      [title, description, type, grading_method, duration_minutes, is_public, course_id, examId]
-    );
-
-    return result.affectedRows > 0;
   },
   // Nhân bản đề thi (Copy đề thi & câu hỏi liên kết trong transaction)
   copyExam: async (originalExam, newCreatorId) => {
