@@ -17,6 +17,9 @@ import ResetPassword from "./pages/Users/ResetPassword";
 import NotFound from "./pages/NotFound";
 import ViewCourse from "./pages/Courses/CourseView";
 import QuestionManagement from "./pages/Teachers/Questions/QuestionManagement";
+import ExamManagement from "./pages/Teachers/Exams/ExamManagement";
+import ExamDetailPage from "./pages/Teachers/Exams/ExamDetailPage";
+import ExamFormPage from "./pages/Teachers/Exams/ExamFormPage";
 
 function App() {
   return (
@@ -53,6 +56,11 @@ function App() {
         <Route path="/view-course/:id" element={<ViewCourse />} />
 
         <Route path="/teacher/questions" element={<QuestionManagement />} />
+
+        <Route path="/teacher/exams" element={<ExamManagement />} />
+        <Route path="/teacher/exams/:id" element={<ExamDetailPage />} />
+        <Route path="/teacher/modify-exams" element={<ExamFormPage />} />
+        <Route path="/teacher/modify-exams/:id" element={<ExamFormPage />} />
       </Routes>
     </BrowserRouter>
   );

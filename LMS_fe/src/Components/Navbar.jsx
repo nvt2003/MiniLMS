@@ -95,12 +95,20 @@ const Navbar = () => {
             Khám phá khóa học
           </Link>
           {userRole === "teacher" && (
-            <Link
-              to="/teacher/questions"
-              className="hover:text-blue-600 transition"
-            >
-              Tạo câu hỏi
-            </Link>
+            <>
+              <Link
+                to="/teacher/questions"
+                className="hover:text-blue-600 transition"
+              >
+                Tạo câu hỏi
+              </Link>
+              <Link
+                to="/teacher/exams"
+                className="hover:text-blue-600 transition"
+              >
+                Kiểm tra
+              </Link>
+            </>
           )}
         </div>
       </div>
