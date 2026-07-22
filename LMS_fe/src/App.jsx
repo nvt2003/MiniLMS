@@ -1,22 +1,22 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Users/Login";
 import Register from "./pages/Users/Register";
-import CreateCourse from "./pages/Teachers/CreateCourse";
+import CreateCourse from "./pages/Teachers/Courses/CreateCourse";
 import Dashboard from "./pages/Dashboard";
-import EditCourse from "./pages/Teachers/EditCourse";
+import EditCourse from "./pages/Teachers/Courses/EditCourse";
 import BrowseCourses from "./pages/Courses/BrowseCourses";
 import CourseLanding from "./pages/Students/CourseLanding";
 import LearningSpace from "./pages/Students/LearningSpace";
-import CourseDetailManager from "./pages/Teachers/CourseDetailManager";
-import CreateLesson from "./pages/Teachers/CreateLesson";
-import EditLesson from "./pages/Teachers/EditLesson";
+import CourseDetailManager from "./pages/Teachers/Courses/CourseDetailManager";
+import CreateLesson from "./pages/Teachers/Courses/CreateLesson";
+import EditLesson from "./pages/Teachers/Courses/EditLesson";
 import Profile from "./pages/Users/Profile";
 import ChangePassword from "./pages/Users/ChangePassword";
 import ForgotPassword from "./pages/Users/ForgotPassword";
 import ResetPassword from "./pages/Users/ResetPassword";
 import NotFound from "./pages/NotFound";
 import ViewCourse from "./pages/Courses/CourseView";
-import QuestionManagement from "./pages/Questions/QuestionManagement";
+import QuestionManagement from "./pages/Teachers/Questions/QuestionManagement";
 
 function App() {
   return (

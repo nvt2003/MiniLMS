@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../../services/api";
-import useAlert from "../../Components/Alert/useAlert";
-import ImageModal from "../../Components/ImageModal";
-import TextEditor from "../../Components/TextEditor";
+import api from "../../../services/api";
+import useAlert from "../../../Components/Alert/useAlert";
+import ImageModal from "../../../Components/ImageModal";
+import TextEditor from "../../../Components/TextEditor";
 
 const EditLesson = () => {
   const { id } = useParams();

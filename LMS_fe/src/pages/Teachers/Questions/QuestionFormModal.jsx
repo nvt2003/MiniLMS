@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Image as ImageIcon, Type, AlertTriangle } from "lucide-react";
-import api from "../../services/api";
-import TextEditor from "../../Components/TextEditor";
+import api from "../../../services/api";
+import TextEditor from "../../../Components/TextEditor";
 
 export default function QuestionFormModal({
   isOpen,

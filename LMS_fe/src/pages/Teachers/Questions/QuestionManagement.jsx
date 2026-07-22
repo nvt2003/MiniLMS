@@ -10,12 +10,12 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import api from "../../services/api";
+import api from "../../../services/api";
 import QuestionFormModal from "./QuestionFormModal";
 import QuestionDetailModal from "./QuestionDetailModal";
-import useAlert from "../../Components/Alert/useAlert";
+import useAlert from "../../../Components/Alert/useAlert";
 import { data } from "react-router-dom";
-import Navbar from "../../Components/Navbar";
+import Navbar from "../../../Components/Navbar";
 
 export default function QuestionManagement() {
   const [questions, setQuestions] = useState([]);
