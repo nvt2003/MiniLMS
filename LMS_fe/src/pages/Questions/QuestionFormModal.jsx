@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { X, Image as ImageIcon, Type } from "lucide-react";
+import { X, Image as ImageIcon, Type, AlertTriangle } from "lucide-react";
 import api from "../../services/api";
-import TextEditor from "../TextEditor"; // Component TinyMCE của bạn
+import TextEditor from "../../Components/TextEditor";
 
 export default function QuestionFormModal({
   isOpen,
@@ -10,23 +10,21 @@ export default function QuestionFormModal({
   onSuccess,
   showAlert,
 }) {
-  // State mặc định KHÔNG dùng Rich Text để UI gọn nhẹ nhất
   const [useRichText, setUseRichText] = useState(false);
-
   const [content, setContent] = useState("");
   const [formType, setFormType] = useState("single");
   const [answers, setAnswers] = useState([
     { content: "", is_correct: false },
     { content: "", is_correct: false },
   ]);
-
-  // Quản lý danh sách các ảnh đã upload thông qua TextEditor
+  const [errorMessage, setErrorMessage] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // Load thông tin câu hỏi khi sửa
   useEffect(() => {
+    setErrorMessage("");
     if (questionId && isOpen) {
       setLoading(true);
       api
@@ -60,7 +58,7 @@ export default function QuestionFormModal({
       // Reset khi mở form thêm mới
       setContent("");
       setFormType("single");
-      setUseRichText(false); // Mặc định luôn là false
+      setUseRichText(false);
       setAnswers([
         { content: "", is_correct: false },
         { content: "", is_correct: false },
@@ -101,12 +99,31 @@ export default function QuestionFormModal({
   // Submit Form - Xử lý lọc ảnh rác Cloudinary
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
     if (!content.trim()) {
       if (showAlert)
-        showAlert("error", "Cảnh báo", "Vui lòng nhập nội dung câu hỏi!");
+        // showAlert("warning", "Cảnh báo", "Vui lòng nhập nội dung câu hỏi!");
+        setErrorMessage("Vui lòng nhập nội dung câu hỏi!");
       return;
     }
+    //KIỂM TRA ĐÁP ÁN ĐÚNG (Dành cho Trắc nghiệm)
+    if (formType !== "essay") {
+      const hasCorrectAnswer = answers.some((ans) => ans.is_correct === true);
 
+      if (!hasCorrectAnswer) {
+        setErrorMessage(
+          "Vui lòng tích chọn ít nhất một đáp án đúng trước khi lưu!",
+        );
+        if (showAlert) {
+          showAlert(
+            "error",
+            "Chưa chọn đáp án đúng",
+            "Vui lòng tích chọn đáp án đúng cho câu hỏi!",
+          );
+        }
+        return;
+      }
+    }
     setSubmitting(true);
 
     try {
@@ -202,7 +219,13 @@ export default function QuestionFormModal({
             <X size={20} />
           </button>
         </div>
-
+        {/* KHUNG CẢNH BÁO LỖI (Hiển thị khi thiếu thông tin/chưa chọn đáp án đúng) */}
+        {errorMessage && (
+          <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700 text-sm font-medium animate-shake">
+            <AlertTriangle size={20} className="shrink-0 text-red-500" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
         {loading ? (
           <div className="py-12 text-center text-slate-500 font-medium">
             Đang tải dữ liệu câu hỏi...

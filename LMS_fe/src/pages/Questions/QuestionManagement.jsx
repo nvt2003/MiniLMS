@@ -10,7 +10,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import api from "../services/api";
+import api from "../../services/api";
 import QuestionFormModal from "./QuestionFormModal";
 import QuestionDetailModal from "./QuestionDetailModal";
 import useAlert from "../../Components/Alert/useAlert";
@@ -78,15 +78,18 @@ export default function QuestionManagement() {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (id) => {
+  const handleEdit = (id, e) => {
+    if (e) e.stopPropagation();
     setSelectedQuestionId(id);
     setIsModalOpen(true);
+    console.log("detail:", isDetailOpen);
   };
   const handleViewDetail = (id) => {
     setDetailQuestionId(id);
     setIsDetailOpen(true);
   };
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, e) => {
+    if (e) e.stopPropagation();
     if (!confirm("Bạn có chắc chắn muốn xóa câu hỏi này?")) return;
     try {
       await api.delete(`/questions/${id}`);
@@ -98,14 +101,7 @@ export default function QuestionManagement() {
   };
 
   return (
-    <div
-      style={{
-        padding: "24px",
-        maxWidth: "1000px",
-        margin: "0 auto",
-        fontFamily: "sans-serif",
-      }}
-    >
+    <div>
       <Navbar />
       <h2>Quản lý câu hỏi</h2>
 

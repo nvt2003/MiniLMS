@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ExamController = require('../controllers/ExamController');
-const {verifyToken, restrictTo} = require('../middlewares/verifyToken'); // Đường dẫn tới middleware verifyToken
+const {verifyToken, restrictTo} = require('../middlewares/authMiddleware'); // Đường dẫn tới middleware verifyToken
 
 router.get('/', verifyToken, ExamController.getTeacherExams);
 router.get('/:id', verifyToken, ExamController.getExamDetail);
