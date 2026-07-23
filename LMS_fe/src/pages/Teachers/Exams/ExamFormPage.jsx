@@ -16,6 +16,10 @@ import {
   FileText,
   Clock,
   Layers,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  X,
 } from "lucide-react";
 
 import api from "../../../services/api";
@@ -24,8 +28,15 @@ import QuestionFormModal from "./../Questions/QuestionFormModal";
 import Navbar from "../../../Components/Navbar";
 
 export default function ExamFormPage({ showAlert }) {
-  const { id } = useParamsRoute(); // id đề thi (nếu đang chỉnh sửa)
+  const { id } = useParamsRoute();
   const navigate = useNav();
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [courseSearch, setCourseSearch] = useState("");
+  const [coursePage, setCoursePage] = useState(1);
+  const COURSES_PER_PAGE = 5;
 
   // 1. State Thông tin chung đề thi
   const [examData, setExamData] = useState({
@@ -56,6 +67,51 @@ export default function ExamFormPage({ showAlert }) {
   const [detailModalId, setDetailModalId] = useState(null);
   const [isQuestionFormOpen, setIsQuestionFormOpen] = useState(false);
 
+  const handleOpenCourseModal = async () => {
+    setIsCourseModalOpen(true);
+    if (courses.length > 0) return; // Tránh gọi lại API nếu đã có dữ liệu
+
+    setLoadingCourses(true);
+    try {
+      const userData = localStorage.getItem("userData");
+      const res = await api.get("/courses", {
+        params: { teacherId: userData?.id },
+      });
+      setCourses(res?.data?.data?.data || []);
+    } catch (err) {
+      if (showAlert)
+        showAlert("error", "Lỗi", "Không thể lấy danh sách khóa học");
+    } finally {
+      setLoadingCourses(false);
+    }
+  };
+  const filteredCourses = courses.filter(
+    (c) =>
+      c.title?.toLowerCase().includes(courseSearch.toLowerCase()) ||
+      c.description?.toLowerCase().includes(courseSearch.toLowerCase()),
+  );
+  const totalCoursePages =
+    Math.ceil(filteredCourses.length / COURSES_PER_PAGE) || 1;
+  const paginatedCourses = filteredCourses.slice(
+    (coursePage - 1) * COURSES_PER_PAGE,
+    coursePage * COURSES_PER_PAGE,
+  );
+  const handleSelectCourse = (course) => {
+    setSelectedCourse(course);
+    setExamData((prev) => ({ ...prev, course_id: course.id }));
+    setIsCourseModalOpen(false);
+    if (showAlert)
+      showAlert(
+        "success",
+        "Thành công",
+        `Đã gán vào khóa học: ${course.title}`,
+      );
+  };
+  const handleRemoveCourse = () => {
+    setSelectedCourse(null);
+    setExamData((prev) => ({ ...prev, course_id: null }));
+  };
+
   // --- API FETCHES ---
 
   // Lấy chi tiết đề thi nếu đang ở chế độ Chỉnh sửa
@@ -84,6 +140,12 @@ export default function ExamFormPage({ showAlert }) {
               points: parseFloat(q.points) || 1,
             }));
             setSelectedQuestions(normalizedQuestions);
+          }
+          // NẾU ĐỀ THI CÓ COURSE_ID: Hiển thị lại tên Khóa học lên UI
+          if (exam.course_id) {
+            if (exam.course_title) {
+              setSelectedCourse(exam);
+            }
           }
         }
       })
@@ -124,18 +186,6 @@ export default function ExamFormPage({ showAlert }) {
     fetchQuestions();
   }, [search, questionType, currentPage]);
 
-  // --- XỬ LÝ CÂU HỎI ĐÃ CHỌN ---
-
-  //   const handleSelectQuestion = (q) => {
-  //     const isExist = selectedQuestions.some((item) => item.id === q.id);
-  //     if (isExist) {
-  //       setSelectedQuestions(
-  //         selectedQuestions.filter((item) => item.id !== q.id),
-  //       );
-  //     } else {
-  //       setSelectedQuestions([...selectedQuestions, { ...q, points: 1 }]);
-  //     }
-  //   };
   const handleSelectQuestion = (q) => {
     const targetId = q.question_id || q.id;
     const isExist = selectedQuestions.some(
@@ -165,10 +215,6 @@ export default function ExamFormPage({ showAlert }) {
       ),
     );
   };
-
-  //   const handleRemoveSelected = (qId) => {
-  //     setSelectedQuestions(selectedQuestions.filter((q) => q.id !== qId));
-  //   };
 
   // Tự động gắn câu hỏi vừa tạo thành công từ QuestionFormModal vào đề
   const handleQuestionCreatedSuccess = async (createdQuestion) => {
@@ -211,18 +257,19 @@ export default function ExamFormPage({ showAlert }) {
       const payload = {
         ...examData,
         grading_method: computedGradingMethod,
+        course_id: examData.course_id || null,
       };
       // BƯỚC 1: Nếu là Tạo mới -> Gọi API createExam trước
       if (!currentExamId) {
-        const createRes = await api.post("/exams", examData);
+        const createRes = await api.post("/exams", payload);
         if (createRes.data.success && createRes.data.data?.id) {
           currentExamId = createRes.data.data.id;
         } else {
           throw new Error("Không thể khởi tạo đề thi mới");
         }
       } else {
-        // Nếu là Chỉnh sửa -> Gọi API cập nhật thông tin chung (nếu backend có PUT /exams/:id)
-        await api.put(`/exams/${currentExamId}`, examData).catch(() => {});
+        // Nếu là Chỉnh sửa -> Gọi API cập nhật thông tin chung
+        await api.put(`/exams/${currentExamId}`, payload).catch(() => {});
       }
 
       // BƯỚC 2: Gọi API addQuestionsToExam để lưu toàn bộ danh sách câu hỏi
@@ -278,7 +325,7 @@ export default function ExamFormPage({ showAlert }) {
     );
   }
   const getCalculatedGradingMethod = () => {
-    if (selectedQuestions.length === 0) return "auto"; // Mặc định khi chưa chọn câu hỏi nào
+    if (selectedQuestions.length === 0) return "auto";
 
     const hasEssay = selectedQuestions.some((q) => q.question_type === "essay");
     const hasChoice = selectedQuestions.some(
@@ -390,7 +437,37 @@ export default function ExamFormPage({ showAlert }) {
                   </select>
                 </div>
               </div>
-
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Khóa học áp dụng
+                </label>
+                {selectedCourse ? (
+                  <div className="flex items-center justify-between p-2.5 bg-blue-50/60 rounded-xl border border-blue-200">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <BookOpen size={16} className="text-blue-600 shrink-0" />
+                      <span className="text-xs font-semibold text-blue-900 truncate">
+                        {selectedCourse.course_title}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCourse}
+                      className="p-1 text-slate-400 hover:text-red-500 rounded-lg transition"
+                      title="Bỏ gán"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleOpenCourseModal}
+                    className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-dashed border-slate-300 transition"
+                  >
+                    <BookOpen size={15} /> Chọn khóa học gán vào
+                  </button>
+                )}
+              </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Mô tả
@@ -710,6 +787,129 @@ export default function ExamFormPage({ showAlert }) {
           onSuccess={handleQuestionCreatedSuccess}
           showAlert={showAlert}
         />
+        {/* MODAL CHỌN KHÓA HỌC */}
+        {isCourseModalOpen && (
+          <div
+            onClick={() => setIsCourseModalOpen(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-[85vh]"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
+                <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                  <BookOpen size={16} className="text-blue-600" /> Chọn khóa học
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsCourseModalOpen(false)}
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg transition"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Tìm kiếm Khóa học */}
+              <div className="px-5 pt-3.5 pb-2">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Tìm tên hoặc mô tả khóa học..."
+                    value={courseSearch}
+                    onChange={(e) => {
+                      setCourseSearch(e.target.value);
+                      setCoursePage(1); // Reset về trang 1 khi gõ tìm kiếm
+                    }}
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <Search
+                    size={15}
+                    className="absolute left-3 top-2.5 text-slate-400"
+                  />
+                </div>
+              </div>
+
+              {/* Danh sách Khóa học */}
+              <div className="p-5 pt-1 overflow-y-auto space-y-2 flex-1 min-h-[260px]">
+                {loadingCourses ? (
+                  <div className="py-12 text-center text-xs text-slate-400">
+                    Đang tải danh sách khóa học...
+                  </div>
+                ) : paginatedCourses.length === 0 ? (
+                  <div className="py-12 text-center text-xs text-slate-400 border-2 border-dashed border-slate-100 rounded-xl">
+                    Không tìm thấy khóa học phù hợp.
+                  </div>
+                ) : (
+                  paginatedCourses.map((course) => {
+                    const isSelected = examData.course_id === course.id;
+                    return (
+                      <div
+                        key={course.id}
+                        onClick={() => handleSelectCourse(course)}
+                        className={`p-3 rounded-xl border cursor-pointer transition flex items-center justify-between gap-3 ${
+                          isSelected
+                            ? "bg-blue-50 border-blue-300"
+                            : "bg-white border-slate-200/80 hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-bold text-slate-800 truncate">
+                            {course.title}
+                          </p>
+                          <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                            {course.description || "Không có mô tả"}
+                          </p>
+                        </div>
+                        {isSelected && (
+                          <Check size={16} className="text-blue-600 shrink-0" />
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Thanh Phân Trang (Nút Trước / Sau) */}
+              {!loadingCourses && filteredCourses.length > 0 && (
+                <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <span>
+                    Trang{" "}
+                    <strong className="text-slate-700">{coursePage}</strong> /{" "}
+                    {totalCoursePages}
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={coursePage === 1}
+                      onClick={() =>
+                        setCoursePage((prev) => Math.max(prev - 1, 1))
+                      }
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white font-medium transition"
+                    >
+                      <ChevronLeft size={14} /> Trước
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={coursePage === totalCoursePages}
+                      onClick={() =>
+                        setCoursePage((prev) =>
+                          Math.min(prev + 1, totalCoursePages),
+                        )
+                      }
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white font-medium transition"
+                    >
+                      Sau <ChevronRight size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
