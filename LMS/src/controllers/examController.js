@@ -206,6 +206,20 @@ const ExamController = {
       console.error(err);
       res.status(500).json({ success: false, message: "Lỗi server" });
     }
+  },
+  getExamForPractice: async (req, res) => {
+    try {
+      const exam = await ExamModel.getExamDetailForPractice(req.params.id);
+
+      if (!exam) {
+        return res.status(404).json({ success: false, message: "Không tìm thấy đề thi" });
+      }
+
+      res.json({ success: true, data: exam });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: "Lỗi server" });
+    }
   }
 };
 

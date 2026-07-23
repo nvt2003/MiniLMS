@@ -76,23 +76,80 @@ const ExamAttemptModel = {
   },
 
   // Lưu đáp án sinh viên & Cập nhật bài thi
+  // submitExamTransaction: async (attemptId, answers, totalScore, status) => {
+  //   if (answers.length > 0) {
+  //     const values = answers.map(a => [attemptId, a.question_id, a.selected_option_id || null, a.essay_answer || null, a.score_given]);
+  //     await db.query(`INSERT INTO student_answers (attempt_id, question_id, selected_option_id, essay_answer, score_given) VALUES ?`, [values]);
+  //   }
+  //   await db.query(`UPDATE exam_attempts SET submit_time = NOW(), total_score = ?, status = ? WHERE id = ?`, [totalScore, status, attemptId]);
+  // },
+  // Lưu đáp án & Cập nhật kết quả bài thi
   submitExamTransaction: async (attemptId, answers, totalScore, status) => {
     if (answers.length > 0) {
-      const values = answers.map(a => [attemptId, a.question_id, a.selected_option_id || null, a.essay_answer || null, a.score_given]);
-      await db.query(`INSERT INTO student_answers (attempt_id, question_id, selected_option_id, essay_answer, score_given) VALUES ?`, [values]);
+      const values = answers.map(a => {
+        let selectedOptStr = null;
+
+        // Nếu là dạng multiple (mảng nhiều option_id)
+        if (Array.isArray(a.selected_option_ids) && a.selected_option_ids.length > 0) {
+          selectedOptStr = a.selected_option_ids.join(',');
+        } 
+        // Nếu là dạng single (1 option_id)
+        else if (a.selected_option_id) {
+          selectedOptStr = String(a.selected_option_id);
+        }
+
+        return [
+          attemptId,
+          a.question_id,
+          selectedOptStr,
+          a.essay_answer || null,
+          a.score_given
+        ];
+      });
+
+      await db.query(
+        `INSERT INTO student_answers (attempt_id, question_id, selected_option_id, essay_answer, score_given) VALUES ?`,
+        [values]
+      );
     }
-    await db.query(`UPDATE exam_attempts SET submit_time = NOW(), total_score = ?, status = ? WHERE id = ?`, [totalScore, status, attemptId]);
+
+    await db.query(
+      `UPDATE exam_attempts SET submit_time = NOW(), total_score = ?, status = ? WHERE id = ?`,
+      [totalScore, status, attemptId]
+    );
   },
   // Lấy đáp án đúng của 1 câu hỏi
+  // getQuestionAnswer: async (questionId) => {
+  //   const [rows] = await db.query(
+  //     `SELECT q.id AS question_id, q.question_type, q_correct.id AS correct_option_id
+  //      FROM questions q
+  //      LEFT JOIN questions q_correct ON q_correct.parent_id = q.id AND q_correct.is_correct = 1
+  //      WHERE q.id = ?`,
+  //     [questionId]
+  //   );
+  //   return rows[0];
+  // },
+  // Lấy chi tiết đáp án đúng của câu hỏi phục vụ kiểm tra Practice
   getQuestionAnswer: async (questionId) => {
     const [rows] = await db.query(
-      `SELECT q.id AS question_id, q.question_type, q_correct.id AS correct_option_id
+      `SELECT q.id AS question_id, q.question_type,
+              GROUP_CONCAT(q_correct.id) AS correct_option_ids
        FROM questions q
        LEFT JOIN questions q_correct ON q_correct.parent_id = q.id AND q_correct.is_correct = 1
-       WHERE q.id = ?`,
+       WHERE q.id = ?
+       GROUP BY q.id, q.question_type`,
       [questionId]
     );
-    return rows[0];
+
+    if (rows.length === 0) return null;
+
+    const row = rows[0];
+    return {
+      ...row,
+      correct_option_ids: row.correct_option_ids 
+        ? row.correct_option_ids.split(',').map(Number) 
+        : []
+    };
   },
   // Lấy chi tiết lượt làm bài kèm các câu trả lời, đáp án đúng & nhận xét
   getAttemptResult: async (attemptId, studentId) => {

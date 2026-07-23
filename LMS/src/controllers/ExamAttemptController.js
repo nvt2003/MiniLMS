@@ -4,7 +4,7 @@ const ExamAttemptController = {
   startExam: async (req, res) => {
     try {
       const studentId = req.user.id;
-      const { examId } = req.body; // HOẶC lấy từ req.params.examId tùy bạn thiết kế
+      const { examId } = req.params;
 
       if (!examId) {
         return res.status(400).json({
@@ -59,6 +59,49 @@ const ExamAttemptController = {
       });
     }
   },
+  // submitExam: async (req, res) => {
+  //   try {
+  //     const studentId = req.user.id;
+  //     const { attemptId, answers = [] } = req.body;
+
+  //     const attempt = await ExamAttemptModel.getAttemptWithExam(attemptId, studentId);
+  //     if (!attempt) return res.status(400).json({ success: false, message: "Lượt làm bài không hợp lệ hoặc đã nộp" });
+
+  //     const examQuestions = await ExamAttemptModel.getExamQuestionsDetails(attempt.exam_id);
+  //     const qMap = Object.fromEntries(examQuestions.map(q => [q.question_id, q]));
+
+  //     let totalScore = 0;
+  //     let hasEssay = false;
+
+  //     const preparedAnswers = answers.map(ans => {
+  //       const q = qMap[ans.question_id];
+  //       let score = null;
+  //       if (q) {
+  //         if (q.question_type === 'essay' || ans.essay_answer) hasEssay = true;
+  //         else if (ans.selected_option_id && Number(ans.selected_option_id) === Number(q.correct_option_id)) {
+  //           score = parseFloat(q.points) || 0;
+  //           totalScore += score;
+  //         } else score = 0;
+  //       }
+  //       return { ...ans, score_given: score };
+  //     });
+
+  //     const isAuto = attempt.grading_method === 'auto' && !hasEssay;
+  //     const finalStatus = isAuto ? 'graded' : 'submitted';
+  //     const finalScore = isAuto ? totalScore : null;
+
+  //     await ExamAttemptModel.submitExamTransaction(attemptId, preparedAnswers, finalScore, finalStatus);
+
+  //     res.json({
+  //       success: true,
+  //       message: isAuto ? "Nộp bài thành công! Đã chấm điểm tự động." : "Nộp bài thành công! Đang chờ chấm tự luận.",
+  //       data: { attempt_id: attemptId, status: finalStatus, total_score: finalScore }
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //     res.status(500).json({ success: false, message: "Lỗi server" });
+  //   }
+  // },
   submitExam: async (req, res) => {
     try {
       const studentId = req.user.id;
@@ -76,13 +119,49 @@ const ExamAttemptController = {
       const preparedAnswers = answers.map(ans => {
         const q = qMap[ans.question_id];
         let score = null;
+
         if (q) {
-          if (q.question_type === 'essay' || ans.essay_answer) hasEssay = true;
-          else if (ans.selected_option_id && Number(ans.selected_option_id) === Number(q.correct_option_id)) {
-            score = parseFloat(q.points) || 0;
-            totalScore += score;
-          } else score = 0;
+          // 1. TỰ LUẬN
+          if (q.question_type === 'essay' || ans.essay_answer) {
+            hasEssay = true;
+            score = null;
+          } 
+          
+          // 2. TRẮC NGHIỆM 1 ĐÁP ÁN (SINGLE)
+          else if (q.question_type === 'single') {
+            const correctOptIds = Array.isArray(q.correct_option_ids) ? q.correct_option_ids : [];
+            const correctOptId = correctOptIds[0];
+
+            if (correctOptId && ans.selected_option_id && Number(ans.selected_option_id) === Number(correctOptId)) {
+              score = parseFloat(q.points) || 0;
+              totalScore += score;
+            } else {
+              score = 0;
+            }
+          } 
+          // 3. TRẮC NGHIỆM NHIỀU ĐÁP ÁN (MULTIPLE)
+          else if (q.question_type === 'multiple') {
+            const userSelected = Array.isArray(ans.selected_option_ids) 
+              ? ans.selected_option_ids.map(Number).sort((a, b) => a - b)
+              : [];
+            
+            // Ép kiểu an toàn về mảng trước khi sort/map
+            const correctList = Array.isArray(q.correct_option_ids)
+              ? q.correct_option_ids.map(Number).sort((a, b) => a - b)
+              : [];
+
+            const isCorrect = userSelected.length === correctList.length &&
+              userSelected.every((val, index) => val === correctList[index]);
+
+            if (isCorrect && userSelected.length > 0) {
+              score = parseFloat(q.points) || 0;
+              totalScore += score;
+            } else {
+              score = 0;
+            }
+          }
         }
+
         return { ...ans, score_given: score };
       });
 
