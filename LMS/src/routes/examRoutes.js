@@ -5,6 +5,7 @@ const {verifyToken, restrictTo} = require('../middlewares/authMiddleware'); // Ä
 
 router.get('/', verifyToken, ExamController.getTeacherExams);
 router.get('/:id', verifyToken, ExamController.getExamDetail);
+router.get('/:id/student', verifyToken, ExamController.getExamForStudent);
 router.post('/', verifyToken, restrictTo('teacher'), ExamController.createExam);
 router.post('/:id/questions', verifyToken, restrictTo('teacher'), ExamController.addQuestionsToExam);
 router.put('/:id', verifyToken, restrictTo('teacher'), ExamController.updateExam);

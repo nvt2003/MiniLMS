@@ -1,30 +1,6 @@
 const db = require('../config/db'); 
 
 const ExamModel = {
-  // // Lấy danh sách đề thi do giáo viên tạo HOẶC các đề được công khai (is_public = 1)
-  // getTeacherExams: async (teacherId) => {
-  //   const [rows] = await db.query(
-  //     `SELECT 
-  //       e.id, 
-  //       e.course_id, 
-  //       e.creator_id, 
-  //       u.name AS creator_name,
-  //       e.title, 
-  //       e.description, 
-  //       e.type, 
-  //       e.grading_method, 
-  //       e.duration_minutes, 
-  //       e.is_public, 
-  //       e.created_at
-  //      FROM exams e
-  //      JOIN users u ON e.creator_id = u.id
-  //      WHERE (e.creator_id = ? OR e.is_public = 1)
-  //      ORDER BY e.created_at DESC`,
-  //     [teacherId]
-  //   );
-
-  //   return rows;
-  // },
   // Lấy danh sách đề thi kèm lọc & phân trang
   getTeacherExams: async ({ teacherId, search, type, is_public, course_id, page = 1, limit = 10 }) => {
     const offset = (page - 1) * limit;
@@ -135,62 +111,6 @@ const ExamModel = {
 
     return result.insertId;
   },
-  // Thêm danh sách câu hỏi vào đề thi (Transaction để đảm bảo toàn vẹn dữ liệu)
-  // addQuestionsToExam: async (examId, questions) => {
-  //   const connection = await db.getConnection();
-  //   try {
-  //     await connection.beginTransaction();
-
-  //     const values = questions.map((q, index) => [
-  //       examId,
-  //       q.question_id,
-  //       q.position || index + 1,
-  //       q.points || 1.00
-  //     ]);
-
-  //     await connection.query(
-  //       `INSERT INTO exam_questions (exam_id, question_id, position, points)
-  //        VALUES ?
-  //        ON DUPLICATE KEY UPDATE position = VALUES(position), points = VALUES(points)`,
-  //       [values]
-  //     );
-
-  //     await connection.commit();
-  //     return true;
-  //   } catch (error) {
-  //     await connection.rollback();
-  //     throw error;
-  //   } finally {
-  //     connection.release();
-  //   }
-  // },
-  // // Cập nhật thông tin đề thi
-  // updateExam: async (examId, examData) => {
-  //   const {
-  //     title,
-  //     description,
-  //     type,
-  //     grading_method,
-  //     duration_minutes,
-  //     is_public,
-  //     course_id
-  //   } = examData;
-
-  //   const [result] = await db.query(
-  //     `UPDATE exams 
-  //      SET title = COALESCE(?, title),
-  //          description = COALESCE(?, description),
-  //          type = COALESCE(?, type),
-  //          grading_method = COALESCE(?, grading_method),
-  //          duration_minutes = COALESCE(?, duration_minutes),
-  //          is_public = COALESCE(?, is_public),
-  //          course_id = COALESCE(?, course_id)
-  //      WHERE id = ?`,
-  //     [title, description, type, grading_method, duration_minutes, is_public, course_id, examId]
-  //   );
-
-  //   return result.affectedRows > 0;
-  // },
   
   addQuestionsToExam: async (examId, questions) => {
     const connection = await db.getConnection();
@@ -264,6 +184,42 @@ const ExamModel = {
       connection.release();
     }
   },
+  // Cập nhật thông tin đề thi
+updateExam: async (examId, examData) => {
+  const {
+    course_id,
+    title,
+    description,
+    type = 'practice',
+    grading_method = 'auto',
+    duration_minutes = 0,
+    is_public = 0
+  } = examData;
+
+  const [result] = await db.query(
+      `UPDATE exams 
+      SET course_id = ?, 
+          title = ?, 
+          description = ?, 
+          type = ?, 
+          grading_method = ?, 
+          duration_minutes = ?, 
+          is_public = ?
+      WHERE id = ?`,
+      [
+        course_id || null,
+        title,
+        description || null,
+        type,
+        grading_method,
+        duration_minutes,
+        is_public,
+        examId
+      ]
+    );
+
+    return result.affectedRows > 0;
+  },
   // Xóa đề thi
   deleteExam: async (examId) => {
     const [result] = await db.query(
@@ -272,6 +228,52 @@ const ExamModel = {
     );
 
     return result.affectedRows > 0;
+  },
+  // Lấy chi tiết đề thi kèm câu hỏi & các phương án lựa chọn (Đã ẩn is_correct để bảo mật)
+  getExamForStudent: async (examId) => {
+    // 1. Lấy thông tin chung đề thi
+    const [examRows] = await db.query(
+      `SELECT e.*, u.name AS creator_name, c.title AS course_title
+       FROM exams e
+       LEFT JOIN users u ON e.creator_id = u.id
+       LEFT JOIN courses c ON e.course_id = c.id
+       WHERE e.id = ?`,
+      [examId]
+    );
+
+    if (examRows.length === 0) return null;
+
+    // 2. Lấy danh sách câu hỏi chính của đề thi
+    const [questions] = await db.query(
+      `SELECT eq.id AS exam_question_id, eq.position, eq.points, 
+              q.id AS question_id, q.content, q.question_type
+       FROM exam_questions eq
+       JOIN questions q ON eq.question_id = q.id
+       WHERE eq.exam_id = ?
+       ORDER BY eq.position ASC`,
+      [examId]
+    );
+
+    if (questions.length === 0) {
+      return { ...examRows[0], questions: [] };
+    }
+
+    // 3. Lấy danh sách các phương án (Options)
+    const questionIds = questions.map((q) => q.question_id);
+    const [options] = await db.query(
+      `SELECT id, parent_id, content 
+       FROM questions 
+       WHERE parent_id IN (?)`,
+      [questionIds]
+    );
+
+    // 4. Ghép danh sách options vào đúng từng câu hỏi tương ứng
+    const questionsWithOptions = questions.map((q) => ({
+      ...q,
+      options: options.filter((opt) => opt.parent_id === q.question_id),
+    }));
+
+    return { ...examRows[0], questions: questionsWithOptions };
   },
 };
 
