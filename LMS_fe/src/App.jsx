@@ -20,6 +20,9 @@ import QuestionManagement from "./pages/Teachers/Questions/QuestionManagement";
 import ExamManagement from "./pages/Teachers/Exams/ExamManagement";
 import ExamDetailPage from "./pages/Teachers/Exams/ExamDetailPage";
 import ExamFormPage from "./pages/Teachers/Exams/ExamFormPage";
+import ExamTakingPage from "./pages/Students/ExamTakingPage";
+import ExamResultPage from "./pages/Students/ExamResultPage";
+import PracticeTakingPage from "./pages/Students/PracticeTakingPage";
 
 function App() {
   return (
@@ -61,6 +64,15 @@ function App() {
         <Route path="/teacher/exams/:id" element={<ExamDetailPage />} />
         <Route path="/teacher/modify-exams" element={<ExamFormPage />} />
         <Route path="/teacher/modify-exams/:id" element={<ExamFormPage />} />
+        <Route path="/student/exams/:examId/" element={<ExamTakingPage />} />
+        <Route
+          path="/student/exams/result/:attemptId/"
+          element={<ExamResultPage />}
+        />
+        <Route
+          path="/student/practice/:examId"
+          element={<PracticeTakingPage />}
+        />
       </Routes>
     </BrowserRouter>
   );

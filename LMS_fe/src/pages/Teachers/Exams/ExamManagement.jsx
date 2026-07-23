@@ -282,7 +282,9 @@ const ExamManagement = () => {
                           </button>
 
                           <button
-                            onClick={() => navigate(`/modify-exams/${exam.id}`)}
+                            onClick={() =>
+                              navigate(`/teacher/modify-exams/${exam.id}`)
+                            }
                             className="p-1.5 hover:bg-amber-50 text-amber-600 hover:text-amber-800 rounded-lg transition"
                             title="Chỉnh sửa"
                           >
