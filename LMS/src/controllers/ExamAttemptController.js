@@ -59,49 +59,6 @@ const ExamAttemptController = {
       });
     }
   },
-  // submitExam: async (req, res) => {
-  //   try {
-  //     const studentId = req.user.id;
-  //     const { attemptId, answers = [] } = req.body;
-
-  //     const attempt = await ExamAttemptModel.getAttemptWithExam(attemptId, studentId);
-  //     if (!attempt) return res.status(400).json({ success: false, message: "Lượt làm bài không hợp lệ hoặc đã nộp" });
-
-  //     const examQuestions = await ExamAttemptModel.getExamQuestionsDetails(attempt.exam_id);
-  //     const qMap = Object.fromEntries(examQuestions.map(q => [q.question_id, q]));
-
-  //     let totalScore = 0;
-  //     let hasEssay = false;
-
-  //     const preparedAnswers = answers.map(ans => {
-  //       const q = qMap[ans.question_id];
-  //       let score = null;
-  //       if (q) {
-  //         if (q.question_type === 'essay' || ans.essay_answer) hasEssay = true;
-  //         else if (ans.selected_option_id && Number(ans.selected_option_id) === Number(q.correct_option_id)) {
-  //           score = parseFloat(q.points) || 0;
-  //           totalScore += score;
-  //         } else score = 0;
-  //       }
-  //       return { ...ans, score_given: score };
-  //     });
-
-  //     const isAuto = attempt.grading_method === 'auto' && !hasEssay;
-  //     const finalStatus = isAuto ? 'graded' : 'submitted';
-  //     const finalScore = isAuto ? totalScore : null;
-
-  //     await ExamAttemptModel.submitExamTransaction(attemptId, preparedAnswers, finalScore, finalStatus);
-
-  //     res.json({
-  //       success: true,
-  //       message: isAuto ? "Nộp bài thành công! Đã chấm điểm tự động." : "Nộp bài thành công! Đang chờ chấm tự luận.",
-  //       data: { attempt_id: attemptId, status: finalStatus, total_score: finalScore }
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //     res.status(500).json({ success: false, message: "Lỗi server" });
-  //   }
-  // },
   submitExam: async (req, res) => {
     try {
       const studentId = req.user.id;
@@ -121,38 +78,49 @@ const ExamAttemptController = {
         let score = null;
 
         if (q) {
+          // 0. CHUYỂN ĐỔI DAP AN DUNG TU CHUOI (VD: "1,2,6") THANH MANG SO ([1, 2, 6])
+          const correctOptionIds = q.correct_option_id 
+            ? q.correct_option_id.toString().split(',').map(Number).sort((a, b) => a - b)
+            : [];
+
           // 1. TỰ LUẬN
           if (q.question_type === 'essay' || ans.essay_answer) {
             hasEssay = true;
             score = null;
           } 
-          
+
           // 2. TRẮC NGHIỆM 1 ĐÁP ÁN (SINGLE)
           else if (q.question_type === 'single') {
-            const correctOptIds = Array.isArray(q.correct_option_ids) ? q.correct_option_ids : [];
-            const correctOptId = correctOptIds[0];
+            const correctOptId = correctOptionIds[0];
+            const userSelectedId = Number(ans.selected_option_id || ans.selected_option_ids);
 
-            if (correctOptId && ans.selected_option_id && Number(ans.selected_option_id) === Number(correctOptId)) {
+            if (correctOptId && userSelectedId && userSelectedId === correctOptId) {
               score = parseFloat(q.points) || 0;
               totalScore += score;
             } else {
               score = 0;
             }
           } 
+
           // 3. TRẮC NGHIỆM NHIỀU ĐÁP ÁN (MULTIPLE)
           else if (q.question_type === 'multiple') {
-            const userSelected = Array.isArray(ans.selected_option_ids) 
-              ? ans.selected_option_ids.map(Number).sort((a, b) => a - b)
-              : [];
-            
-            // Ép kiểu an toàn về mảng trước khi sort/map
-            const correctList = Array.isArray(q.correct_option_ids)
-              ? q.correct_option_ids.map(Number).sort((a, b) => a - b)
-              : [];
+            // Ép kiểu đầu vào người dùng chọn về mảng số
+            let userSelected = [];
+            if (Array.isArray(ans.selected_option_ids)) {
+              userSelected = ans.selected_option_ids;
+            } else if (Array.isArray(ans.selected_option_id)) {
+              userSelected = ans.selected_option_id;
+            } else if (typeof ans.selected_option_id === 'string') {
+              userSelected = ans.selected_option_id.split(',');
+            } else if (ans.selected_option_id) {
+              userSelected = [ans.selected_option_id];
+            }
 
-            const isCorrect = userSelected.length === correctList.length &&
-              userSelected.every((val, index) => val === correctList[index]);
+            userSelected = userSelected.map(Number).filter(Boolean).sort((a, b) => a - b);
 
+            // So sánh mảng người dùng chọn với mảng đáp án đúng
+            const isCorrect = userSelected.length === correctOptionIds.length &&
+              userSelected.every((val, index) => val === correctOptionIds[index]);
             if (isCorrect && userSelected.length > 0) {
               score = parseFloat(q.points) || 0;
               totalScore += score;
@@ -232,6 +200,28 @@ const ExamAttemptController = {
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, message: "Lỗi server" });
+    }
+  },
+  getAttempts: async (req, res) => {
+    try {
+      const studentId = req.user.id;
+      const { search = '', sortBy = 'newest', page = 1, limit = 5 } = req.query;
+      const offset = (page - 1) * limit;
+
+      const attempts = await ExamAttemptModel.findWithFilters(studentId, {
+        search,
+        sortBy,
+        limit,
+        offset
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: attempts
+      });
+    } catch (error) {
+      console.error('Lỗi getAttempts:', error);
+      return res.status(500).json({ success: false, message: 'Lỗi server' });
     }
   }
 };
