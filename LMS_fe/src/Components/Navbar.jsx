@@ -110,6 +110,16 @@ const Navbar = () => {
               </Link>
             </>
           )}
+          {userRole === "student" && (
+            <>
+              <Link
+                to="/student/exams/result/"
+                className="hover:text-blue-600 transition"
+              >
+                Kết quả kiểm tra
+              </Link>
+            </>
+          )}
         </div>
       </div>
 

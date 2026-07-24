@@ -69,6 +69,7 @@ function App() {
           path="/student/exams/result/:attemptId/"
           element={<ExamResultPage />}
         />
+        <Route path="/student/exams/result/" element={<ExamResultPage />} />
         <Route
           path="/student/practice/:examId"
           element={<PracticeTakingPage />}
