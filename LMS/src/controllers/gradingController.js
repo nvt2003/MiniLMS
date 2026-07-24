@@ -4,12 +4,19 @@ const GradingController = {
   getPendingGradingList: async (req, res) => {
     try {
       const teacherId = req.user.id;
+      const { page, limit, exam_id, sort } = req.query;
 
-      const pendingList = await GradingModel.getPendingGradingList(teacherId);
+      const result = await GradingModel.getPendingGradingList(teacherId, {
+        page,
+        limit,
+        exam_id,
+        sort
+      });
 
       res.json({
         success: true,
-        data: pendingList,
+        data: result.items,
+        pagination: result.pagination
       });
     } catch (err) {
       console.error("Error fetching pending grading list:", err);
@@ -89,6 +96,21 @@ const GradingController = {
           students: students
         }
       });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: "Lỗi server" });
+    }
+  },
+  getAttemptDetail: async (req, res) => {
+    try {
+      const { attemptId } = req.params;
+      const detail = await GradingModel.getAttemptDetail(attemptId);
+
+      if (!detail) {
+        return res.status(404).json({ success: false, message: "Không tìm thấy bài làm" });
+      }
+
+      res.json({ success: true, data: detail });
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, message: "Lỗi server" });
