@@ -90,6 +90,57 @@ const ExamModel = {
 
     return { ...examRows[0], questions };
   },
+  // Lấy chi tiết đề thi kèm câu hỏi & đáp án đầy đủ (Dành cho Giáo viên/Admin xem & sửa)
+  getExamDetailForPractice: async (examId) => {
+    // 1. Lấy thông tin chung của đề thi
+    const [examRows] = await db.query(
+      `SELECT e.*, u.name AS creator_name, c.title AS course_title
+       FROM exams e
+       LEFT JOIN users u ON e.creator_id = u.id
+       LEFT JOIN courses c ON e.course_id = c.id
+       WHERE e.id = ?`,
+      [examId]
+    );
+
+    if (examRows.length === 0) return null;
+    
+    // Nếu không phải bài practice thì ngắt luôn hoặc từ chối trả về is_correct
+    if (examRows[0].type !== 'practice') {
+      throw new Error("Hàm này chỉ dùng cho đề luyện tập (Practice)!");
+    }
+
+    // 2. Lấy danh sách câu hỏi chính trong đề thi
+    const [questions] = await db.query(
+      `SELECT eq.id AS exam_question_id, eq.position, eq.points, 
+              q.id AS question_id, q.content, q.question_type, q.parent_id
+       FROM exam_questions eq
+       JOIN questions q ON eq.question_id = q.id
+       WHERE eq.exam_id = ?
+       ORDER BY eq.position ASC`,
+      [examId]
+    );
+
+    if (questions.length === 0) {
+      return { ...examRows[0], questions: [] };
+    }
+
+    // 3. Lấy tất cả phương án lựa chọn (bao gồm cả is_correct) để đổ vào form Edit
+    const questionIds = questions.map((q) => q.question_id);
+    const [options] = await db.query(
+      `SELECT id, parent_id, content, is_correct 
+       FROM questions 
+       WHERE parent_id IN (?)`,
+      [questionIds]
+    );
+
+    // 4. Gom nhóm options vào đúng câu hỏi tương ứng
+    const questionsWithOptions = questions.map((q) => ({
+      ...q,
+      options: options.filter((opt) => Number(opt.parent_id) === Number(q.question_id))
+    }));
+
+    return { ...examRows[0], questions: questionsWithOptions };
+  },
   // Tạo đề thi mới
   createExam: async (examData) => {
     const {

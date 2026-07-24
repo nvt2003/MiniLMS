@@ -8,5 +8,6 @@ router.post('/:examId/start', verifyToken, restrictTo("student"), ExamAttemptCon
 router.post('/submit', verifyToken, restrictTo("student"), ExamAttemptController.submitExam);
 router.post('/check-answer', verifyToken, restrictTo("student"), ExamAttemptController.checkPracticeAnswer);
 router.get('/result/:attemptId', verifyToken, ExamAttemptController.getExamResult);
+router.get('/', verifyToken, ExamAttemptController.getAttempts);
 
 module.exports = router;

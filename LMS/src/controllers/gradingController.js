@@ -3,7 +3,7 @@ const GradingModel = require('../models/GradingModel');
 const GradingController = {
   getPendingGradingList: async (req, res) => {
     try {
-      const teacherId = req.user.id; // Lấy từ verifyToken middleware
+      const teacherId = req.user.id;
 
       const pendingList = await GradingModel.getPendingGradingList(teacherId);
 

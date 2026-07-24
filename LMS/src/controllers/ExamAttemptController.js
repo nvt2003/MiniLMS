@@ -4,7 +4,7 @@ const ExamAttemptController = {
   startExam: async (req, res) => {
     try {
       const studentId = req.user.id;
-      const { examId } = req.body; // HOẶC lấy từ req.params.examId tùy bạn thiết kế
+      const { examId } = req.params;
 
       if (!examId) {
         return res.status(400).json({
@@ -76,13 +76,60 @@ const ExamAttemptController = {
       const preparedAnswers = answers.map(ans => {
         const q = qMap[ans.question_id];
         let score = null;
+
         if (q) {
-          if (q.question_type === 'essay' || ans.essay_answer) hasEssay = true;
-          else if (ans.selected_option_id && Number(ans.selected_option_id) === Number(q.correct_option_id)) {
-            score = parseFloat(q.points) || 0;
-            totalScore += score;
-          } else score = 0;
+          // 0. CHUYỂN ĐỔI DAP AN DUNG TU CHUOI (VD: "1,2,6") THANH MANG SO ([1, 2, 6])
+          const correctOptionIds = q.correct_option_id 
+            ? q.correct_option_id.toString().split(',').map(Number).sort((a, b) => a - b)
+            : [];
+
+          // 1. TỰ LUẬN
+          if (q.question_type === 'essay' || ans.essay_answer) {
+            hasEssay = true;
+            score = null;
+          } 
+
+          // 2. TRẮC NGHIỆM 1 ĐÁP ÁN (SINGLE)
+          else if (q.question_type === 'single') {
+            const correctOptId = correctOptionIds[0];
+            const userSelectedId = Number(ans.selected_option_id || ans.selected_option_ids);
+
+            if (correctOptId && userSelectedId && userSelectedId === correctOptId) {
+              score = parseFloat(q.points) || 0;
+              totalScore += score;
+            } else {
+              score = 0;
+            }
+          } 
+
+          // 3. TRẮC NGHIỆM NHIỀU ĐÁP ÁN (MULTIPLE)
+          else if (q.question_type === 'multiple') {
+            // Ép kiểu đầu vào người dùng chọn về mảng số
+            let userSelected = [];
+            if (Array.isArray(ans.selected_option_ids)) {
+              userSelected = ans.selected_option_ids;
+            } else if (Array.isArray(ans.selected_option_id)) {
+              userSelected = ans.selected_option_id;
+            } else if (typeof ans.selected_option_id === 'string') {
+              userSelected = ans.selected_option_id.split(',');
+            } else if (ans.selected_option_id) {
+              userSelected = [ans.selected_option_id];
+            }
+
+            userSelected = userSelected.map(Number).filter(Boolean).sort((a, b) => a - b);
+
+            // So sánh mảng người dùng chọn với mảng đáp án đúng
+            const isCorrect = userSelected.length === correctOptionIds.length &&
+              userSelected.every((val, index) => val === correctOptionIds[index]);
+            if (isCorrect && userSelected.length > 0) {
+              score = parseFloat(q.points) || 0;
+              totalScore += score;
+            } else {
+              score = 0;
+            }
+          }
         }
+
         return { ...ans, score_given: score };
       });
 
@@ -153,6 +200,28 @@ const ExamAttemptController = {
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, message: "Lỗi server" });
+    }
+  },
+  getAttempts: async (req, res) => {
+    try {
+      const studentId = req.user.id;
+      const { search = '', sortBy = 'newest', page = 1, limit = 5 } = req.query;
+      const offset = (page - 1) * limit;
+
+      const attempts = await ExamAttemptModel.findWithFilters(studentId, {
+        search,
+        sortBy,
+        limit,
+        offset
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: attempts
+      });
+    } catch (error) {
+      console.error('Lỗi getAttempts:', error);
+      return res.status(500).json({ success: false, message: 'Lỗi server' });
     }
   }
 };

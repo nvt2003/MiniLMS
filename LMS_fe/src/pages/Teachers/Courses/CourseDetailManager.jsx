@@ -75,7 +75,11 @@ const CourseDetailManager = () => {
         },
       );
     } catch (err) {
-      alert(err.response?.data?.message || "Gặp lỗi khi xóa bài học này.");
+      showAlert(
+        "error",
+        "Lỗi",
+        err.response?.data?.message || "Gặp lỗi khi xóa bài học này.",
+      );
     }
   };
 
