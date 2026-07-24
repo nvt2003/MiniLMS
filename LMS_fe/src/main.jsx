@@ -5,7 +5,9 @@ import "./index.css";
 import AlertProvider from "./Components/Alert/AlertProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
-  <AlertProvider>
-    <App />
-  </AlertProvider>,
+  <StrictMode>
+    <AlertProvider>
+      <App />
+    </AlertProvider>
+  </StrictMode>,
 );

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../../services/api";
-import useAlert from "../../../Components/Alert/useAlert";
-import ImageModal from "../../../Components/ImageModal";
+import api from "../../services/api";
+import useAlert from "../../Components/Alert/useAlert";
+import ImageModal from "../../Components/ImageModal";
 
 const EditCourse = () => {
   const { id } = useParams(); // Lấy ID khóa học từ URL
