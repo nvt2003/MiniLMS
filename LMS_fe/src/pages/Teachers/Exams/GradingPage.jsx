@@ -395,15 +395,28 @@ const GradingPage = () => {
                       key={ans.answer_id}
                       className="border border-slate-200 rounded-xl p-4 bg-slate-50/50"
                     >
-                      <p className="font-medium text-slate-800 mb-2">
-                        Câu {idx + 1}: {ans.question_content}
-                      </p>
+                      <div className="font-medium text-slate-800 mb-2 flex gap-1">
+                        <span>Câu {idx + 1}: </span>
+                        <div
+                          className="prose max-w-none text-slate-800"
+                          dangerouslySetInnerHTML={{
+                            __html: ans?.question_content,
+                          }}
+                        />
+                      </div>
 
-                      <div className="bg-white p-3 rounded-lg border border-slate-200 text-sm text-slate-700 whitespace-pre-wrap mb-4">
+                      <div className="bg-white p-3 rounded-lg border border-slate-200 text-sm text-slate-700 mb-4">
                         <span className="font-semibold text-slate-500 block text-xs mb-1">
                           Bài làm của học sinh:
                         </span>
-                        {ans.essay_answer || (
+                        {ans?.essay_answer ? (
+                          <div
+                            className="prose max-w-none text-slate-800"
+                            dangerouslySetInnerHTML={{
+                              __html: ans.essay_answer,
+                            }}
+                          />
+                        ) : (
                           <i className="text-slate-400">Không có câu trả lời</i>
                         )}
                       </div>

@@ -319,7 +319,12 @@ const ExamTakingPage = () => {
 
                 {/* Nội dung câu hỏi */}
                 <div className="text-gray-800 font-medium mb-6 leading-relaxed">
-                  {q.content}
+                  {/* {q.content} */}
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: q?.content,
+                    }}
+                  />
                 </div>
                 {/* RENDER COMPONENT THEO DẠNG CÂU HỎI */}
                 {q.question_type === "single" && (
