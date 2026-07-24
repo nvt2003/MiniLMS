@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../../services/api";
-import useAlert from "../../Components/Alert/useAlert";
-import ImageModal from "../../Components/ImageModal";
+import api from "../../../services/api";
+import useAlert from "../../../Components/Alert/useAlert";
+import ImageModal from "../../../Components/ImageModal";
+import TextEditor from "../../../Components/TextEditor";
 
 const EditLesson = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const [courseId, setCoureId] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [position, setPosition] = useState(1);
@@ -15,6 +16,7 @@ const EditLesson = () => {
   const [newVideoFile, setNewVideoFile] = useState(null);
   const [currentThumbnailUrl, setCurrentThumbnailUrl] = useState("");
   const [newThumbnailFile, setNewThumbnailFile] = useState(null);
+  const [uploadedImages, setUploadedImages] = useState([]);
   const previewUrl = newThumbnailFile
     ? URL.createObjectURL(newThumbnailFile)
     : null;
@@ -29,11 +31,13 @@ const EditLesson = () => {
       try {
         const res = await api.get(`/lessons/${id}`);
         const lesson = res.data.data;
+        setCoureId(lesson.course_id);
         setTitle(lesson.title);
         setContent(lesson.content || "");
         setPosition(lesson.position);
         setCurrentVideoUrl(lesson.video_url || "");
         setCurrentThumbnailUrl(lesson.thumbnail_url || "");
+        setUploadedImages(lesson.images || []);
       } catch (err) {
         setError("Không thể tải thông tin bài học này.");
         console.log(err);
@@ -44,32 +48,112 @@ const EditLesson = () => {
     fetchLessonDetail();
   }, [id]);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setError("");
+
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("title", title);
+  //     formData.append("content", content);
+  //     formData.append("position", position);
+
+  //     if (newVideoFile) {
+  //       formData.append("video", newVideoFile);
+  //     }
+  //     if (newThumbnailFile) {
+  //       formData.append("thumbnail", newThumbnailFile);
+  //     }
+
+  //     await api.put(`/lessons/${id}`, formData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //     });
+
+  //     showAlert("success", "Thành công", "Cập nhật bài học thành công!");
+  //     navigate(`/teacher/course/${id}`);
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || "Có lỗi xảy ra khi cập nhật.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!title) return setError("Vui lòng nhập tiêu đề bài học!");
+
     setLoading(true);
     setError("");
 
     try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, "text/html");
+
+      // Lấy các URL ảnh còn trong editor
+      const currentUrls = [...doc.querySelectorAll("img")].map(
+        (img) => img.src,
+      );
+
+      // Danh sách ảnh còn sử dụng
+      const keepImageIds = uploadedImages
+        .filter((image) => currentUrls.includes(image.url))
+        .map((image) => image.id);
+
+      // Danh sách ảnh đã bị xóa khỏi editor
+      const deletedImages = uploadedImages.filter(
+        (image) => !currentUrls.includes(image.url),
+      );
+
       const formData = new FormData();
+
       formData.append("title", title);
       formData.append("content", content);
       formData.append("position", position);
 
+      // Gửi danh sách ảnh còn sử dụng
+      formData.append("imageIds", JSON.stringify(keepImageIds));
+
       if (newVideoFile) {
         formData.append("video", newVideoFile);
       }
+
       if (newThumbnailFile) {
         formData.append("thumbnail", newThumbnailFile);
       }
 
+      // Cập nhật lesson
       await api.put(`/lessons/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
+      // Xóa các ảnh không còn sử dụng
+      for (const image of deletedImages) {
+        try {
+          await api.delete(`/lessonImages/${image.id}`);
+        } catch (err) {
+          const errorMessage =
+            err?.response?.data?.message || err?.data?.message;
+
+          if (errorMessage === "Không tìm thấy ảnh") {
+            console.warn(
+              `Ảnh ID ${image.id} không tồn tại trên hệ thống, bỏ qua.`,
+            );
+          } else {
+            console.error(`Lỗi khi xóa ảnh ID ${image.id}:`, err);
+          }
+        }
+      }
+
       showAlert("success", "Thành công", "Cập nhật bài học thành công!");
-      navigate(`/teacher/course/${id}`);
+
+      navigate(`/teacher/course/${courseId}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Có lỗi xảy ra khi cập nhật.");
+      setError(
+        err.response?.data?.message || "Có lỗi xảy ra khi cập nhật bài học.",
+      );
     } finally {
       setLoading(false);
     }
@@ -82,7 +166,7 @@ const EditLesson = () => {
     <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
         <button
-          onClick={() => navigate(`/teacher/course/${id}`)}
+          onClick={() => navigate(`/teacher/course/${courseId}`)}
           className="mb-6 text-sm font-semibold text-slate-500 hover:text-blue-600 flex items-center gap-1"
         >
           ← Quay lại
@@ -192,18 +276,25 @@ const EditLesson = () => {
             <label className="block text-sm font-bold text-slate-700 mb-1">
               Nội dung văn bản
             </label>
-            <textarea
+            {/* <textarea
               rows="4"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200"
+            /> */}
+            <TextEditor
+              value={content}
+              onChange={setContent}
+              onImageUploaded={(image) => {
+                setUploadedImages((prev) => [...prev, image]);
+              }}
             />
           </div>
 
           <div className="flex gap-4 justify-end pt-4 border-t">
             <button
               type="button"
-              onClick={() => navigate(`/teacher/course/${id}`)}
+              onClick={() => navigate(`/teacher/course/${courseId}`)}
               className="px-6 py-3 rounded-xl bg-slate-100 font-medium"
             >
               Hủy

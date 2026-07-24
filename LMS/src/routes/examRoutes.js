@@ -1,0 +1,16 @@
+const express = require('express');
+const router = express.Router();
+const ExamController = require('../controllers/ExamController');
+const {verifyToken, restrictTo} = require('../middlewares/authMiddleware'); // Đường dẫn tới middleware verifyToken
+
+router.get('/', verifyToken, ExamController.getTeacherExams);
+router.get('/:id', verifyToken, ExamController.getExamDetail);
+router.get('/:id/student', verifyToken, ExamController.getExamForStudent);
+router.get('/:id/practice', verifyToken, ExamController.getExamForPractice);
+router.post('/', verifyToken, restrictTo('teacher'), ExamController.createExam);
+router.post('/:id/questions', verifyToken, restrictTo('teacher'), ExamController.addQuestionsToExam);
+router.put('/:id', verifyToken, restrictTo('teacher'), ExamController.updateExam);
+router.post('/:id/copy', verifyToken, restrictTo('teacher'), ExamController.copyExam);
+router.delete('/:id', verifyToken, restrictTo('teacher'), ExamController.deleteExam);
+
+module.exports = router;

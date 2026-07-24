@@ -17,6 +17,28 @@ const LessonModel = {
     const [rows] = await db.query('SELECT * FROM lessons WHERE id = ?', [id]);
     return rows[0];
   },
+  findDetailForEdit: async (id) => {
+    const [lessonRows] = await db.query(
+      "SELECT * FROM lessons WHERE id = ?",
+      [id]
+    );
+
+    if (!lessonRows.length) return null;
+
+    const lesson = lessonRows[0];
+
+    const [imageRows] = await db.query(
+      `SELECT id, public_id, url
+      FROM images
+      WHERE imageable_type = 'lesson'
+        AND imageable_id = ?`,
+      [id]
+    );
+
+    lesson.images = imageRows;
+
+    return lesson;
+  },
   update: async (
     id,
     title,
