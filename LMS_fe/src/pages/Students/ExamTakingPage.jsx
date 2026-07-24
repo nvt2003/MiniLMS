@@ -79,27 +79,6 @@ const ExamTakingPage = () => {
     if (examId) initExam();
   }, [examId, navigate]);
 
-  // 2. Logic đếm ngược thời gian
-  useEffect(() => {
-    if (timeLeft === null) return;
-
-    if (timeLeft <= 0) {
-      showAlert(
-        "info",
-        "Đã hết thời gian làm bài!",
-        "Hệ thống sẽ tự động nộp bài.",
-      );
-      handleSubmitExam(true);
-      return;
-    }
-
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timerRef.current);
-  }, [timeLeft]);
-
   // Format số giây thành hh:mm:ss
   const formatTime = (seconds) => {
     if (seconds === null) return "--:--";
@@ -214,6 +193,27 @@ const ExamTakingPage = () => {
       );
     }
   };
+
+  // 2. Logic đếm ngược thời gian
+  useEffect(() => {
+    if (timeLeft === null) return;
+
+    if (timeLeft <= 0) {
+      showAlert(
+        "info",
+        "Đã hết thời gian làm bài!",
+        "Hệ thống sẽ tự động nộp bài.",
+      );
+      handleSubmitExam(true);
+      return;
+    }
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [timeLeft]);
   // Cuộn mượt tới câu hỏi tương ứng
   const scrollToQuestion = (index) => {
     const el = document.getElementById(`question-${index}`);
