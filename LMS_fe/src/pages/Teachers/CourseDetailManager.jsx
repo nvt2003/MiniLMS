@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import api from "../../../services/api";
-import Navbar from "../../../Components/Navbar";
-import useAlert from "../../../Components/Alert/useAlert";
-import ImageModal from "../../../Components/ImageModal";
+import api from "../../services/api";
+import Navbar from "../../Components/Navbar";
+import useAlert from "../../Components/Alert/useAlert";
+import ImageModal from "../../Components/ImageModal";
 
 const CourseDetailManager = () => {
   const { id } = useParams(); // Lấy courseId từ URL của trang chi tiết khóa học
@@ -75,11 +75,7 @@ const CourseDetailManager = () => {
         },
       );
     } catch (err) {
-      showAlert(
-        "error",
-        "Lỗi",
-        err.response?.data?.message || "Gặp lỗi khi xóa bài học này.",
-      );
+      alert(err.response?.data?.message || "Gặp lỗi khi xóa bài học này.");
     }
   };
 

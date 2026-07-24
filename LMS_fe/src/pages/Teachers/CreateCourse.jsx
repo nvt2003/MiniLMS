@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api";
-import Navbar from "../../../Components/Navbar";
-import useAlert from "../../../Components/Alert/useAlert";
-import ImageModal from "../../../Components/ImageModal";
+import api from "../../services/api";
+import Navbar from "../../Components/Navbar";
+import useAlert from "../../Components/Alert/useAlert";
+import ImageModal from "../../Components/ImageModal";
 
 const CreateCourse = () => {
   const [formData, setFormData] = useState({

@@ -14,30 +14,8 @@ const CourseModel = {
   },
 
   // 2. Lấy chi tiết 1 khóa học kèm danh sách các bài học bên trong nó
-  // getDetailWithLessons: async (courseId) => {
-  //   // Lấy thông tin khóa học trước
-  //   const courseQuery = `
-  //     SELECT c.*, u.name as teacher_name 
-  //     FROM courses c
-  //     JOIN users u ON c.teacher_id = u.id
-  //     WHERE c.id = ?
-  //   `;
-  //   const [courses] = await db.query(courseQuery, [courseId]);
-  //   if (courses.length === 0) return null;
-
-  //   const course = courses[0];
-
-  //   // Lấy danh sách bài học thuộc khóa này, sắp xếp theo thứ tự (position)
-  //   const [lessons] = await db.query(
-  //     'SELECT id, title, video_url, position,thumbnail_url FROM lessons WHERE course_id = ? ORDER BY position ASC',
-  //     [courseId]
-  //   );
-
-  //   course.lessons = lessons; // Nhét mảng bài học vào object khóa học luôn
-  //   return course;
-  // },
   getDetailWithLessons: async (courseId) => {
-    // 1. Lấy thông tin khóa học
+    // Lấy thông tin khóa học trước
     const courseQuery = `
       SELECT c.*, u.name as teacher_name 
       FROM courses c
@@ -49,24 +27,15 @@ const CourseModel = {
 
     const course = courses[0];
 
-    // 2. Chạy đồng thời các query lấy lessons và exams để tối ưu hiệu năng
-    const [lessonsResult, examsResult] = await Promise.all([
-      db.query(
-        'SELECT id, title, video_url, position, thumbnail_url FROM lessons WHERE course_id = ? ORDER BY position ASC',
-        [courseId]
-      ),
-      db.query(
-        'SELECT id, title, description, type, grading_method, duration_minutes, is_public, created_at FROM exams WHERE course_id = ? ORDER BY id DESC',
-        [courseId]
-      )
-    ]);
+    // Lấy danh sách bài học thuộc khóa này, sắp xếp theo thứ tự (position)
+    const [lessons] = await db.query(
+      'SELECT id, title, video_url, position,thumbnail_url FROM lessons WHERE course_id = ? ORDER BY position ASC',
+      [courseId]
+    );
 
-    // 3. Gán kết quả vào object course
-    course.lessons = lessonsResult[0];
-    course.exams = examsResult[0];
-
+    course.lessons = lessons; // Nhét mảng bài học vào object khóa học luôn
     return course;
-},
+  },
 
   // 3. Giáo viên tạo khóa học mới
   create: async (teacherId, title, description, thumbnailUrl) => {
