@@ -181,6 +181,9 @@ const ExamTakingPage = () => {
   const handleSubmitExam = async (isAutoSubmit = false) => {
     if (submitting) return;
 
+    if (isAutoSubmit) {
+      return submitExam();
+    }
     if (!isAutoSubmit) {
       const answeredCount = questions.filter(isQuestionAnswered).length;
       confirm(
