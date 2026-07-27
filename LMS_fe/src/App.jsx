@@ -24,6 +24,7 @@ import ExamTakingPage from "./pages/Students/ExamTakingPage";
 import ExamResultPage from "./pages/Students/ExamResultPage";
 import PracticeTakingPage from "./pages/Students/PracticeTakingPage";
 import GradingPage from "./pages/Teachers/Exams/GradingPage";
+import ExamGradebookPage from "./pages/Teachers/Exams/ExamGradebookPage";
 
 function App() {
   return (
@@ -76,6 +77,7 @@ function App() {
           element={<PracticeTakingPage />}
         />
         <Route path="/teacher/grading/:examId?" element={<GradingPage />} />
+        <Route path="/teacher/score/:examId?" element={<ExamGradebookPage />} />
       </Routes>
     </BrowserRouter>
   );

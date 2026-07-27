@@ -80,10 +80,10 @@ const GradingController = {
       const { courseId, examId } = req.params;
 
       // Lấy điểm trung bình lớp
-      const stats = await ClassModel.getClassExamStats(courseId, examId);
+      const stats = await GradingModel.getClassExamStats(courseId, examId);
 
       // Lấy danh sách học sinh và điểm số
-      const students = await ClassModel.getStudentScoresByExam(courseId, examId);
+      const students = await GradingModel.getStudentScoresByExam(courseId, examId);
 
       res.json({
         success: true,
