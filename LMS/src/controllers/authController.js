@@ -1,6 +1,8 @@
 const UserModel = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require("crypto");
+const sendMail = require('../utils/sendEmail')
 
 const JWT_SECRET = process.env.JWT_SECRET || 'lms_secret_key_123';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
@@ -179,8 +181,8 @@ const AuthController = {
   },
   
   forgotPassword: async (req, res) => {
-    const user = await UserModel.getByEmail(email);
-
+      const { email } = req.body;
+    const user = await UserModel.findByEmail(email);
     if (user) {
         const token = crypto.randomBytes(32).toString("hex");
 
@@ -191,12 +193,17 @@ const AuthController = {
             token,
             expires
         );
-        sendForgotPwdEmail(user.email,token);
+        sendMail.sendForgotPwdEmail(user.email,token);
+        
+    return res.json({
+      success: true,
+      message: "Email đặt lại mật khẩu đã được gửi",
+    });
     }
   },
   resetPassword: async (req,res)=>{
+    const {token, newPassword} = req.body
     const reset = await UserModel.getResetToken(token);
-
     if (!reset) {
         return res.status(400).json({
             message: "Token không hợp lệ."

@@ -56,7 +56,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/change-pwd" element={<ChangePassword />} />
         <Route path="/forgot-pwd" element={<ForgotPassword />} />
-        <Route path="/reset-pwd" element={<ResetPassword />} />
+        <Route path="/reset-pwd/:token" element={<ResetPassword />} />
 
         <Route path="/view-course/:id" element={<ViewCourse />} />
 

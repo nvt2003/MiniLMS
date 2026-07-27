@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import api from "../../services/api";
+import useAlert from "../../Components/Alert/useAlert";
 
 const ResetPassword = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
-  const token = searchParams.get("token");
+  const { token } = useParams();
+  const { showAlert } = useAlert();
 
   const [form, setForm] = useState({
     newPassword: "",
@@ -27,23 +27,22 @@ const ResetPassword = () => {
     e.preventDefault();
 
     if (!token) {
-      alert("Liên kết đặt lại mật khẩu không hợp lệ.");
+      showAlert("error", "Lỗi", "Liên kết đặt lại mật khẩu không hợp lệ.");
       return;
     }
 
     if (form.newPassword.length < 6) {
-      alert("Mật khẩu phải có ít nhất 6 ký tự.");
+      showAlert("error", "Lỗi", "Mật khẩu phải có ít nhất 6 ký tự.");
       return;
     }
 
     if (form.newPassword !== form.confirmPassword) {
-      alert("Mật khẩu xác nhận không khớp.");
+      showAlert("error", "Lỗi", "Mật khẩu xác nhận không khớp.");
       return;
     }
 
     try {
       setLoading(true);
-
       const res = await api.put("/auth/reset-pwd", {
         token,
         newPassword: form.newPassword,
@@ -55,7 +54,9 @@ const ResetPassword = () => {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      alert(
+      showAlert(
+        "error",
+        "Lỗi",
         err.response?.data?.message || "Liên kết không hợp lệ hoặc đã hết hạn.",
       );
     } finally {
