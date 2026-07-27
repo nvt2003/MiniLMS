@@ -7,5 +7,6 @@ router.get('/pending', verifyToken, restrictTo('teacher'), GradingController.get
 router.post('/grade-essay', verifyToken, restrictTo('teacher'), GradingController.gradeEssay);
 router.put('/finish/:attemptId', verifyToken, restrictTo('teacher'), GradingController.finishGrading);
 router.get('/courses/:courseId/exams/:examId/gradebook', restrictTo('teacher'), verifyToken, GradingController.getClassGradebook);
+router.get('/attempts/:attemptId', verifyToken, GradingController.getAttemptDetail);
 
 module.exports = router;

@@ -204,7 +204,12 @@ const ExamResultPage = () => {
                       Câu {idx + 1}
                     </span>
                     <span className="bg-gray-100 text-gray-800 font-bold px-3 py-1 rounded-md text-sm">
-                      {ans.content}
+                      {/* {ans.content} */}
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: ans?.content,
+                        }}
+                      />
                     </span>
                     <span className="text-xs bg-gray-50 text-gray-500 border px-2 py-1 rounded capitalize">
                       {ans.question_type === "single"

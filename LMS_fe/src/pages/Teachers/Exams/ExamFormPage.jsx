@@ -578,9 +578,14 @@ export default function ExamFormPage({ showAlert }) {
                       className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2"
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-800 truncate">
+                        {/* <p className="text-xs font-semibold text-slate-800 truncate">
                           Câu {idx + 1}: {q.content?.replace(/<[^>]*>/g, "")}
-                        </p>
+                        </p> */}
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: q?.content,
+                          }}
+                        />
                         <span className="text-[10px] text-slate-500 capitalize">
                           {q.question_type === "single"
                             ? "1 đáp án"
