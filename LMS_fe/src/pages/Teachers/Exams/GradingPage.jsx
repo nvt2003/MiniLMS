@@ -173,7 +173,26 @@ const GradingPage = () => {
   };
 
   // Cập nhật điểm/nhận xét
-  const handleGradeChange = (answerId, field, value) => {
+  const handleGradeChange = (answerId, field, value, maxScore) => {
+    if (field === "score") {
+      const numValue = parseFloat(value);
+
+      // Cảnh báo nếu nhập âm
+      if (numValue < 0) {
+        showAlert("warning", "Cảnh báo", "Điểm không được nhỏ hơn 0");
+        return;
+      }
+
+      // Cảnh báo nếu vượt quá điểm tối đa
+      if (numValue > maxScore) {
+        showAlert(
+          "warning",
+          "Cảnh báo",
+          `Điểm tối đa của câu này là ${maxScore}`,
+        );
+        return;
+      }
+    }
     setGrades((prev) => ({
       ...prev,
       [answerId]: {

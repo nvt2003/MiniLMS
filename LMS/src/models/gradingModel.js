@@ -83,12 +83,15 @@ const GradingModel = {
   },
   // Cập nhật điểm & nhận xét từng câu tự luận
   gradeEssayQuestion: async (answerId, score, comment) => {
-    await db.query(
-      `UPDATE student_answers 
-       SET score_given = ?, teacher_comment = ? 
-       WHERE id = ?`,
-      [score, comment, answerId]
-    );
+      const sql = `
+      UPDATE student_answers sa
+      JOIN questions q ON sa.question_id = q.id
+      SET 
+        sa.score_given = LEAST(?, q.score_weight),
+        sa.teacher_comment = ?
+      WHERE sa.id = ?
+    `;
+    await db.query(sql, [Math.max(0, score), comment, answerId]);
   },
 
   // Cập nhật tổng điểm bài thi và chuyển trạng thái sang 'graded'
