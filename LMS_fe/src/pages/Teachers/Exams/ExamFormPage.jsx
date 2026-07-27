@@ -596,16 +596,9 @@ export default function ExamFormPage({ showAlert }) {
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <input
-                          type="number"
-                          step="0.25"
-                          min="0"
-                          value={q.points}
-                          onChange={(e) =>
-                            handlePointChange(q.id, e.target.value)
-                          }
-                          className="w-14 px-2 py-1 text-xs text-center rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 font-semibold"
-                        />
+                        <span className="w-14 px-2 py-1 text-xs text-center rounded-lg border border-slate-200 focus:ring-1 focus:ring-blue-500 font-semibold">
+                          {q.points}
+                        </span>
                         <span className="text-xs text-slate-500">đ</span>
                         <button
                           type="button"
