@@ -3,8 +3,10 @@ import api from "../../../services/api";
 import useAlert from "../../../Components/Alert/useAlert";
 import { Search, X, Users, CheckCircle2, Award, BookOpen } from "lucide-react";
 import Navbar from "../../../Components/Navbar";
+import { data, useParams } from "react-router-dom";
 
 const ExamGradebookPage = () => {
+  const { examId } = useParams();
   const { showAlert } = useAlert();
 
   // --- States cho Lọc Khóa Học (Autocomplete) ---
@@ -175,6 +177,18 @@ const ExamGradebookPage = () => {
     }
   };
 
+  useEffect(() => {
+    // bo qua buoc gan tieu de filter neu khong có id
+    if (!examId) return;
+    const getExam = async () => {
+      const res = await api.get(`/exams/${examId}`);
+      setSelectedExam(res?.data?.data);
+      setSearchExamText(res?.data?.data?.title);
+      setSearchCourseText(res?.data?.data?.course_title);
+      fetchGradebook(res.data?.data?.course_id, res.data?.data?.id);
+    };
+    getExam();
+  }, []);
   return (
     <>
       <Navbar />
@@ -312,7 +326,7 @@ const ExamGradebookPage = () => {
               </div>
               <div>
                 <p className="text-xs text-slate-500 font-medium">
-                  Tổng số học sinh
+                  Tổng số bài làm
                 </p>
                 <h3 className="text-xl font-bold text-slate-800">
                   {gradebookData.summary.total_students}
