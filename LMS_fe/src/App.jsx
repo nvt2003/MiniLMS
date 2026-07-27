@@ -75,7 +75,7 @@ function App() {
           path="/student/practice/:examId"
           element={<PracticeTakingPage />}
         />
-        <Route path="/teacher/grading" element={<GradingPage />} />
+        <Route path="/teacher/grading/:examId?" element={<GradingPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -14,8 +14,10 @@ import {
   Filter,
 } from "lucide-react";
 import Navbar from "../../../Components/Navbar";
+import { useParams } from "react-router-dom";
 
 const GradingPage = () => {
+  const { examId } = useParams();
   const { showAlert } = useAlert();
 
   // --- States cho danh sách & bộ lọc ---
@@ -25,8 +27,8 @@ const GradingPage = () => {
 
   // Filter & Pagination States
   const [selectedExamId, setSelectedExamId] = useState("");
-  const [searchExamText, setSearchExamText] = useState(""); // Từ khóa tìm kiếm đề thi
-  const [filteredExams, setFilteredExams] = useState([]); // Danh sách đề thi gợi ý
+  const [searchExamText, setSearchExamText] = useState("");
+  const [filteredExams, setFilteredExams] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
 
@@ -44,6 +46,7 @@ const GradingPage = () => {
   // Fetch danh sách bài nộp cần chấm
   const fetchPendingAttempts = async () => {
     setLoading(true);
+    console.log(selectedExamId);
     try {
       const res = await api.get("/grading/pending", {
         params: {
@@ -79,6 +82,14 @@ const GradingPage = () => {
   };
 
   useEffect(() => {
+    const getExam = async () => {
+      const exam = await api.get(`/exams/${examId}`);
+      setSelectedExamId(examId);
+      setSearchExamText(exam?.data?.data?.title);
+    };
+    if (examId) {
+      getExam();
+    }
     fetchExams();
   }, []);
 
