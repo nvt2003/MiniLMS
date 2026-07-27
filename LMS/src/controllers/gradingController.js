@@ -115,6 +115,32 @@ const GradingController = {
       console.error(err);
       res.status(500).json({ success: false, message: "Lỗi server" });
     }
+  },
+  getGradedList: async (req, res) => {
+    try {
+      const teacherId = req.user.id; // Lấy ID giáo viên từ token
+      const { page, limit, exam_id, search, sort } = req.query;
+
+      const result = await GradingModel.getGradedList(teacherId, {
+        page,
+        limit,
+        exam_id,
+        search,
+        sort
+      });
+
+      res.json({
+        success: true,
+        data: result.items,
+        pagination: result.pagination
+      });
+    } catch (err) {
+      console.error("Lỗi lấy danh sách bài đã chấm:", err);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+      });
+    }
   }
 
 };

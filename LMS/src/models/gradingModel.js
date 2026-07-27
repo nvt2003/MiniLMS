@@ -85,11 +85,12 @@ const GradingModel = {
   gradeEssayQuestion: async (answerId, score, comment) => {
       const sql = `
       UPDATE student_answers sa
-      JOIN questions q ON sa.question_id = q.id
+      JOIN exam_attempts ea ON sa.attempt_id = ea.id
+      JOIN exam_questions eq ON ea.exam_id = eq.exam_id AND sa.question_id = eq.question_id
       SET 
-        sa.score_given = LEAST(?, q.score_weight),
+        sa.score_given = GREATEST(0, LEAST(?, COALESCE(eq.points, 10.0))),
         sa.teacher_comment = ?
-      WHERE sa.id = ?
+      WHERE sa.id = ?;
     `;
     await db.query(sql, [Math.max(0, score), comment, answerId]);
   },
@@ -188,23 +189,100 @@ const GradingModel = {
 
     // 2. Lấy danh sách câu hỏi và câu trả lời
     const [answerRows] = await db.query(
-      `SELECT 
-        sa.id AS answer_id, 
-        q.content AS question_content, 
-        q.question_type, 
-        q.score_weight AS max_score, 
-        sa.essay_answer, 
-        sa.score_given, 
-        sa.teacher_comment
-       FROM student_answers sa
-       JOIN questions q ON sa.question_id = q.id
-       WHERE sa.attempt_id = ? AND q.question_type = 'essay'`,
-      [attemptId]
-    );
+  `SELECT 
+      sa.id AS answer_id, 
+      q.content AS question_content, 
+      q.question_type, 
+      eq.points AS max_score, 
+      sa.essay_answer, 
+      sa.score_given, 
+      sa.teacher_comment
+   FROM student_answers sa
+   JOIN questions q ON sa.question_id = q.id
+   JOIN exam_attempts ea ON sa.attempt_id = ea.id
+   JOIN exam_questions eq ON ea.exam_id = eq.exam_id AND sa.question_id = eq.question_id
+   WHERE sa.attempt_id = ? AND q.question_type = 'essay'`,
+  [attemptId]
+);
 
     return {
       ...attemptRows[0],
       answers: answerRows
+    };
+  },
+  getGradedList: async (teacherId, options = {}) => {
+    const { page = 1, limit = 10, exam_id, search = '', sort = 'submit_time_desc' } = options;
+
+    const parsedPage = Math.max(1, parseInt(page, 10) || 1);
+    const parsedLimit = Math.max(1, parseInt(limit, 10) || 10);
+    const offset = (parsedPage - 1) * parsedLimit;
+
+    // Chỉ lấy những bài ĐÃ CHẤM ('graded') thuộc sở hữu của giáo viên này
+    let whereConditions = ["ea.status = 'graded'", "e.creator_id = ?"];
+    let params = [teacherId];
+
+    // Lọc theo exam_id nếu có
+    if (exam_id) {
+      whereConditions.push("ea.exam_id = ?");
+      params.push(parseInt(exam_id, 10));
+    }
+
+    // Tìm kiếm theo tên hoặc email học sinh
+    if (search.trim()) {
+      whereConditions.push("(u.name LIKE ? OR u.email LIKE ?)");
+      params.push(`%${search.trim()}%`, `%${search.trim()}%`);
+    }
+
+    const whereClause = whereConditions.join(" AND ");
+
+    // Xử lý sắp xếp
+    let orderBy = "ea.submit_time DESC";
+    if (sort === 'score_asc') orderBy = "ea.total_score ASC";
+    if (sort === 'score_desc') orderBy = "ea.total_score DESC";
+    if (sort === 'submit_time_asc') orderBy = "ea.submit_time ASC";
+
+    // 1. Đếm tổng số bài đã chấm
+    const countSql = `
+      SELECT COUNT(*) AS total
+      FROM exam_attempts ea
+      JOIN exams e ON ea.exam_id = e.id
+      JOIN users u ON ea.student_id = u.id
+      WHERE ${whereClause}
+    `;
+    const [countRows] = await db.query(countSql, params);
+    const totalItems = countRows[0].total;
+
+    // 2. Lấy dữ liệu bài làm đã chấm
+    const querySql = `
+      SELECT 
+        ea.id AS attempt_id,
+        ea.exam_id,
+        e.title AS exam_title,
+        ea.student_id,
+        u.name AS student_name,
+        u.email AS student_email,
+        ea.start_time,
+        ea.submit_time,
+        ea.total_score,
+        ea.status
+      FROM exam_attempts ea
+      JOIN exams e ON ea.exam_id = e.id
+      JOIN users u ON ea.student_id = u.id
+      WHERE ${whereClause}
+      ORDER BY ${orderBy}
+      LIMIT ? OFFSET ?
+    `;
+
+    const [rows] = await db.query(querySql, [...params, parsedLimit, offset]);
+
+    return {
+      items: rows,
+      pagination: {
+        page: parsedPage,
+        limit: parsedLimit,
+        total_items: totalItems,
+        total_pages: Math.ceil(totalItems / parsedLimit) || 1
+      }
     };
   }
 };

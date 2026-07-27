@@ -12,6 +12,8 @@ import {
   Save,
   X,
   Filter,
+  ChevronDown,
+  Edit3,
 } from "lucide-react";
 import Navbar from "../../../Components/Navbar";
 import { useParams } from "react-router-dom";
@@ -21,6 +23,7 @@ const GradingPage = () => {
   const { showAlert } = useAlert();
 
   // --- States cho danh sách & bộ lọc ---
+  const [statusFilter, setStatusFilter] = useState("pending");
   const [attempts, setAttempts] = useState([]);
   const [exams, setExams] = useState([]); // Danh sách gốc đề thi
   const [loading, setLoading] = useState(false);
@@ -46,9 +49,10 @@ const GradingPage = () => {
   // Fetch danh sách bài nộp cần chấm
   const fetchPendingAttempts = async () => {
     setLoading(true);
-    console.log(selectedExamId);
     try {
-      const res = await api.get("/grading/pending", {
+      const endpoint =
+        statusFilter === "graded" ? "/grading/graded" : "/grading/pending";
+      const res = await api.get(endpoint, {
         params: {
           page,
           limit,
@@ -68,8 +72,6 @@ const GradingPage = () => {
       setLoading(false);
     }
   };
-
-  // Fetch danh sách tất cả đề thi
   const fetchExams = async () => {
     try {
       const res = await api.get("/exams");
@@ -80,22 +82,48 @@ const GradingPage = () => {
       console.error("Lỗi tải danh sách đề thi", error);
     }
   };
-
   useEffect(() => {
     const getExam = async () => {
-      const exam = await api.get(`/exams/${examId}`);
-      setSelectedExamId(examId);
-      setSearchExamText(exam?.data?.data?.title);
+      try {
+        const exam = await api.get(`/exams/${examId}`);
+        setSelectedExamId(examId);
+        setSearchExamText(exam?.data?.data?.title || "");
+      } catch (err) {
+        console.error("Lỗi lấy thông tin đề thi", err);
+      }
     };
     if (examId) {
       getExam();
     }
     fetchExams();
-  }, []);
+  }, [examId]);
+  const fetchGradedAttempts = async () => {
+    try {
+      const res = await api.get("/grading/graded", {
+        params: {
+          exam_id: selectedExamId,
+          // search: searchText, // Tìm tên học sinh
+          sort: sortBy,
+          page,
+          limit,
+        },
+      });
+
+      if (res.data?.success) {
+        setAttempts(res.data.data);
+        setTotalPages(res.data.pagination?.total_pages || 1);
+      }
+    } catch (error) {
+      console.error(error);
+      showAlert("error", "Thất bại", "Không thể tải danh sách bài cần chấm!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchPendingAttempts();
-  }, [page, selectedExamId, sortBy]);
+  }, [page, selectedExamId, sortBy, statusFilter]);
 
   // Xử lý sự kiện click ngoài khung tìm kiếm để ẩn gợi ý
   useEffect(() => {
@@ -107,6 +135,11 @@ const GradingPage = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  // Thay đổi trạng thái bộ lọc bài (Chưa chấm / Đã chấm)
+  const handleStatusFilterChange = (e) => {
+    setStatusFilter(e.target.value);
+    setPage(1);
+  };
 
   // Xử lý khi gõ tên tìm kiếm đề thi
   const handleSearchChange = (e) => {
@@ -237,16 +270,32 @@ const GradingPage = () => {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-800">
-            Danh sách bài cần chấm
+            Quản lý chấm bài
           </h1>
           <p className="text-slate-500 text-sm">
-            Chấm điểm các bài thi tự luận đang chờ kết quả
+            Chấm điểm các bài thi tự luận và xem lại bài đã chấm
           </p>
         </div>
 
         {/* Bộ lọc (Filter & Sort) */}
         <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4 items-center justify-between">
           <div className="flex flex-wrap items-center gap-4">
+            {/* DROPDOWN LỌC TRẠNG THÁI (Chưa chấm / Đã chấm) */}
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={handleStatusFilterChange}
+                className="appearance-none bg-slate-100 hover:bg-slate-200/80 font-semibold text-slate-700 text-sm py-2 pl-4 pr-10 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
+              >
+                <option value="pending">⏳ Chưa chấm</option>
+                <option value="graded">✅ Đã chấm</option>
+              </select>
+              <ChevronDown
+                size={16}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+              />
+            </div>
+
             {/* Ô tìm kiếm đề thi kèm gợi ý (Autocomplete) */}
             <div className="relative" ref={searchRef}>
               <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2 w-72 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
@@ -315,7 +364,6 @@ const GradingPage = () => {
             </div>
           </div>
         </div>
-
         {/* Danh sách bài làm */}
         {loading ? (
           <div className="text-center py-12 text-slate-500">
@@ -338,9 +386,15 @@ const GradingPage = () => {
                     <span className="font-semibold text-slate-800">
                       {item.exam_title}
                     </span>
-                    <span className="text-xs bg-amber-100 text-amber-700 font-medium px-2 py-0.5 rounded-full">
-                      Chờ chấm
-                    </span>
+                    {statusFilter === "pending" ? (
+                      <span className="text-xs bg-amber-100 text-amber-700 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Clock size={12} /> Chờ chấm
+                      </span>
+                    ) : (
+                      <span className="text-xs bg-emerald-100 text-emerald-700 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <CheckCircle size={12} /> Đã chấm
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-4 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
@@ -349,17 +403,35 @@ const GradingPage = () => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock size={14} /> Nộp lúc:{" "}
-                      {new Date(item.submit_time).toLocaleString("vi-VN")}
+                      {item.submit_time
+                        ? new Date(item.submit_time).toLocaleString("vi-VN")
+                        : "-"}
                     </span>
-                    <span>
-                      Bắt đầu:{" "}
-                      {new Date(item.start_time).toLocaleString("vi-VN")}
-                    </span>
+                    {statusFilter === "graded" &&
+                      item.total_score !== undefined && (
+                        <span className="font-bold text-blue-600">
+                          Điểm: {Number(item.total_score).toFixed(2)}
+                        </span>
+                      )}
                   </div>
                 </div>
 
-                <button className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-medium text-sm hover:bg-blue-100">
-                  <FileText size={16} /> Chấm bài
+                <button
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium text-sm transition ${
+                    statusFilter === "pending"
+                      ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                  }`}
+                >
+                  {statusFilter === "pending" ? (
+                    <>
+                      <FileText size={16} /> Chấm bài
+                    </>
+                  ) : (
+                    <>
+                      <Edit3 size={16} /> Sửa điểm
+                    </>
+                  )}
                 </button>
               </div>
             ))}
@@ -466,6 +538,7 @@ const GradingPage = () => {
                                   ans.answer_id,
                                   "score",
                                   e.target.value,
+                                  ans.max_score,
                                 )
                               }
                               className="w-full border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -485,6 +558,7 @@ const GradingPage = () => {
                                   ans.answer_id,
                                   "comment",
                                   e.target.value,
+                                  ans.max_score,
                                 )
                               }
                               className="w-full border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -516,7 +590,11 @@ const GradingPage = () => {
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
                 >
                   <Save size={16} />
-                  {submitting ? "Đang lưu..." : "Hoàn tất chấm bài"}
+                  {submitting
+                    ? "Đang lưu..."
+                    : statusFilter === "pending"
+                      ? "Hoàn tất chấm bài"
+                      : "Cập nhật điểm"}
                 </button>
               </div>
             </div>
