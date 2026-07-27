@@ -71,7 +71,6 @@ const UserModel = {
       `,
       [token]
     );
-console.log(token,rows);
 return rows[0];
   },
   deleteResetToken: async (token) => {
