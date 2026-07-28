@@ -62,9 +62,6 @@ const BrowseCourses = () => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchCoursesData(searchTerm, page);
-  // }, [page, searchTerm]);
   useEffect(() => {
     fetchCoursesData(debouncedSearch, page);
   }, [page, debouncedSearch]);
