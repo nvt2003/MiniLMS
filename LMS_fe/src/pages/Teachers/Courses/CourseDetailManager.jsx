@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { BookOpen, ClipboardList } from "lucide-react";
 import api from "../../../services/api";
 import Navbar from "../../../Components/Navbar";
 import useAlert from "../../../Components/Alert/useAlert";
 import ImageModal from "../../../Components/ImageModal";
 
 const CourseDetailManager = () => {
-  const { id } = useParams(); // Lấy courseId từ URL của trang chi tiết khóa học
+  const { id } = useParams();
   const navigate = useNavigate();
   const { showAlert, confirm } = useAlert();
 
@@ -14,6 +15,7 @@ const CourseDetailManager = () => {
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("lessons");
 
   // 1. Hàm tải toàn bộ thông tin khóa học và danh sách bài học
   const fetchCourseDetail = async () => {
@@ -40,11 +42,6 @@ const CourseDetailManager = () => {
     fetchCourseDetail();
   }, [id]);
   const handleDeleteCourse = async (courseId, courseTitle) => {
-    // const confirmDelete = window.confirm(
-    //   `Bạn có chắc chắn muốn xóa khóa học "${courseTitle}" không? Hành động này không thể hoàn tác!`,
-    // );
-    // if (!confirmDelete) return;
-
     try {
       confirm(
         "Xoá khóa học",
@@ -101,9 +98,8 @@ const CourseDetailManager = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-10">
+      <Navbar />
       <div className="max-w-5xl mx-auto">
-        <Navbar />
-
         {/* Thông tin chung của Khóa học */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 mb-8 justify-between">
           <div className="max-w-5xl  flex flex-col md:flex-row gap-8 justify-between items-center">
@@ -147,120 +143,209 @@ const CourseDetailManager = () => {
             </div>
           </div>
         </div>
-
-        {/* Khu vực quản lý bài học */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-6">
-            <div>
-              <h2 className="text-xl font-bold text-slate-800">
-                Danh sách bài giảng
-              </h2>
-
-              <p className="text-xs text-slate-400 mt-0.5">
-                Tổng số: {lessons.length} bài học
-              </p>
-            </div>
-
-            {/* NÚT THÊM BÀI HỌC MỚI */}
+        <div className="max-w-3xl mx-auto mt-10 px-6">
+          <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 p-1 mb-6">
             <button
-              onClick={() => navigate(`/teacher/course/${id}/add-lesson`)}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition shadow-sm flex items-center justify-center gap-2"
+              onClick={() => setActiveTab("lessons")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all duration-200 ${
+                activeTab === "lessons"
+                  ? "bg-blue-600 text-white shadow"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
             >
-              <span className="text-lg leading-none">+</span> Thêm bài học mới
+              <BookOpen size={18} />
+              <span className="font-medium">
+                Bài học ({course?.lessons?.length || 0})
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("exams")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all duration-200 ${
+                activeTab === "exams"
+                  ? "bg-blue-600 text-white shadow"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <ClipboardList size={18} />
+              <span className="font-medium">
+                Bài kiểm tra ({course?.exams?.length || 0})
+              </span>
             </button>
           </div>
+        </div>
+        {activeTab === "lessons" ? (
+          <>
+            {/* Khu vực quản lý bài học */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">
+                    Danh sách bài giảng
+                  </h2>
 
-          {/* Danh sách các bài giảng lặp qua map */}
-          {lessons.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-slate-100 rounded-2xl">
-              <p className="text-slate-400 text-sm mb-2">
-                Khóa học này chưa có nội dung bài giảng nào.
-              </p>
-              <p className="text-xs text-slate-400">
-                Hãy nhấn "Thêm bài học mới" để tải lên video đầu tiên.
-              </p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Tổng số: {lessons.length} bài học
+                  </p>
+                </div>
+
+                {/* NÚT THÊM BÀI HỌC MỚI */}
+                <button
+                  onClick={() => navigate(`/teacher/course/${id}/add-lesson`)}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition shadow-sm flex items-center justify-center gap-2"
+                >
+                  <span className="text-lg leading-none">+</span> Thêm bài học
+                  mới
+                </button>
+              </div>
+              {/* Danh sách các bài giảng lặp qua map */}
+              {lessons.length === 0 ? (
+                <div className="text-center py-12 border-2 border-dashed border-slate-100 rounded-2xl">
+                  <p className="text-slate-400 text-sm mb-2">
+                    Khóa học này chưa có nội dung bài giảng nào.
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    Hãy nhấn "Thêm bài học mới" để tải lên bài đầu tiên.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {[...lessons]
+                    .sort((a, b) => a.position - b.position)
+                    .map((lesson, index) => (
+                      <div
+                        key={lesson.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-100 transition gap-4"
+                      >
+                        {/* Thông tin bài học */}
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          {/* Thumbnail */}
+                          <div className="relative w-24 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
+                            <ImageModal
+                              src={
+                                lesson.thumbnail_url ||
+                                "https://placehold.co/320x180?text=No+Image"
+                              }
+                              alt={lesson.title}
+                              className="w-full h-full object-cover"
+                            />
+
+                            {/* Badge số thứ tự */}
+                            <div className="absolute top-1 left-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
+                              {lesson.position || index + 1}
+                            </div>
+                          </div>
+
+                          {/* Nội dung */}
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-bold text-slate-700 text-base truncate mb-1">
+                              {lesson.title}
+                            </h3>
+
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                              {lesson.video_url ? (
+                                <span className="text-emerald-600 font-medium flex items-center gap-1">
+                                  ● Đã có video bài giảng
+                                </span>
+                              ) : (
+                                <span className="text-amber-500 font-medium">
+                                  ○ Chưa đính kèm video
+                                </span>
+                              )}
+
+                              {lesson.content && (
+                                <span className="list-item list-inside">
+                                  Có tài liệu đính kèm
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* CỤM NÚT SỬA VÀ XÓA BÀI HỌC */}
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          {/* NÚT SỬA BÀI HỌC */}
+                          <button
+                            onClick={() =>
+                              navigate(`/teacher/edit-lesson/${lesson.id}`)
+                            }
+                            className="px-3.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
+                          >
+                            Chỉnh sửa
+                          </button>
+
+                          {/* NÚT XÓA BÀI HỌC */}
+                          <button
+                            onClick={() =>
+                              handleDeleteLesson(lesson.id, lesson.title)
+                            }
+                            className="px-3.5 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"
+                          >
+                            Xóa bỏ
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="space-y-4">
-              {[...lessons]
-                .sort((a, b) => a.position - b.position)
-                .map((lesson, index) => (
-                  <div
-                    key={lesson.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-100 transition gap-4"
-                  >
-                    {/* Thông tin bài học */}
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
-                      {/* Thumbnail */}
-                      <div className="relative w-24 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
-                        <ImageModal
-                          src={
-                            lesson.thumbnail_url ||
-                            "https://placehold.co/320x180?text=No+Image"
-                          }
-                          alt={lesson.title}
-                          className="w-full h-full object-cover"
-                        />
+          </>
+        ) : (
+          <>
+            {course?.exams?.length === 0 ? (
+              <p className="p-6 text-center text-slate-400">
+                Chưa có bài kiểm tra.
+              </p>
+            ) : (
+              course.exams.map((exam) => (
+                <div
+                  key={exam.id}
+                  className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition group"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-700 group-hover:text-blue-600">
+                      {exam.title}
+                    </h3>
 
-                        {/* Badge số thứ tự */}
-                        <div className="absolute top-1 left-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
-                          {lesson.position || index + 1}
-                        </div>
-                      </div>
+                    <p className="text-sm text-slate-500 mt-1">
+                      {exam.description}
+                    </p>
 
-                      {/* Nội dung */}
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-slate-700 text-base truncate mb-1">
-                          {lesson.title}
-                        </h3>
+                    <div className="flex gap-3 mt-2 text-xs text-slate-400">
+                      <span>
+                        {exam.type === "practice" ? "Luyện tập" : "Kiểm tra"}
+                      </span>
 
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                          {lesson.video_url ? (
-                            <span className="text-emerald-600 font-medium flex items-center gap-1">
-                              ● Đã có video bài giảng
-                            </span>
-                          ) : (
-                            <span className="text-amber-500 font-medium">
-                              ○ Chưa đính kèm video
-                            </span>
-                          )}
+                      <span>
+                        ⏱{" "}
+                        {exam.duration_minutes === 0
+                          ? "Không giới hạn"
+                          : `${exam.duration_minutes} phút`}
+                      </span>
 
-                          {lesson.content && (
-                            <span className="list-item list-inside">
-                              Có tài liệu đính kèm
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* CỤM NÚT SỬA VÀ XÓA BÀI HỌC */}
-                    <div className="flex items-center gap-2 self-end sm:self-center">
-                      {/* NÚT SỬA BÀI HỌC */}
-                      <button
-                        onClick={() =>
-                          navigate(`/teacher/edit-lesson/${lesson.id}`)
-                        }
-                        className="px-3.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
-                      >
-                        Chỉnh sửa
-                      </button>
-
-                      {/* NÚT XÓA BÀI HỌC */}
-                      <button
-                        onClick={() =>
-                          handleDeleteLesson(lesson.id, lesson.title)
-                        }
-                        className="px-3.5 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"
-                      >
-                        Xóa bỏ
-                      </button>
+                      <span>
+                        {exam.grading_method === "auto"
+                          ? "Chấm tự động"
+                          : "Chấm thủ công"}
+                      </span>
                     </div>
                   </div>
-                ))}
-            </div>
-          )}
-        </div>
+
+                  <div className="flex flex-col text-blue-500 text-sm font-medium">
+                    <div
+                      onClick={() => navigate(`/teacher/grading/${exam.id}`)}
+                    >
+                      {exam.grading_method !== "auto" ? "Chấm bài →" : ""}
+                    </div>
+                    <div onClick={() => navigate(`/teacher/score/${exam.id}`)}>
+                      Xem điểm
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </>
+        )}
       </div>
     </div>
   );

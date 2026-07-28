@@ -114,6 +114,12 @@ const Navbar = () => {
               >
                 Chấm bài
               </Link>
+              <Link
+                to="/teacher/score"
+                className="hover:text-blue-600 transition"
+              >
+                Xem điểm
+              </Link>
             </>
           )}
           {userRole === "student" && (

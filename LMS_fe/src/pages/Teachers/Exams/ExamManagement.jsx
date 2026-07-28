@@ -20,6 +20,7 @@ import ExamActionButtons from "./ExamActionButtons";
 import Navbar from "../../../Components/Navbar";
 import api from "../../../services/api";
 import useAlert from "../../../Components/Alert/useAlert";
+import useDebounce from "../../../hooks/useDebounce";
 
 const ExamManagement = () => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const ExamManagement = () => {
     is_public: "",
     course_id: "",
   });
+  const debouncedFilters = useDebounce(filters, 500);
 
   // Gọi API lấy danh sách đề thi
   const fetchExams = async (page = 1) => {
@@ -67,7 +69,7 @@ const ExamManagement = () => {
 
   useEffect(() => {
     fetchExams(pagination.page);
-  }, [pagination.page]);
+  }, [pagination.page, debouncedFilters]);
 
   const handleFilterSubmit = (e) => {
     e.preventDefault();

@@ -64,13 +64,14 @@ const UserModel = {
   },
   getResetToken: async (token) => {
     const [rows] = await db.query(
-      `SELECT *
-       FROM password_resets
-       WHERE token = ?`,
+      `
+      SELECT *
+      FROM password_resets
+      WHERE token = ?
+      `,
       [token]
     );
-
-    return rows[0];
+return rows[0];
   },
   deleteResetToken: async (token) => {
     await db.query(

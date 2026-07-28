@@ -26,6 +26,7 @@ import api from "../../../services/api";
 import QuestionDetailModal from "./../Questions/QuestionDetailModal";
 import QuestionFormModal from "./../Questions/QuestionFormModal";
 import Navbar from "../../../Components/Navbar";
+import useDebounce from "../../../hooks/useDebounce";
 
 export default function ExamFormPage({ showAlert }) {
   const { id } = useParamsRoute();
@@ -62,6 +63,7 @@ export default function ExamFormPage({ showAlert }) {
   const [questionType, setQuestionType] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const debouncedSearch = useDebounce(search, 500);
 
   // 3. State Modals
   const [detailModalId, setDetailModalId] = useState(null);
@@ -100,18 +102,11 @@ export default function ExamFormPage({ showAlert }) {
     setSelectedCourse(course);
     setExamData((prev) => ({ ...prev, course_id: course.id }));
     setIsCourseModalOpen(false);
-    if (showAlert)
-      showAlert(
-        "success",
-        "Thành công",
-        `Đã gán vào khóa học: ${course.title}`,
-      );
   };
   const handleRemoveCourse = () => {
     setSelectedCourse(null);
     setExamData((prev) => ({ ...prev, course_id: null }));
   };
-
   // --- API FETCHES ---
 
   // Lấy chi tiết đề thi nếu đang ở chế độ Chỉnh sửa
@@ -184,7 +179,7 @@ export default function ExamFormPage({ showAlert }) {
 
   useEffect(() => {
     fetchQuestions();
-  }, [search, questionType, currentPage]);
+  }, [debouncedSearch, questionType, currentPage]);
 
   const handleSelectQuestion = (q) => {
     const targetId = q.question_id || q.id;
@@ -446,7 +441,7 @@ export default function ExamFormPage({ showAlert }) {
                     <div className="flex items-center gap-2 min-w-0">
                       <BookOpen size={16} className="text-blue-600 shrink-0" />
                       <span className="text-xs font-semibold text-blue-900 truncate">
-                        {selectedCourse.course_title}
+                        {selectedCourse.title}
                       </span>
                     </div>
                     <button
@@ -464,7 +459,8 @@ export default function ExamFormPage({ showAlert }) {
                     onClick={handleOpenCourseModal}
                     className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-dashed border-slate-300 transition"
                   >
-                    <BookOpen size={15} /> Chọn khóa học gán vào
+                    <BookOpen size={15} />
+                    Chọn khóa học gán vào
                   </button>
                 )}
               </div>

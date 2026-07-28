@@ -80,10 +80,10 @@ const GradingController = {
       const { courseId, examId } = req.params;
 
       // Lấy điểm trung bình lớp
-      const stats = await ClassModel.getClassExamStats(courseId, examId);
+      const stats = await GradingModel.getClassExamStats(courseId, examId);
 
       // Lấy danh sách học sinh và điểm số
-      const students = await ClassModel.getStudentScoresByExam(courseId, examId);
+      const students = await GradingModel.getStudentScoresByExam(courseId, examId);
 
       res.json({
         success: true,
@@ -114,6 +114,32 @@ const GradingController = {
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, message: "Lỗi server" });
+    }
+  },
+  getGradedList: async (req, res) => {
+    try {
+      const teacherId = req.user.id; // Lấy ID giáo viên từ token
+      const { page, limit, exam_id, search, sort } = req.query;
+
+      const result = await GradingModel.getGradedList(teacherId, {
+        page,
+        limit,
+        exam_id,
+        search,
+        sort
+      });
+
+      res.json({
+        success: true,
+        data: result.items,
+        pagination: result.pagination
+      });
+    } catch (err) {
+      console.error("Lỗi lấy danh sách bài đã chấm:", err);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+      });
     }
   }
 
