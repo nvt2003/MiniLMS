@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Navbar from "../../../Components/Navbar";
 import { useParams } from "react-router-dom";
+import useDebounce from "../../../hooks/useDebounce";
 
 const GradingPage = () => {
   const { examId } = useParams();
@@ -25,12 +26,13 @@ const GradingPage = () => {
   // --- States cho danh sách & bộ lọc ---
   const [statusFilter, setStatusFilter] = useState("pending");
   const [attempts, setAttempts] = useState([]);
-  const [exams, setExams] = useState([]); // Danh sách gốc đề thi
+  const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Filter & Pagination States
   const [selectedExamId, setSelectedExamId] = useState("");
   const [searchExamText, setSearchExamText] = useState("");
+  const debouncedSearch = useDebounce(selectedExamId, 500);
   const [filteredExams, setFilteredExams] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
@@ -123,7 +125,7 @@ const GradingPage = () => {
 
   useEffect(() => {
     fetchPendingAttempts();
-  }, [page, selectedExamId, sortBy, statusFilter]);
+  }, [page, debouncedSearch, sortBy, statusFilter]);
 
   // Xử lý sự kiện click ngoài khung tìm kiếm để ẩn gợi ý
   useEffect(() => {
