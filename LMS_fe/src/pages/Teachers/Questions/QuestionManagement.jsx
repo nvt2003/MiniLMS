@@ -16,12 +16,14 @@ import QuestionDetailModal from "./QuestionDetailModal";
 import useAlert from "../../../Components/Alert/useAlert";
 import { data } from "react-router-dom";
 import Navbar from "../../../Components/Navbar";
+import useDebounce from "../../../hooks/useDebounce";
 
 export default function QuestionManagement() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [questionType, setQuestionType] = useState("");
+  const debouncedSearch = useDebounce(search);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedQuestionId, setSelectedQuestionId] = useState(null);
@@ -64,7 +66,7 @@ export default function QuestionManagement() {
 
   useEffect(() => {
     fetchQuestions();
-  }, [currentPage, search, questionType]);
+  }, [currentPage, debouncedSearch, questionType]);
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     setCurrentPage(1);
