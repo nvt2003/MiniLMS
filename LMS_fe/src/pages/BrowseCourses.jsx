@@ -1,10 +1,11 @@
 // src/pages/BrowseCourses.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
-import Navbar from "../Components/Navbar";
-import useAlert from "../Components/Alert/useAlert";
-import ImageModal from "../Components/ImageModal";
+import api from "../../services/api";
+import Navbar from "../../Components/Navbar";
+import useAlert from "../../Components/Alert/useAlert";
+import ImageModal from "../../Components/ImageModal";
+import useDebounce from "../../hooks/useDebounce";
 
 const BrowseCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -15,8 +16,9 @@ const BrowseCourses = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [submittingId, setSubmittingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(9);
   const [totalPages, setTotalPages] = useState(1);
   const { showAlert } = useAlert();
 
@@ -60,16 +62,21 @@ const BrowseCourses = () => {
     }
   };
 
-  // Chạy lần đầu tiên khi vào trang
+  // useEffect(() => {
+  //   fetchCoursesData(searchTerm, page);
+  // }, [page, searchTerm]);
   useEffect(() => {
-    fetchCoursesData(searchTerm, page);
-  }, [page, searchTerm]);
+    fetchCoursesData(debouncedSearch, page);
+  }, [page, debouncedSearch]);
 
+  // 4. (Nâng cao - Nên có): Khi người dùng gõ từ khóa mới, reset về trang 1
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
   // Xử lý khi nhấn nút Tìm kiếm hoặc nhấn Enter
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    setPage(1);
   };
 
   const handleEnroll = async (courseId) => {
@@ -100,11 +107,13 @@ const BrowseCourses = () => {
       setSubmittingId(null);
     }
   };
-
   if (loading && courses.length === 0)
     return (
-      <div className="flex h-screen items-center justify-center text-slate-500">
-        Đang tải dữ liệu...
+      <div>
+        <Navbar />
+        <div className="flex h-screen items-center justify-center text-slate-500">
+          Đang tải dữ liệu...
+        </div>
       </div>
     );
 
@@ -190,6 +199,9 @@ const BrowseCourses = () => {
                         >
                           {course.title}
                         </h4>
+                        <p className="text-slate-400">
+                          {course.instructorName}
+                        </p>
                         <p className="text-slate-500 text-sm line-clamp-2 mb-6">
                           {course.description || "Chưa có mô tả."}
                         </p>

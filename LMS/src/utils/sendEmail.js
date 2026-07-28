@@ -1,12 +1,25 @@
 const nodemailer = require('nodemailer');
 const FRONT_END = process.env.FRONT_END;
 
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: process.env.EMAIL_USER, 
+//     pass: process.env.EMAIL_PASS  
+//   }
+// });
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  family: 4,
   auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS  
-  }
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS.replace(/\s+/g, ""),
+  },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 const sendNewLessonEmail = async (email, courseTitle, lessonTitle, courseId) => {
@@ -35,27 +48,65 @@ const sendNewLessonEmail = async (email, courseTitle, lessonTitle, courseId) => 
 };
 
   
-const sendForgotPwdEmail = async (email, token) => {
-  const mailOptions = {
-    from: `"Hệ thống LMS" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: `Thay đổi mật khẩu`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
-        <h2 style="color: #2563eb;">Có bài học mới xuất hiện!</h2>
-        <p>Chào bạn,</p>
-        <p>Vào trang bằng link sau để đổi mật khẩu</p>
-        <div style="margin: 30px 0; text-align: center;">
-          <a href="${FRONT_END}/reset-pwd/${token}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px;">Vào Học Ngay</a>
-        </div>
-      </div>
-    `
-  };
+// const sendForgotPwdEmail = async (email, token) => {
+  
+//   const mailOptions = {
+//     from: `"Hệ thống LMS" <${process.env.EMAIL_USER}>`,
+//     to: email,
+//     subject: `Thay đổi mật khẩu`,
+//     html: `
+//       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
+//         <h2 style="color: #2563eb;">Có bài học mới xuất hiện!</h2>
+//         <p>Chào bạn,</p>
+//         <p>Vào trang bằng link sau để đổi mật khẩu</p>
+//         <div style="margin: 30px 0; text-align: center;">
+//           <a href="${FRONT_END}/reset-pwd/${token}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px;">Vào Học Ngay</a>
+//         </div>
+//       </div>
+//     `
+//   };
 
+//   try {
+//     await transporter.sendMail(mailOptions);
+//   } catch (error) {
+//     console.error(`Lỗi gửi email đến ${email}:`, error);
+//   }
+// };
+const sendForgotPwdEmail = async (email, token) => {
   try {
-    await transporter.sendMail(mailOptions);
+    console.log("Before verify");
+
+    await transporter.verify();
+
+    console.log("After verify");
+
+    const mailOptions = {
+      from: `"Hệ thống LMS" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Thay đổi mật khẩu",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0;">
+          <h2 style="color: #2563eb;">Thay đổi mật khẩu</h2>
+          <p>Chào bạn,</p>
+          <p>Vào trang bằng link sau để đổi mật khẩu</p>
+          <div style="margin: 30px 0; text-align: center;">
+            <a href="${FRONT_END}/reset-pwd/${token}">
+              Vào Học Ngay
+            </a>
+          </div>
+        </div>
+      `
+    };
+
+    console.log("Before sendMail");
+
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("After sendMail");
+    console.log(info);
+
   } catch (error) {
-    console.error(`Lỗi gửi email đến ${email}:`, error);
+    console.error("Email error:", error);
   }
 };
 

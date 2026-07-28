@@ -1,23 +1,26 @@
 import { useState } from "react";
 import api from "../../services/api";
+import useAlert from "../../Components/Alert/useAlert";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
 
+  const { showAlert } = useAlert();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email.trim()) {
-      alert("Vui lòng nhập email.");
+      showAlert("error", "", "Vui lòng nhập email.");
       return;
     }
 
     try {
       setLoading(true);
 
-      const res = await api.post("/auth/forgot-password", {
+      const res = await api.post("/auth/forgot-pwd", {
         email,
       });
 
@@ -28,7 +31,11 @@ const ForgotPassword = () => {
 
       setEmail("");
     } catch (err) {
-      alert(err.response?.data?.message || "Có lỗi xảy ra.");
+      showAlert(
+        "error",
+        "Lỗi",
+        err.response?.data?.message || "Có lỗi xảy ra.",
+      );
     } finally {
       setLoading(false);
     }

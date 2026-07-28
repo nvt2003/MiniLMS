@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../services/api";
-import Navbar from "../Components/Navbar";
-import useAlert from "../Components/Alert/useAlert";
-import ImageModal from "../Components/ImageModal";
+import api from "../../services/api";
+import Navbar from "../../Components/Navbar";
+import useAlert from "../../Components/Alert/useAlert";
+import ImageModal from "../../Components/ImageModal";
 
 const Dashboard = () => {
   const [courses, setCourses] = useState([]);

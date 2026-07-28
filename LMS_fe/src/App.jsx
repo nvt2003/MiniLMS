@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Users/Login";
 import Register from "./pages/Users/Register";
-import CreateCourse from "./pages/Teachers/CreateCourse";
-import Dashboard from "./pages/Dashboard";
-import EditCourse from "./pages/Teachers/EditCourse";
-import BrowseCourses from "./pages/BrowseCourses";
+import CreateCourse from "./pages/Teachers/Courses/CreateCourse";
+import Dashboard from "./pages/Courses/dashboard";
+import EditCourse from "./pages/Teachers/Courses/EditCourse";
+import BrowseCourses from "./pages/Courses/BrowseCourses";
 import CourseLanding from "./pages/Students/CourseLanding";
 import LearningSpace from "./pages/Students/LearningSpace";
 import CourseDetailManager from "./pages/Teachers/CourseDetailManager";
@@ -16,6 +16,15 @@ import ForgotPassword from "./pages/Users/ForgotPassword";
 import ResetPassword from "./pages/Users/ResetPassword";
 import NotFound from "./pages/NotFound";
 import ViewCourse from "./pages/Courses/CourseView";
+import QuestionManagement from "./pages/Teachers/Questions/QuestionManagement";
+import ExamManagement from "./pages/Teachers/Exams/ExamManagement";
+import ExamDetailPage from "./pages/Teachers/Exams/ExamDetailPage";
+import ExamFormPage from "./pages/Teachers/Exams/ExamFormPage";
+import ExamTakingPage from "./pages/Students/ExamTakingPage";
+import ExamResultPage from "./pages/Students/ExamResultPage";
+import PracticeTakingPage from "./pages/Students/PracticeTakingPage";
+import GradingPage from "./pages/Teachers/Exams/GradingPage";
+import ExamGradebookPage from "./pages/Teachers/Exams/ExamGradebookPage";
 
 function App() {
   return (
@@ -47,9 +56,28 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/change-pwd" element={<ChangePassword />} />
         <Route path="/forgot-pwd" element={<ForgotPassword />} />
-        <Route path="/reset-pwd" element={<ResetPassword />} />
+        <Route path="/reset-pwd/:token" element={<ResetPassword />} />
 
         <Route path="/view-course/:id" element={<ViewCourse />} />
+
+        <Route path="/teacher/questions" element={<QuestionManagement />} />
+
+        <Route path="/teacher/exams" element={<ExamManagement />} />
+        <Route path="/teacher/exams/:id" element={<ExamDetailPage />} />
+        <Route path="/teacher/modify-exams" element={<ExamFormPage />} />
+        <Route path="/teacher/modify-exams/:id" element={<ExamFormPage />} />
+        <Route path="/student/exams/:examId/" element={<ExamTakingPage />} />
+        <Route
+          path="/student/exams/result/:attemptId/"
+          element={<ExamResultPage />}
+        />
+        <Route path="/student/exams/result/" element={<ExamResultPage />} />
+        <Route
+          path="/student/practice/:examId"
+          element={<PracticeTakingPage />}
+        />
+        <Route path="/teacher/grading/:examId?" element={<GradingPage />} />
+        <Route path="/teacher/score/:examId?" element={<ExamGradebookPage />} />
       </Routes>
     </BrowserRouter>
   );
