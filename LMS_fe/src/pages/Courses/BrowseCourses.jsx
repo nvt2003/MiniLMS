@@ -18,7 +18,7 @@ const BrowseCourses = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(9);
   const [totalPages, setTotalPages] = useState(1);
   const { showAlert } = useAlert();
 

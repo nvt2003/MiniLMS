@@ -190,7 +190,6 @@ const CourseModel = {
       countParams.push(teacherId);
     }
 
-    // Bổ sung ORDER BY bị thiếu từ code cũ
     query += ` ORDER BY c.created_at DESC LIMIT ? OFFSET ?`;
     params.push(limitNum, offset);
 
@@ -222,7 +221,6 @@ const CourseModel = {
     params.push(teacherId);
   }
 
-  // Bổ sung ORDER BY mặc định trước khi score
   query += ` ORDER BY c.created_at DESC`;
 
   const [courses] = await db.query(query, params);
