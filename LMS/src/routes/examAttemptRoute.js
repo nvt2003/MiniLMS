@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const ExamAttemptController = require('../controllers/ExamAttemptController');
-const { verifyToken,restrictTo } = require('../middlewares/authMiddleware'); // Giả định middleware verifyToken của bạn
+const ExamAttemptController = require('../controllers/examAttemptController');
+const { verifyToken,restrictTo } = require('../middlewares/authMiddleware');
 
 // API Bắt đầu làm bài
 router.post('/:examId/start', verifyToken, restrictTo("student"), ExamAttemptController.startExam);

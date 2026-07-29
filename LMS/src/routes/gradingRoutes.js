@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const GradingController = require('../controllers/GradingController');
+const GradingController = require('../controllers/gradingController');
 const { verifyToken,restrictTo } = require('../middlewares/authMiddleware');
 
 router.get('/pending', verifyToken, restrictTo('teacher'), GradingController.getPendingGradingList);

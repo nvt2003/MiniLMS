@@ -1,4 +1,4 @@
-const ExamModel = require('../models/ExamModel');
+const ExamModel = require('../models/examModel');
 
 const ExamController = {
   getTeacherExams: async (req, res) => {

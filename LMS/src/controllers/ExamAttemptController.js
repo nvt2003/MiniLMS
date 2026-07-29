@@ -1,4 +1,4 @@
-const ExamAttemptModel = require('../models/ExamAttemptModel');
+const ExamAttemptModel = require('../models/examAttemptModel');
 
 const ExamAttemptController = {
   startExam: async (req, res) => {

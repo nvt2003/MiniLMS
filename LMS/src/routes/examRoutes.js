@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const ExamController = require('../controllers/ExamController');
+const ExamController = require('../controllers/examController');
 const {verifyToken, restrictTo} = require('../middlewares/authMiddleware');
 
 router.get('/', verifyToken, ExamController.getTeacherExams);

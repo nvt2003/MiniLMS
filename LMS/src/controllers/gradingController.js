@@ -1,4 +1,4 @@
-const GradingModel = require('../models/GradingModel');
+const GradingModel = require('../models/gradingModel');
 
 const GradingController = {
   getPendingGradingList: async (req, res) => {
