@@ -25,13 +25,15 @@ import ExamResultPage from "./pages/Students/ExamResultPage";
 import PracticeTakingPage from "./pages/Students/PracticeTakingPage";
 import GradingPage from "./pages/Teachers/Exams/GradingPage";
 import ExamGradebookPage from "./pages/Teachers/Exams/ExamGradebookPage";
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="*" element={<NotFound />} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
