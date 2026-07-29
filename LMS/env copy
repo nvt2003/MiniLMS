@@ -29,3 +29,10 @@ JWT_EXPIRES_IN=7d
 CLOUDINARY_CLOUD_NAME=dien_cloud_name_vao_day
 CLOUDINARY_API_KEY=dien_api_key_vao_day
 CLOUDINARY_API_SECRET=dien_api_secret_vao_day
+#=============
+FRONT_END= URL_FRONT_END
+#=============
+EMAIL_USER=YOUR_EMAIL
+EMAIL_PASS=YOUR_EMAIL_APP_PASSWORD
+#=============
+HF_TOKEN=...
