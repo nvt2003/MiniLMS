@@ -41,5 +41,13 @@ const SettingModel = {
         } finally {
             connection.release();
         }
+    },
+    create: async ({ setting_key, setting_value, setting_group = 'general', description = null }) => {
+        const [result] = await db.query(
+            `INSERT INTO system_settings (setting_key, setting_value, setting_group, description) 
+             VALUES (?, ?, ?, ?)`,
+            [setting_key, setting_value, setting_group, description]
+        );
+        return result.insertId;
     }
 }

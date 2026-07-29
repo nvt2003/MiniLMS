@@ -7,5 +7,6 @@ router.get("/group/:group", SettingController.getSettings);
 router.get("/key/:key", SettingController.getSettingByKey);
 router.put('/key/:key',verifyToken,restrictTo('admin'), SettingController.updateByKey);
 router.put('/group/:group',verifyToken,restrictTo('admin'), SettingController.updateByGroup);
+router.post('/', settingController.createSetting);
 
 module.exports = router;

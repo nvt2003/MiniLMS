@@ -72,6 +72,34 @@ const SettingController = {
                 message: "Không thể lấy cấu hình hệ thống"
             });
         }
+    },
+    createSetting: async (req, res) => {
+        try {
+            const { setting_key, setting_value, setting_group, description } = req.body;
+
+            // Validate đầu vào
+            if (!setting_key || setting_value === undefined) {
+                return res.status(400).json({ message: 'setting_key và setting_value là bắt buộc' });
+            }
+
+            const insertId = await SettingModel.create({
+                setting_key,
+                setting_value,
+                setting_group,
+                description
+            });
+
+            return res.status(201).json({
+                message: 'Thêm setting thành công',
+                data: { id: insertId, setting_key, setting_value, setting_group, description }
+            });
+        } catch (error) {
+            // Xử lý trùng lặp setting_key (Lỗi UNIQUE)
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ message: 'setting_key này đã tồn tại' });
+            }
+            return res.status(500).json({ message: 'Lỗi server', error: error.message });
+        }
     }
 }
 module.exports = SettingController
