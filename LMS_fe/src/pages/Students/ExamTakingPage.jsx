@@ -34,6 +34,10 @@ const ExamTakingPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const timerRef = useRef(null);
 
+  //auto save
+  const [lastSavedTime, setLastSavedTime] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+
   // 1. Khởi tạo bài thi & Load danh sách câu hỏi
   useEffect(() => {
     const initExam = async () => {
@@ -43,26 +47,76 @@ const ExamTakingPage = () => {
         // Bắt đầu / Tiếp tục lượt làm bài
         const startRes = await api.post(`/attemps/${examId}/start`);
         const attemptData = startRes.data.data;
+        if (attemptData.status !== "in_progress") {
+          navigate(`/student/result/${attemptData.id}`, {
+            replace: true,
+          });
+          return;
+        }
         setAttemptId(attemptData.id);
 
-        // Fetch chi tiết bài kiểm tra & danh sách câu hỏi
+        // Tải danh sách câu hỏi của đề thi...
         const examRes = await api.get(`/exams/${examId}/student`);
         const fetchedExam = examRes.data.data;
-        setExam(fetchedExam);
-        setQuestions(fetchedExam.questions || []);
+        const questionList = fetchedExam.questions || [];
 
-        // Tính toán thời gian còn lại (seconds)
+        setExam(fetchedExam);
+        setQuestions(questionList);
+
         if (fetchedExam.duration_minutes && fetchedExam.duration_minutes > 0) {
           const startTime = new Date(attemptData.start_time).getTime();
           const durationMs = fetchedExam.duration_minutes * 60 * 1000;
           const endTime = startTime + durationMs;
           const now = new Date().getTime();
+
+          // Số giây còn lại (đảm bảo không âm)
           const remainingSeconds = Math.max(
             0,
             Math.floor((endTime - now) / 1000),
           );
-
           setTimeLeft(remainingSeconds);
+        }
+        // // Fetch chi tiết bài kiểm tra & danh sách câu hỏi
+        // const examRes = await api.get(`/exams/${examId}/student`);
+        // const fetchedExam = examRes.data.data;
+        // setExam(fetchedExam);
+        // setQuestions(fetchedExam.questions || []);
+
+        // // Tính toán thời gian còn lại (seconds)
+        // if (fetchedExam.duration_minutes && fetchedExam.duration_minutes > 0) {
+        //   const startTime = new Date(attemptData.start_time).getTime();
+        //   const durationMs = fetchedExam.duration_minutes * 60 * 1000;
+        //   const endTime = startTime + durationMs;
+        //   const now = new Date().getTime();
+        //   const remainingSeconds = Math.max(
+        //     0,
+        //     Math.floor((endTime - now) / 1000),
+        //   );
+
+        //   setTimeLeft(remainingSeconds);
+        // }
+
+        //KHÔI PHỤC BẢN NHÁP CŨ NẾU CÓ
+        if (
+          Array.isArray(attemptData.saved_answers) &&
+          attemptData.saved_answers.length > 0
+        ) {
+          console.log(attemptData);
+          const restoredAnswers = {};
+
+          attemptData.saved_answers.forEach((item) => {
+            const rawOpt = item.selected_option_id;
+
+            restoredAnswers[item.question_id] = {
+              selected_option_id: rawOpt ? Number(rawOpt) : null,
+              selected_option_ids: rawOpt
+                ? String(rawOpt).split(",").map(Number)
+                : [],
+              essay_answer: item.essay_answer || "",
+            };
+          });
+
+          setAnswers(restoredAnswers);
         }
       } catch (err) {
         console.error("Lỗi khởi tạo bài thi:", err);
@@ -132,6 +186,69 @@ const ExamTakingPage = () => {
     }
     return false;
   };
+  // Tạo Ref để lưu state answers mới nhất cho setInterval dùng
+  const answersRef = useRef(answers);
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+  const handleAutoSave = async () => {
+    if (!attemptId) return;
+
+    try {
+      setIsSaving(true);
+      const currentAnswers = answersRef.current;
+      // Format dữ liệu gửi lên
+      const formattedAnswers = Object.keys(currentAnswers).map((qId) => {
+        const ans = currentAnswers[qId] || {};
+        const hasMultiple = Array.isArray(ans.selected_option_ids);
+        return {
+          question_id: Number(qId),
+          selected_option_id: ans.selected_option_id
+            ? Number(ans.selected_option_id)
+            : null,
+          selected_option_ids:
+            hasMultiple && !ans.selected_option_id
+              ? ans.selected_option_ids.map(Number)
+              : [],
+          essay_answer: ans.essay_answer || null,
+        };
+      });
+
+      if (formattedAnswers.length === 0) {
+        setIsSaving(false);
+        return;
+      }
+
+      await api.post("/attempts/auto-save", {
+        attemptId,
+        answers: formattedAnswers,
+      });
+
+      const now = new Date().toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setLastSavedTime(now);
+      console.log(`[Auto-save] Đã lưu bản nháp lúc ${now}`);
+    } catch (err) {
+      console.error("[Auto-save Error] Không thể tự động lưu:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Tự động chạy Auto-save mỗi 5 phút (300,000ms)
+  useEffect(() => {
+    if (!attemptId) return;
+
+    const FIVE_MINUTES = 5 * 60 * 1000;
+    const intervalId = setInterval(() => {
+      handleAutoSave();
+    }, FIVE_MINUTES);
+
+    // Hủy interval khi component unmount hoặc bài thi kết thúc
+    return () => clearInterval(intervalId);
+  }, [attemptId]);
 
   const submitExam = async () => {
     try {
@@ -272,7 +389,26 @@ const ExamTakingPage = () => {
               <span>{formatTime(timeLeft)}</span>
             </div>
           )}
-
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            {isSaving ? (
+              <span className="text-amber-600 animate-pulse">
+                Đang tự động lưu...
+              </span>
+            ) : lastSavedTime ? (
+              <span className="text-green-600">
+                ✓ Đã tự động lưu lúc {lastSavedTime}
+              </span>
+            ) : (
+              <span>Tự động lưu mỗi 5 phút</span>
+            )}
+          </div>
+          <button
+            onClick={handleAutoSave}
+            disabled={isSaving}
+            className="text-xs text-blue-600 hover:underline"
+          >
+            Lưu bản nháp ngay
+          </button>
           <button
             onClick={() => handleSubmitExam(false)}
             disabled={submitting}
