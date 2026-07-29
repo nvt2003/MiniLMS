@@ -57,7 +57,7 @@ const SettingController = {
     getSettings: async (req, res) => {
         try {
             const {group} = req.params;
-            const settings = await SettingModel.getSettings(group);
+            const settings = await SettingModel.getByGroup(group);
 
             res.json({
                 success: true,

@@ -51,3 +51,4 @@ const SettingModel = {
         return result.insertId;
     }
 }
+module.exports = SettingModel
