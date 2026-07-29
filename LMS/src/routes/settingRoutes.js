@@ -1,8 +1,11 @@
-import express from "express";
-import { getSettings } from "../controllers/setting.controller.js";
-
+const express = require('express');
 const router = express.Router();
+const SettingController = require('../controllers/settingController');
+const { verifyToken,restrictTo } = require('../middlewares/authMiddleware');
 
-router.get("/:group", getSettings);
+router.get("/group/:group", SettingController.getSettings);
+router.get("/key/:key", SettingController.getSettingByKey);
+router.put('/key/:key',verifyToken,restrictTo('admin'), SettingController.updateByKey);
+router.put('/group/:group',verifyToken,restrictTo('admin'), SettingController.updateByGroup);
 
-export default router;
+module.exports = router;
