@@ -26,6 +26,7 @@ import PracticeTakingPage from "./pages/Students/PracticeTakingPage";
 import GradingPage from "./pages/Teachers/Exams/GradingPage";
 import ExamGradebookPage from "./pages/Teachers/Exams/ExamGradebookPage";
 import HomePage from "./pages/HomePage";
+import AdminBuilder from "./pages/Admins/AdminBuilder";
 
 function App() {
   return (
@@ -80,6 +81,7 @@ function App() {
         />
         <Route path="/teacher/grading/:examId?" element={<GradingPage />} />
         <Route path="/teacher/score/:examId?" element={<ExamGradebookPage />} />
+        <Route path="/admin/builder" element={<AdminBuilder />} />
       </Routes>
     </BrowserRouter>
   );

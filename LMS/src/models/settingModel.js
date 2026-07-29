@@ -21,15 +21,18 @@ const SettingModel = {
         return result.affectedRows > 0;
     },
     updateByGroup: async (group, settings) => {
-        // settings dạng object: { "site_name": "LMS V2", "site_logo": "logo.png" }
         const connection = await db.getConnection();
         try {
             await connection.beginTransaction();
 
             for (const [key, value] of Object.entries(settings)) {
                 await connection.query(
-                    `UPDATE system_settings SET setting_value = ? WHERE setting_key = ? AND setting_group = ?`,
-                    [value, key, group]
+                    `INSERT INTO system_settings
+                    (setting_key, setting_value, setting_group)
+                    VALUES (?, ?, ?)
+                    ON DUPLICATE KEY UPDATE
+                    setting_value = VALUES(setting_value)`,
+                    [key, value, group]
                 );
             }
 
@@ -37,6 +40,7 @@ const SettingModel = {
             return true;
         } catch (error) {
             await connection.rollback();
+        console.error("updateByGroup error:", error);
             throw error;
         } finally {
             connection.release();
