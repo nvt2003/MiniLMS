@@ -5,7 +5,7 @@ import { Text } from "../../Components/Crafts/Text";
 import { Toolbox } from "../../Components/Crafts/Toolbox";
 import { SettingsPanel } from "../../Components/Crafts/SettingsPanel";
 import { getPageLayout, savePageLayout } from "../../services/settingApi";
-import { Image } from "../../Components/Crafts/Image";
+import { CustomImage } from "../../Components/Crafts/CustomImage";
 import useAlert from "../../Components/Alert/useAlert";
 
 // Component nút Lưu dữ liệu
@@ -53,7 +53,7 @@ export default function AdminBuilder() {
       resolver={{
         Container,
         Text,
-        Image,
+        CustomImage,
         Element: Container,
         Canvas: Container,
       }}

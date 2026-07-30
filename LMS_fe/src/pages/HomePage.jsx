@@ -103,7 +103,7 @@ import React, { useEffect, useState } from "react";
 import { Editor, Frame } from "@craftjs/core";
 import { Container } from "../Components/Crafts/Container";
 import { Text } from "../Components/Crafts/Text";
-import { Image } from "../Components/Crafts/Image";
+import { CustomImage } from "../Components/Crafts/CustomImage";
 import { getPageLayout } from "../services/settingApi";
 
 export default function HomePage() {
@@ -126,7 +126,7 @@ export default function HomePage() {
       resolver={{
         Container,
         Text,
-        Image,
+        CustomImage,
         Element: Container,
         Canvas: Container,
       }}

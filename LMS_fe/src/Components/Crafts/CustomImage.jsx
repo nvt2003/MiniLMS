@@ -4,12 +4,14 @@ import { useNode } from "@craftjs/core";
 import { uploadImage } from "../../services/imageApi";
 import useAlert from "../Alert/useAlert";
 
-export const Image = ({ src, alt, width, height, objectFit }) => {
+export const CustomImage = ({ src, alt, width, height, objectFit }) => {
   const { showAlert } = useAlert();
   const {
     connectors: { connect, drag },
     actions,
-  } = useNode();
+  } = useNode((node) => ({
+    selected: node.events.selected,
+  }));
   const [isHoveredingFile, setIsHoveredingFile] = useState(false);
   const [uploading, setUploading] = useState(false);
   // Xử lý khi kéo file máy tính đè lên ô
@@ -86,7 +88,7 @@ export const Image = ({ src, alt, width, height, objectFit }) => {
         /* Khung hiển thị mặc định khi chưa có ảnh */
         <div className="w-full h-40 bg-gray-100 border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center p-4 text-center">
           <p className="text-sm font-medium text-gray-600">
-            🖼️ Kéo & thả tệp ảnh vào đây
+            Kéo & thả tệp ảnh vào đây
           </p>
           <p className="text-xs text-gray-400 mt-1">
             hoặc chọn file ở bảng thuộc tính bên phải
@@ -183,6 +185,7 @@ function ImageSettings() {
 }
 
 Image.craft = {
+  displayName: "CustomImage",
   defaultProps: {
     src: "",
     alt: "Uploaded Image",

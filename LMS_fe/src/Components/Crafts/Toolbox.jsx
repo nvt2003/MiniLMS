@@ -2,14 +2,19 @@ import React from "react";
 import { useEditor } from "@craftjs/core";
 import { Text } from "./Text";
 import { Container } from "./Container";
+import { CustomImage } from "./CustomImage";
 
 export const Toolbox = () => {
   const { connectors, actions, query } = useEditor();
-  const addComponentToRoot = (componentTree) => {
-    const rootNode = query.getNodes()["ROOT"];
-    if (rootNode) {
-      const node = query.parseReactElement(componentTree).toNode();
-      actions.add(node, "ROOT");
+  const addComponentToRoot = (reactElement) => {
+    try {
+      // 1. Chuyển React Element thành NodeTree của Craft.js
+      const nodeTree = query.parseReactElement(reactElement).toNodeTree();
+
+      // 2. Thêm NodeTree vào node gốc 'ROOT'
+      actions.addNodeTree(nodeTree, "ROOT");
+    } catch (error) {
+      console.error("Lỗi khi thêm phần tử:", error);
     }
   };
   return (
@@ -59,13 +64,13 @@ export const Toolbox = () => {
       {/* 3. Thẻ Image */}
       <div className="flex gap-1">
         <button
-          ref={(ref) => connectors.create(ref, <Image />)}
+          ref={(ref) => connectors.create(ref, <CustomImage />)}
           className="p-2 bg-white border rounded shadow-sm hover:bg-gray-100 text-left flex items-center gap-2"
         >
           Hình Ảnh
         </button>
         <button
-          onClick={() => addComponentToRoot(<Image />)}
+          onClick={() => addComponentToRoot(<CustomImage />)}
           className="px-2 bg-blue-50 border border-blue-200 text-blue-600 rounded text-xs hover:bg-blue-100"
           title="Bấm để chèn nhanh"
         >
