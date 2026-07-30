@@ -9,7 +9,7 @@ export const Container = ({ background, padding, children }) => {
   return (
     <div
       ref={(ref) => connect(drag(ref))}
-      className={`min-h-[100px] border border-dashed border-gray-300 ${background} ${padding}`}
+      className={`min-h-[100px] border border-dashed border-gray-300 cursor-move transition-all ${background || "bg-white"} ${padding || "p-4"}`}
     >
       {children}
     </div>

@@ -4,21 +4,21 @@ import { Settings, X } from "lucide-react";
 
 export const SettingsPanel = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const { selected } = useEditor((state) => {
+  const { selectedNode } = useEditor((state) => {
     const [currentNodeId] = state.events.selected;
-    let selected;
+    let selectedNode;
 
-    if (currentNodeId) {
-      selected = {
+    if (currentNodeId && state.nodes[currentNodeId]) {
+      const node = state.nodes[currentNodeId];
+      selectedNode = {
         id: currentNodeId,
-        name: state.nodes[currentNodeId].data.name,
-        settings:
-          state.nodes[currentNodeId].related &&
-          state.nodes[currentNodeId].related.settings,
+        name: node.data.name || node.data.displayName,
+        settings: node.related && node.related.settings,
+        isDeletable: node.data.isDeletable,
       };
     }
 
-    return { selected };
+    return { selectedNode };
   });
 
   return (
@@ -42,7 +42,9 @@ export const SettingsPanel = () => {
             <div className="flex items-center gap-2 font-semibold text-sm text-gray-700">
               <Settings className="w-4 h-4 text-blue-600" />
               <span>
-                {selected ? `Chỉnh sửa: ${selected.name}` : "Thành phần"}
+                <span>
+                  {selectedNode ? `Sửa: ${selectedNode.name}` : "Thành phần"}
+                </span>
               </span>
             </div>
 
@@ -58,8 +60,8 @@ export const SettingsPanel = () => {
 
           {/* Nội dung cài đặt */}
           <div className="flex-1 overflow-y-auto p-4">
-            {selected && selected.settings ? (
-              React.createElement(selected.settings)
+            {selectedNode && selectedNode.settings ? (
+              React.createElement(selectedNode.settings)
             ) : (
               <div className="text-center text-xs text-gray-400 mt-10">
                 Click vào một phần tử trên màn hình để tùy chỉnh thuộc tính.
