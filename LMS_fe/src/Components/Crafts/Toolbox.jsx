@@ -13,13 +13,19 @@ export const Toolbox = () => {
         ref={(ref) => connectors.create(ref, <Text text="Đoạn văn mới" />)}
         className="p-2 bg-white border rounded shadow-sm hover:bg-gray-100 text-left"
       >
-        Thẻ Text
+        Văn bản
       </button>
       <button
         ref={(ref) => connectors.create(ref, <Element is={Container} canvas />)}
         className="p-2 bg-white border rounded shadow-sm hover:bg-gray-100 text-left"
       >
         Khung Container
+      </button>
+      <button
+        ref={(ref) => connectors.create(ref, <Image />)}
+        className="p-2 bg-white border rounded shadow-sm hover:bg-gray-100 text-left flex items-center gap-2"
+      >
+        Hình Ảnh
       </button>
     </div>
   );

@@ -5,6 +5,7 @@ import { Text } from "../../Components/Crafts/Text";
 import { Toolbox } from "../../Components/Crafts/Toolbox";
 import { SettingsPanel } from "../../Components/Crafts/SettingsPanel";
 import { savePageLayout } from "../../services/settingApi";
+import { Image } from "../components/user/Image";
 
 // Component nút Lưu dữ liệu
 const SaveButton = () => {
@@ -32,7 +33,7 @@ const SaveButton = () => {
 
 export default function AdminBuilder() {
   return (
-    <Editor resolver={{ Container, Text }}>
+    <Editor resolver={{ Container, Text, Image }}>
       <div className="flex flex-col h-screen">
         {/* Topbar */}
         <div className="h-14 border-b bg-white flex justify-between items-center px-4">

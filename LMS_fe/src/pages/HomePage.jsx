@@ -103,6 +103,7 @@ import React, { useEffect, useState } from "react";
 import { Editor, Frame } from "@craftjs/core";
 import { Container } from "../components/Crafts/Container";
 import { Text } from "../components/Crafts/Text";
+import { Image } from "../components/user/Image";
 import { getPageLayout } from "../services/settingApi";
 
 export default function HomePage() {
@@ -121,7 +122,7 @@ export default function HomePage() {
 
   return (
     // enabled={false} giúp vô hiệu hóa toàn bộ tính năng kéo thả & chỉnh sửa
-    <Editor resolver={{ Container, Text }} enabled={false}>
+    <Editor resolver={{ Container, Text, Image }} enabled={false}>
       <Frame data={jsonConfig} />
     </Editor>
   );
