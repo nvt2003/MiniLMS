@@ -8,10 +8,17 @@ const UserModel = {
   },
 
   // 2. Tạo user mới (Phục vụ Đăng ký)
-  create: async (name, email, hashedPassword, role = 'student') => {
+  // create: async (name, email, hashedPassword, role = 'student') => {
+  //   const [result] = await db.query(
+  //     'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+  //     [name, email, hashedPassword, role]
+  //   );
+  //   return result.insertId;
+  // },
+  create: async (name, email, hashedPassword, role = 'student', status = 'ACTIVE', createdBy = null) => {
     const [result] = await db.query(
-      'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-      [name, email, hashedPassword, role]
+      'INSERT INTO users (name, email, password, role, status, created_by) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, role, status, createdBy]
     );
     return result.insertId;
   },

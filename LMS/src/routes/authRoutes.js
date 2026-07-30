@@ -15,4 +15,6 @@ router.post('/forgot-pwd',AuthController.forgotPassword);
 
 router.put('/reset-pwd',AuthController.resetPassword);
 
+router.post('/register/admin', AuthController.registerAdmin);
+
 module.exports = router;

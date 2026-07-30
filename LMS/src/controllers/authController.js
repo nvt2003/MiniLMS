@@ -228,7 +228,71 @@ const AuthController = {
     res.json({
         message: "Đổi mật khẩu thành công."
     });
-  }
+  },
+  registerAdmin: async (req, res) => {
+    
+    try {
+      const creatorId = req.user?.id;
+      const creatorRole = req.user?.role
+      if (creatorRole !== 'admin') {
+        return res.status(403).json({ 
+          message: 'Truy cập bị từ chối: Chỉ Super Admin mới có quyền tạo tài khoản Admin!' 
+        });
+      }
+      const { name, email, password,role } = req.body;
+      
+      // Kiểm tra xem các trường bắt buộc có bị trống không
+      if (!name || !email || !password) {
+        return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin: name, email, password' });
+      }
+
+      // Kiểm tra định dạng email cơ bản
+      if (!email.includes('@')) {
+        return res.status(400).json({ message: 'Định dạng email không hợp lệ' });
+      }
+
+      // Kiểm tra độ dài mật khẩu
+      if (password.length < 6) {
+        return res.status(400).json({ message: 'Mật khẩu phải chứa ít nhất 6 ký tự' });
+      }
+
+      // Kiểm tra email đã được sử dụng hay chưa
+      const existingUser = await UserModel.findByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email này đã tồn tại trên hệ thống' });
+      }
+      //Xử lý Role cho Admin mới
+      // Danh sách các Sub-Admin hợp lệ trong hệ thống
+      const allowedAdminRoles = ['admin', 'admin_teacher', 'admin_student', 'admin_pages', 'admin_finance'];
+      // Nếu truyền role không hợp lệ -> Mặc định gán là 'admin_teacher' (Tránh vô tình tạo nhầm Super Admin)
+      const targetRole = allowedAdminRoles.includes(role) ? role : 'admin_teacher';
+      // Mã hóa (băm) mật khẩu bảo mật
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      // const newUserId = await UserModel.create(name, email, hashedPassword, 'admin');
+      const newUserId = await UserModel.create({
+            name,
+            email,
+            password: hashedPassword,
+            role: targetRole,
+            status: 'PENDING',//đợi email kích hoạt
+            created_by: creatorId
+          });
+      return res.status(201).json({
+      message: 'Tạo tài khoản Quản trị viên thành công!',
+      data: {
+        userId: newUserId,
+        email: email,
+        role: targetRole,
+        status: 'PENDING',
+        createdBy: creatorId
+      }
+    });
+    } catch (error) {
+      return res.status(500).json({ error: 'Lỗi server: ' + error.message });
+    }
+  },
 };
 
 module.exports = AuthController;
