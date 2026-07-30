@@ -1,14 +1,15 @@
 import React from "react";
 import { useNode, useEditor } from "@craftjs/core";
+import { ColorPickerModal } from "./ColorPickerModal";
 
-export const Text = ({ text, fontSize, color }) => {
+export const Text = ({ text, fontSize, color, background }) => {
   const {
     connectors: { connect, drag },
   } = useNode();
 
   return (
     <div ref={(ref) => connect(drag(ref))}>
-      <p className={`${fontSize} ${color}`}>{text}</p>
+      <p className={`${fontSize} ${color} ${background}`}>{text}</p>
     </div>
   );
 };
@@ -19,6 +20,7 @@ Text.craft = {
     text: "Nhập nội dung ở đây...",
     fontSize: "text-base",
     color: "text-gray-800",
+    background: "bg-white",
   },
   related: {
     // Component hiển thị trong Settings Panel khi click vào chữ này
@@ -32,10 +34,12 @@ function TextSettings() {
     text,
     fontSize,
     color,
+    background,
   } = useNode((node) => ({
     text: node.data.props.text,
     fontSize: node.data.props.fontSize,
     color: node.data.props.color,
+    background: node.data.props.background,
   }));
   const { id } = useNode();
   const { actions: editorActions } = useEditor();
@@ -63,6 +67,28 @@ function TextSettings() {
         <option value="text-base">Vừa</option>
         <option value="text-2xl">Lớn (Heading)</option>
       </select>
+      <div>
+        <label className="font-semibold block mb-1">Màu nền</label>
+        <ColorPickerModal
+          label="Màu nền"
+          value={background}
+          onChange={(colorClass) =>
+            setProp((props) => (props.background = colorClass))
+          }
+        />
+      </div>
+
+      <div>
+        <label className="font-semibold block mb-1">Màu chữ</label>
+        <ColorPickerModal
+          label="Màu chữ"
+          isText={true}
+          onChange={(colorClass) =>
+            setProp((props) => (props.color = colorClass))
+          }
+          value={color}
+        />
+      </div>
       <div className="pt-4 mt-4 border-t">
         <button
           onClick={handleDelete}

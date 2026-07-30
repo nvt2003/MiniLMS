@@ -1,54 +1,34 @@
 import React, { useState } from "react";
 
 // Danh sách màu Tailwind phổ biến
-const PALETTE = [
+const PALETTE_BG = [
   {
-    label: "Trắng / Trong",
-    colors: ["bg-white", "bg-transparent", "bg-black"],
-  },
-  {
-    label: "Xám",
+    label: "Cơ bản",
     colors: [
-      "bg-gray-50",
+      "bg-white",
+      "bg-transparent",
+      "bg-black",
       "bg-gray-100",
-      "bg-gray-200",
-      "bg-gray-400",
-      "bg-gray-600",
       "bg-gray-800",
-      "bg-gray-900",
     ],
   },
   {
-    label: "Đỏ / Cam",
+    label: "Đỏ / Cam / Vàng",
     colors: [
       "bg-red-100",
       "bg-red-500",
-      "bg-red-700",
-      "bg-orange-100",
       "bg-orange-500",
       "bg-amber-100",
-      "bg-amber-500",
+      "bg-yellow-400",
     ],
   },
   {
-    label: "Vàng / Xanh Lá",
+    label: "Xanh Lá / Dương",
     colors: [
-      "bg-yellow-100",
-      "bg-yellow-400",
       "bg-green-100",
       "bg-green-500",
-      "bg-emerald-600",
-      "bg-lime-400",
-    ],
-  },
-  {
-    label: "Xanh Dương",
-    colors: [
-      "bg-blue-50",
-      "bg-blue-200",
+      "bg-blue-100",
       "bg-blue-500",
-      "bg-blue-700",
-      "bg-sky-400",
       "bg-indigo-600",
     ],
   },
@@ -64,6 +44,43 @@ const PALETTE = [
   },
 ];
 
+const PALETTE_TEXT = [
+  {
+    label: "Cơ bản",
+    colors: [
+      "text-white",
+      "text-black",
+      "text-gray-500",
+      "text-gray-700",
+      "text-gray-900",
+    ],
+  },
+  {
+    label: "Đỏ / Cam / Vàng",
+    colors: [
+      "text-red-500",
+      "text-red-700",
+      "text-orange-500",
+      "text-amber-600",
+      "text-yellow-600",
+    ],
+  },
+  {
+    label: "Xanh Lá / Dương",
+    colors: [
+      "text-green-600",
+      "text-emerald-500",
+      "text-blue-500",
+      "text-blue-700",
+      "text-indigo-600",
+    ],
+  },
+  {
+    label: "Tím / Hồng",
+    colors: ["text-purple-600", "text-pink-500", "text-rose-600"],
+  },
+];
+
 export const ColorPickerModal = ({
   value,
   onChange,
@@ -71,17 +88,9 @@ export const ColorPickerModal = ({
   isText = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  // Chuyển đổi prefix nếu là màu chữ (bg-blue-500 -> text-blue-500)
-  const handleSelect = (bgClass) => {
-    let finalClass = bgClass;
-    if (isText) {
-      finalClass =
-        bgClass === "bg-transparent"
-          ? "text-transparent"
-          : bgClass.replace("bg-", "text-");
-    }
-    onChange(finalClass);
+  const paletteGroups = isText ? PALETTE_TEXT : PALETTE_BG;
+  const handleSelect = (colorClass) => {
+    onChange(colorClass);
     setIsOpen(false);
   };
 
@@ -125,28 +134,30 @@ export const ColorPickerModal = ({
 
             {/* Khung chứa các ô màu */}
             <div className="flex flex-col gap-3 overflow-y-auto pr-1">
-              {PALETTE.map((group, idx) => (
+              {paletteGroups.map((group, idx) => (
                 <div key={idx}>
                   <span className="text-[10px] font-semibold text-gray-400 block mb-1">
                     {group.label}
                   </span>
-                  <div className="grid grid-cols-7 gap-1.5">
-                    {group.colors.map((bgClass) => {
-                      const currentSelected = isText
-                        ? value === bgClass.replace("bg-", "text-")
-                        : value === bgClass;
+                  <div className="grid grid-cols-5 gap-2">
+                    {group.colors.map((colorClass) => {
+                      // Tạo lớp hiển thị ô màu trong modal
+                      const displayBg = isText
+                        ? colorClass.replace("text-", "bg-")
+                        : colorClass;
+                      const isSelected = value === colorClass;
 
                       return (
                         <button
-                          key={bgClass}
+                          key={colorClass}
                           type="button"
-                          onClick={() => handleSelect(bgClass)}
-                          className={`w-7 h-7 rounded border transition-transform hover:scale-110 relative ${bgClass} ${
-                            currentSelected
+                          onClick={() => handleSelect(colorClass)}
+                          className={`w-8 h-8 rounded border transition-transform hover:scale-110 relative ${displayBg} ${
+                            isSelected
                               ? "ring-2 ring-blue-500 ring-offset-1 z-10"
                               : ""
                           }`}
-                          title={bgClass}
+                          title={colorClass}
                         />
                       );
                     })}
