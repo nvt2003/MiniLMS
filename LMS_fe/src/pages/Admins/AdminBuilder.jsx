@@ -49,7 +49,15 @@ const DataLoader = () => {
 };
 export default function AdminBuilder() {
   return (
-    <Editor resolver={{ Container, Text, Image }}>
+    <Editor
+      resolver={{
+        Container,
+        Text,
+        Image,
+        Element: Container,
+        Canvas: Container,
+      }}
+    >
       <DataLoader />
       <div className="flex flex-col h-screen">
         {/* Topbar */}

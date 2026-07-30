@@ -122,7 +122,16 @@ export default function HomePage() {
 
   return (
     // enabled={false} giúp vô hiệu hóa toàn bộ tính năng kéo thả & chỉnh sửa
-    <Editor resolver={{ Container, Text, Image }} enabled={false}>
+    <Editor
+      resolver={{
+        Container,
+        Text,
+        Image,
+        Element: Container,
+        Canvas: Container,
+      }}
+      enabled={false}
+    >
       <Frame data={jsonConfig} />
     </Editor>
   );

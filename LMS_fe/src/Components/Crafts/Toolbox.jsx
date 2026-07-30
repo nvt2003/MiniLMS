@@ -35,14 +35,21 @@ export const Toolbox = () => {
       <div className="flex gap-1">
         <button
           ref={(ref) =>
-            connectors.create(ref, <Element is={Container} canvas />)
+            connectors.create(
+              ref,
+              <Container padding="p-4" background="bg-white" />,
+            )
           }
           className="p-2 bg-white border rounded shadow-sm hover:bg-gray-100 text-left"
         >
           Khung Container
         </button>
         <button
-          onClick={() => addComponentToRoot(<Element is={Container} canvas />)}
+          onClick={() =>
+            addComponentToRoot(
+              <Container padding="p-4" background="bg-white" />,
+            )
+          }
           className="px-2 bg-blue-50 border border-blue-200 text-blue-600 rounded text-xs hover:bg-blue-100"
           title="Bấm để chèn nhanh"
         >
