@@ -1,21 +1,23 @@
-import React from "react";
+import { useEffect } from "react";
 import { Editor, Frame, Element, useEditor } from "@craftjs/core";
 import { Container } from "../../Components/Crafts/Container";
 import { Text } from "../../Components/Crafts/Text";
 import { Toolbox } from "../../Components/Crafts/Toolbox";
 import { SettingsPanel } from "../../Components/Crafts/SettingsPanel";
-import { savePageLayout } from "../../services/settingApi";
-import { Image } from "../components/user/Image";
+import { getPageLayout, savePageLayout } from "../../services/settingApi";
+import { Image } from "../../Components/Crafts/Image";
+import useAlert from "../../Components/Alert/useAlert";
 
 // Component nút Lưu dữ liệu
 const SaveButton = () => {
+  const { showAlert } = useAlert();
   const { query } = useEditor();
 
   const handleSave = async () => {
     try {
       const jsonState = query.serialize();
       await savePageLayout(jsonState, "homepage");
-      alert("Lưu giao diện thành công!");
+      showAlert("success", "", "Lưu giao diện thành công!");
     } catch (error) {
       console.error("Lỗi lưu giao diện:", error);
     }
@@ -30,10 +32,25 @@ const SaveButton = () => {
     </button>
   );
 };
+// Component phụ trách nạp dữ liệu từ DB vào Editor
+const DataLoader = () => {
+  const { actions } = useEditor();
 
+  useEffect(() => {
+    getPageLayout("homepage").then((layoutData) => {
+      if (layoutData) {
+        // Deserialize chuỗi/object JSON từ DB nạp trực tiếp vào cây Canvas
+        actions.deserialize(layoutData);
+      }
+    });
+  }, [actions]);
+
+  return null;
+};
 export default function AdminBuilder() {
   return (
     <Editor resolver={{ Container, Text, Image }}>
+      <DataLoader />
       <div className="flex flex-col h-screen">
         {/* Topbar */}
         <div className="h-14 border-b bg-white flex justify-between items-center px-4">
@@ -42,7 +59,7 @@ export default function AdminBuilder() {
         </div>
 
         {/* Main Workspace */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex 1 overflow-hidden">
           <Toolbox />
 
           {/* Màn hình Preview / Canvas */}

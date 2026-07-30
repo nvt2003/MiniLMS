@@ -101,9 +101,9 @@
 // pages/HomePage.jsx
 import React, { useEffect, useState } from "react";
 import { Editor, Frame } from "@craftjs/core";
-import { Container } from "../components/Crafts/Container";
-import { Text } from "../components/Crafts/Text";
-import { Image } from "../components/user/Image";
+import { Container } from "../Components/Crafts/Container";
+import { Text } from "../Components/Crafts/Text";
+import { Image } from "../Components/Crafts/Image";
 import { getPageLayout } from "../services/settingApi";
 
 export default function HomePage() {
