@@ -8,5 +8,7 @@ router.get("/key/:key", SettingController.getSettingByKey);
 router.put('/key/:key',verifyToken,restrictTo('admin'), SettingController.updateByKey);
 router.put('/group/:group',verifyToken,restrictTo('admin'), SettingController.updateByGroup);
 router.post('/',verifyToken,restrictTo('admin'), SettingController.createSetting);
+router.get("/group/:group/:key", SettingController.getSettingsByGroupAndKey);
+router.get("/group", SettingController.searchGroup);
 
 module.exports = router;

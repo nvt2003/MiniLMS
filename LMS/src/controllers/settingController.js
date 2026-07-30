@@ -100,6 +100,46 @@ const SettingController = {
             }
             return res.status(500).json({ message: 'Lỗi server', error: error.message });
         }
-    }
+    },
+    
+    getSettingsByGroupAndKey: async (req, res) => {
+        try {
+            const {group,key} = req.params;
+            const settings = await SettingModel.getByGroupAndKey(group,key);
+
+            res.json({
+                success: true,
+                data: settings
+            });
+
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).json({
+                success: false,
+                message: "Không thể lấy cấu hình hệ thống"
+            });
+        }
+    },
+    
+    searchGroup: async (req, res) => {
+        try {
+            const { search = '' } = req.query;
+            const settings = await SettingModel.searchGroup(search);
+
+            res.json({
+                success: true,
+                data: settings
+            });
+
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).json({
+                success: false,
+                message: "Không thể tìm thấy cấu hình hệ thống"
+            });
+        }
+    },
 }
 module.exports = SettingController

@@ -53,6 +53,21 @@ const SettingModel = {
             [setting_key, setting_value, setting_group, description]
         );
         return result.insertId;
-    }
+    },
+    getByGroupAndKey: async (group,key)=>{
+        const [res] = await db.query(`SELECT setting_value, description 
+        FROM system_settings 
+        WHERE setting_group = ? AND setting_key = ?`,[group,key])
+        return res;
+    },
+    searchGroup: async (keyword) => {
+    const [res] = await db.query(`
+        SELECT DISTINCT setting_group
+        FROM system_settings
+        WHERE setting_group LIKE ?
+    `, [`%${keyword}%`]);
+
+    return res;
+},
 }
 module.exports = SettingModel
