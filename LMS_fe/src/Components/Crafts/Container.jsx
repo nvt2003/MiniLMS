@@ -1,5 +1,5 @@
 import React from "react";
-import { useNode } from "@craftjs/core";
+import { useNode, useEditor } from "@craftjs/core";
 
 export const Container = ({ background, padding, children }) => {
   const {
@@ -22,6 +22,12 @@ function ContainerSettings() {
   } = useNode((node) => ({
     props: node.data.props,
   }));
+  const { id } = useNode();
+  const { actions: editorActions } = useEditor();
+
+  const handleDelete = () => {
+    editorActions.delete(id);
+  };
   return (
     <div className="flex flex-col gap-3 text-xs">
       <div>
@@ -53,6 +59,14 @@ function ContainerSettings() {
           <option value="p-8">Lớn (p-8)</option>
           <option value="p-0">Không lề (p-0)</option>
         </select>
+      </div>
+      <div className="pt-4 mt-4 border-t">
+        <button
+          onClick={handleDelete}
+          className="w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded text-xs font-semibold flex items-center justify-center gap-1"
+        >
+          Xóa
+        </button>
       </div>
     </div>
   );

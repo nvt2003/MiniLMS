@@ -1,5 +1,5 @@
 import React from "react";
-import { useNode } from "@craftjs/core";
+import { useNode, useEditor } from "@craftjs/core";
 
 export const Text = ({ text, fontSize, color }) => {
   const {
@@ -37,7 +37,12 @@ function TextSettings() {
     fontSize: node.data.props.fontSize,
     color: node.data.props.color,
   }));
+  const { id } = useNode();
+  const { actions: editorActions } = useEditor();
 
+  const handleDelete = () => {
+    editorActions.delete(id);
+  };
   return (
     <div className="p-4 flex flex-col gap-3">
       <label className="text-sm font-semibold">Nội dung text</label>
@@ -58,6 +63,14 @@ function TextSettings() {
         <option value="text-base">Vừa</option>
         <option value="text-2xl">Lớn (Heading)</option>
       </select>
+      <div className="pt-4 mt-4 border-t">
+        <button
+          onClick={handleDelete}
+          className="w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded text-xs font-semibold flex items-center justify-center gap-1"
+        >
+          Xóa
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNode } from "@craftjs/core";
+import { useNode, useEditor } from "@craftjs/core";
 import { uploadImage } from "../../services/imageApi";
 import useAlert from "../Alert/useAlert";
 
@@ -125,7 +125,12 @@ function ImageSettings() {
       setUploading(false);
     }
   };
+  const { id } = useNode();
+  const { actions: editorActions } = useEditor();
 
+  const handleDelete = () => {
+    editorActions.delete(id);
+  };
   return (
     <div className="p-4 flex flex-col gap-4 text-sm">
       <div>
@@ -137,6 +142,7 @@ function ImageSettings() {
           disabled={uploading}
           className="w-full text-xs"
         />
+        actions.delete(id);
         {uploading && (
           <span className="text-xs text-blue-600">Đang tải...</span>
         )}
@@ -179,6 +185,14 @@ function ImageSettings() {
           <option value="contain">Contain (Giữ nguyên tỉ lệ)</option>
           <option value="fill">Fill (Làm đầy)</option>
         </select>
+      </div>
+      <div className="pt-4 mt-4 border-t">
+        <button
+          onClick={handleDelete}
+          className="w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded text-xs font-semibold flex items-center justify-center gap-1"
+        >
+          Xóa
+        </button>
       </div>
     </div>
   );
