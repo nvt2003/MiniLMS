@@ -1,8 +1,7 @@
-import api from './api'; // File chứa instance axios của bạn
+import api from './api';
 
 // 1. LẤY CẤU HÌNH GIAO DIỆN
 export const getPageLayout = async (groupName = 'homepage') => {
-  // getByGroup trả về danh sách các settings thuộc group (VD: [{ setting_key, setting_value, description }, ...])
   const response = await api.get(`/settings/group/${groupName}`);
   const settingsList = response.data.data; 
 
@@ -29,4 +28,10 @@ export const savePageLayout = async (jsonState, groupName = 'homepage') => {
 
   const response = await api.put(`/settings/group/${groupName}`, payload);
   return response.data;
+};
+export const searchPageGroups = async (keyword = '') => {
+  const response = await api.get(`/settings/group`, {
+    params: { search: keyword },
+  });
+  return response.data.data || [];
 };

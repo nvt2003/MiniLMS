@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Editor, Frame, Element, useEditor } from "@craftjs/core";
 import { Container } from "../../Components/Crafts/Container";
 import { Text } from "../../Components/Crafts/Text";
@@ -7,6 +7,8 @@ import { SettingsPanel } from "../../Components/Crafts/SettingsPanel";
 import { getPageLayout, savePageLayout } from "../../services/settingApi";
 import { CustomImage } from "../../Components/Crafts/CustomImage";
 import useAlert from "../../Components/Alert/useAlert";
+import { Topbar } from "./Topbar";
+import { PageDataLoader } from "./PageDataLoader";
 
 // Component nút Lưu dữ liệu
 const SaveButton = () => {
@@ -49,6 +51,7 @@ const DataLoader = () => {
 };
 
 export default function AdminBuilder() {
+  const [activeGroup, setActiveGroup] = useState("homepage");
   return (
     <Editor
       resolver={{
@@ -57,7 +60,10 @@ export default function AdminBuilder() {
         CustomImage,
       }}
     >
-      <DataLoader />
+      {/* <DataLoader /> */}
+      {/* thanh công cụ */}
+      <Topbar activeSlug={activeGroup} setActiveSlug={setActiveGroup} />
+
       <div className="flex flex-col h-screen">
         {/* Topbar */}
         <div className="h-14 border-b bg-white flex justify-between items-center px-4">
@@ -72,14 +78,15 @@ export default function AdminBuilder() {
           {/* Màn hình Preview / Canvas */}
           <div className="flex-1 p-8 bg-gray-100 overflow-y-auto">
             <div className="bg-white shadow-md max-w-4xl mx-auto min-h-[600px]">
-              <Frame>
+              {/* <Frame>
                 <Element is={Container} padding="p-8" canvas>
                   <Text
                     text="Chào mừng bạn đến với website!"
                     fontSize="text-2xl"
                   />
                 </Element>
-              </Frame>
+              </Frame> */}
+              <PageDataLoader activeSlug={activeGroup} />
             </div>
           </div>
 
