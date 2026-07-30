@@ -47,6 +47,7 @@ const DataLoader = () => {
 
   return null;
 };
+
 export default function AdminBuilder() {
   return (
     <Editor
@@ -54,8 +55,6 @@ export default function AdminBuilder() {
         Container,
         Text,
         CustomImage,
-        Element: Container,
-        Canvas: Container,
       }}
     >
       <DataLoader />

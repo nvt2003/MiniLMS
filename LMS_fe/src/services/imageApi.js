@@ -5,7 +5,7 @@ export const uploadImage = async (file) => {
   const formData = new FormData();
   formData.append('image', file);
 
-  const response = await api.post('/api/images/upload', formData, {
+  const response = await api.post('/images/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -16,6 +16,6 @@ export const uploadImage = async (file) => {
 
 // 2. XÓA ẢNH TRÊN CLOUDINARY
 export const deleteImage = async (imageId) => {
-  const response = await api.delete(`/api/images/${imageId}`);
+  const response = await api.delete(`/images/${imageId}`);
   return response.data;
 };

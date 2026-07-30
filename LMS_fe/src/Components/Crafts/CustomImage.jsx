@@ -1,4 +1,3 @@
-// components/user/Image.jsx
 import React, { useState } from "react";
 import { useNode } from "@craftjs/core";
 import { uploadImage } from "../../services/imageApi";
@@ -108,6 +107,7 @@ function ImageSettings() {
   } = useNode((node) => ({
     props: node.data.props,
   }));
+
   const [uploading, setUploading] = useState(false);
 
   const handleFileSelect = async (e) => {
@@ -184,7 +184,7 @@ function ImageSettings() {
   );
 }
 
-Image.craft = {
+CustomImage.craft = {
   displayName: "CustomImage",
   defaultProps: {
     src: "",
