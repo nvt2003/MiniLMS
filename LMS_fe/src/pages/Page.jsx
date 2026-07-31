@@ -62,7 +62,17 @@ export default function Page() {
     <>
       <Navbar />
 
-      <Editor resolver={resolver} enabled={false}>
+      {/* <Editor resolver={resolver} enabled={false}> */}
+      <Editor
+        resolver={{
+          Container,
+          Text,
+          CustomImage,
+          Element: Container,
+          Canvas: Container,
+        }}
+        enabled={false}
+      >
         <Frame data={page.content} />
       </Editor>
     </>
