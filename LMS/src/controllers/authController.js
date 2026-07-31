@@ -421,6 +421,31 @@ const AuthController = {
       });
     }
   },
+  getList: async (req, res) => {
+    try {
+      const { search, role, status, page = 1, limit = 10 } = req.query;
+
+      const result = await UserModel.getList({
+        search,
+        role,
+        status,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10)
+      });
+
+      return res.status(200).json({
+        message: 'Lấy danh sách thành công',
+        ...result
+      });
+
+    } catch (error) {
+      console.error('Lỗi getList:', error);
+      return res.status(500).json({
+        message: 'Lỗi máy chủ nội bộ',
+        error: error.message
+      });
+    }
+  }
 };
 
 module.exports = AuthController;

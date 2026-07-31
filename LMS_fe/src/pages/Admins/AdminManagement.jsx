@@ -13,32 +13,32 @@ import {
   Edit2,
   AlertCircle,
 } from "lucide-react";
+import api from "../../services/api";
+import useDebounce from "../../hooks/useDebounce";
 
-// Map tên Role sang nhãn hiển thị tiếng Việt & màu sắc
 const ROLE_MAP = {
   admin: {
     label: "Super Admin",
     bg: "bg-purple-100 text-purple-800 border-purple-200",
   },
   admin_teacher: {
-    label: "Admin Giảng dạy",
+    label: "Quản lý giảng dạy",
     bg: "bg-blue-100 text-blue-800 border-blue-200",
   },
   admin_student: {
-    label: "Admin Học viên",
+    label: "Quản lý học viên",
     bg: "bg-green-100 text-green-800 border-green-200",
   },
   admin_pages: {
-    label: "Admin Nội dung",
+    label: "Quản lý nội dung",
     bg: "bg-amber-100 text-amber-800 border-amber-200",
   },
   admin_finance: {
-    label: "Admin Tài chính",
+    label: "Quản lý tài chính",
     bg: "bg-emerald-100 text-emerald-800 border-emerald-200",
   },
 };
 
-// Map Trạng thái
 const STATUS_MAP = {
   ACTIVE: {
     label: "Hoạt động",
@@ -58,7 +58,7 @@ export default function AdminManagement() {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("ALL");
+  const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   // State Modal
@@ -72,56 +72,28 @@ export default function AdminManagement() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Load danh sách Admin từ API
-  const fetchAdmins = async () => {
+  // Lọc dữ liệu
+  const filteredAdmins = admins.filter((item) => {
+    const search =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const role = roleFilter === "ALL" || item.role === roleFilter;
+    const status = statusFilter === "ALL" || item.status === statusFilter;
+    return search && role && status;
+  });
+  const debouncedSearch = useDebounce(filteredAdmins);
+  const fetchList = async () => {
     setLoading(true);
     try {
-      // Gọi API lấy danh sách Admin của bạn
-      // const res = await axios.get('/api/admin/list');
-      // setAdmins(res.data);
-
-      // Dữ liệu Mock minh họa
-      setTimeout(() => {
-        setAdmins([
-          {
-            id: 1,
-            name: "Nguyễn Văn A",
-            email: "superadmin@school.edu.vn",
-            role: "admin",
-            status: "ACTIVE",
-            created_by_name: "System",
-            created_at: "2026-01-10",
-          },
-          {
-            id: 2,
-            name: "Trần Thị B",
-            email: "teacher.admin@school.edu.vn",
-            role: "admin_teacher",
-            status: "ACTIVE",
-            created_by_name: "Nguyễn Văn A",
-            created_at: "2026-02-15",
-          },
-          {
-            id: 3,
-            name: "Lê Văn C",
-            email: "pages.admin@school.edu.vn",
-            role: "admin_pages",
-            status: "PENDING",
-            created_by_name: "Nguyễn Văn A",
-            created_at: "2026-03-01",
-          },
-          {
-            id: 4,
-            name: "Phạm Minh D",
-            email: "finance.admin@school.edu.vn",
-            role: "admin_finance",
-            status: "BLOCKED",
-            created_by_name: "Nguyễn Văn A",
-            created_at: "2026-02-20",
-          },
-        ]);
-        setLoading(false);
-      }, 500);
+      const res = await api.get("auth/list", {
+        params: {
+          search: searchTerm,
+          role: roleFilter,
+          page: 1,
+          limit: 10,
+        },
+      });
+      setAdmins(res.data);
     } catch (err) {
       console.error(err);
       setLoading(false);
@@ -129,8 +101,8 @@ export default function AdminManagement() {
   };
 
   useEffect(() => {
-    fetchAdmins();
-  }, []);
+    fetchList;
+  }, [debouncedSearch]);
 
   // Xử lý Thêm / Cập nhật Admin
   const handleSubmit = async (e) => {
@@ -144,26 +116,6 @@ export default function AdminManagement() {
       const res = await axios.post('/api/admin/register-admin', formData);
       setMessage({ type: 'success', text: res.data.message });
       */
-
-      // Giả lập kết quả
-      setTimeout(() => {
-        setMessage({
-          type: "success",
-          text: "Thao tác thành công! Nếu email đã tồn tại, hệ thống đã tự động cập nhật Role và gửi lại mail kích hoạt.",
-        });
-        setSubmitting(false);
-        fetchAdmins();
-        setTimeout(() => {
-          setIsModalOpen(false);
-          setFormData({
-            name: "",
-            email: "",
-            password: "",
-            role: "admin_teacher",
-          });
-          setMessage({ type: "", text: "" });
-        }, 1500);
-      }, 800);
     } catch (err) {
       setMessage({
         type: "error",
@@ -172,17 +124,6 @@ export default function AdminManagement() {
       setSubmitting(false);
     }
   };
-
-  // Lọc dữ liệu
-  const filteredAdmins = admins.filter((item) => {
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === "ALL" || item.role === roleFilter;
-    const matchesStatus =
-      statusFilter === "ALL" || item.status === statusFilter;
-    return matchesSearch && matchesRole && matchesStatus;
-  });
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -223,19 +164,15 @@ export default function AdminManagement() {
         </div>
 
         {/* Lọc Role */}
-        <select
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-        >
-          <option value="ALL">Tất cả vai trò</option>
-          <option value="admin">Super Admin</option>
-          <option value="admin_teacher">Admin Giảng dạy</option>
-          <option value="admin_student">Admin Học viên</option>
-          <option value="admin_pages">Admin Nội dung</option>
-          <option value="admin_finance">Admin Tài chính</option>
-        </select>
-
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder="Tìm theo vị trí"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="w-full pl-2 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
         {/* Lọc Trạng thái */}
         <select
           value={statusFilter}
@@ -249,7 +186,7 @@ export default function AdminManagement() {
         </select>
 
         <button
-          onClick={fetchAdmins}
+          onClick={fetchList}
           className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 flex items-center justify-center"
           title="Tải lại"
         >

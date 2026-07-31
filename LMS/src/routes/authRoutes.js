@@ -21,4 +21,6 @@ router.get('/verify-activation-token/:token', AuthController.verifyActivationTok
 
 router.post('/activate-account', AuthController.activateAccount);
 
+router.get('/list', AuthController.getList);
+
 module.exports = router;
