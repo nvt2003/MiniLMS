@@ -332,7 +332,7 @@ const AuthController = {
       }
 
       // Xác thực JWT Token (Giả định Secret key lưu trong .env)
-      const decoded = jwt.verify(token, process.env.JWT_ACTIVATION_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // Tìm user trong DB để đảm bảo user tồn tại và vẫn ở trạng thái PENDING
       const user = await UserModel.findById(decoded.userId);
@@ -430,7 +430,7 @@ const AuthController = {
       // Giải mã token
       let decoded;
       try {
-        decoded = jwt.verify(token, process.env.JWT_ACTIVATION_SECRET);
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
       } catch (err) {
         if (err.name === 'TokenExpiredError') {
           return res.status(400).json({ message: 'Link kích hoạt đã hết hạn' });
