@@ -132,4 +132,4 @@ const sendAdminInviteEmail = async (email, name, token, role) => {
   }
 };
 
-module.exports = { sendNewLessonEmail,sendForgotPwdEmail };
+module.exports = { sendNewLessonEmail,sendForgotPwdEmail,sendAdminInviteEmail };

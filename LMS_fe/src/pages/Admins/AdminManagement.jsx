@@ -72,16 +72,8 @@ export default function AdminManagement() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Lọc dữ liệu
-  const filteredAdmins = admins.filter((item) => {
-    const search =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const role = roleFilter === "ALL" || item.role === roleFilter;
-    const status = statusFilter === "ALL" || item.status === statusFilter;
-    return search && role && status;
-  });
-  const debouncedSearch = useDebounce(filteredAdmins);
+  const debouncedSearch = useDebounce(searchTerm);
+  const debouncedRole = useDebounce(roleFilter);
   const fetchList = async () => {
     setLoading(true);
     try {
@@ -89,11 +81,13 @@ export default function AdminManagement() {
         params: {
           search: searchTerm,
           role: roleFilter,
+          status: statusFilter,
           page: 1,
           limit: 10,
         },
       });
-      setAdmins(res.data);
+      console.log("response", res.data.data);
+      setAdmins(res.data.data);
     } catch (err) {
       console.error(err);
       setLoading(false);
@@ -101,8 +95,9 @@ export default function AdminManagement() {
   };
 
   useEffect(() => {
-    fetchList;
-  }, [debouncedSearch]);
+    fetchList();
+    setLoading(false);
+  }, [debouncedSearch, debouncedRole, statusFilter]);
 
   // Xử lý Thêm / Cập nhật Admin
   const handleSubmit = async (e) => {
@@ -111,11 +106,8 @@ export default function AdminManagement() {
     setMessage({ type: "", text: "" });
 
     try {
-      // Gọi API POST /api/admin/register-admin
-      /* 
-      const res = await axios.post('/api/admin/register-admin', formData);
-      setMessage({ type: 'success', text: res.data.message });
-      */
+      const res = await api.post("/auth/register/admin", formData);
+      setMessage({ type: "success", text: res.data.message });
     } catch (err) {
       setMessage({
         type: "error",
@@ -215,14 +207,14 @@ export default function AdminManagement() {
                     Đang tải dữ liệu...
                   </td>
                 </tr>
-              ) : filteredAdmins.length === 0 ? (
+              ) : admins.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="text-center py-8 text-gray-500">
                     Không tìm thấy quản trị viên phù hợp.
                   </td>
                 </tr>
               ) : (
-                filteredAdmins.map((admin) => {
+                admins.map((admin) => {
                   const roleConfig = ROLE_MAP[admin.role] || {
                     label: admin.role,
                     bg: "bg-gray-100",

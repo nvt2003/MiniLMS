@@ -110,7 +110,7 @@ const UserModel = {
           role = ?, 
           status = ?, 
           created_by = ?, 
-          updated_at = NOW() 
+          created_at = NOW() 
       WHERE id = ?`,
       [name, password, role, status, created_by, userId]
     );

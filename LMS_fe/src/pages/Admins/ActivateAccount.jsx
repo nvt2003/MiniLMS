@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   RefreshCw,
 } from "lucide-react";
+import api from "../../services/api";
 
 export default function ActivateAccount() {
   const { token } = useParams();
@@ -26,19 +27,8 @@ export default function ActivateAccount() {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        /*
-        const res = await axios.get(`/api/admin/verify-activation-token/${token}`);
+        const res = await api.get(`/auth/verify-activation-token/${token}`);
         setUserInfo(res.data.data);
-        */
-        // Giả lập Verify Token
-        setTimeout(() => {
-          setUserInfo({
-            name: "Lê Văn C",
-            email: "pages.admin@school.edu.vn",
-            role: "Admin Nội dung",
-          });
-          setVerifying(false);
-        }, 800);
       } catch (err) {
         setVerifyError(
           err.response?.data?.message ||
