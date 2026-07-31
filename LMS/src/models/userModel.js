@@ -124,6 +124,66 @@ const UserModel = {
       [userId]
     );
     return result.affectedRows > 0;
+  },
+  
+getList: async ({ search = '', role = 'ALL', status = 'ALL', page = 1, limit = 10 }) => {
+  const offset = (page - 1) * limit;
+  
+  let whereClause = "WHERE 1=1";
+  const queryParams = [];
+
+  // Tìm kiếm theo Tên hoặc Email
+  if (search) {
+    whereClause += ` AND (u.name LIKE ? OR u.email LIKE ?)`;
+    queryParams.push(`%${search}%`, `%${search}%`);
   }
+
+  // Lọc theo Role cụ thể
+  if (role && role !== 'ALL') {
+    whereClause += ` AND u.role LIKE ?`;
+    queryParams.push(`${role}%`);
+  }
+
+  // Lọc theo Status (ACTIVE, PENDING, BLOCKED)
+  if (status && status !== 'ALL') {
+    whereClause += ` AND u.status = ?`;
+    queryParams.push(status);
+  }
+
+  // 1. Query lấy tổng số lượng bản ghi (để tính tổng số trang)
+  const countSql = `SELECT COUNT(*) AS total FROM users u ${whereClause}`;
+  const [countRows] = await db.query(countSql, queryParams);
+  const total = countRows[0].total;
+
+  const dataSql = `
+    SELECT 
+      u.id, 
+      u.name, 
+      u.email, 
+      u.role, 
+      u.status, 
+      u.created_by,
+      creator.name AS created_by_name,
+      u.created_at
+    FROM users u
+    LEFT JOIN users creator ON u.created_by = creator.id
+    ${whereClause}
+    ORDER BY u.id DESC
+    LIMIT ? OFFSET ?
+  `;
+
+  // Thêm limit và offset vào tham số SQL
+  const [rows] = await db.query(dataSql, [...queryParams, Number(limit), Number(offset)]);
+
+  return {
+    data: rows,
+    pagination: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / limit)
+    }
+  };
+}
 };
 module.exports = UserModel;
