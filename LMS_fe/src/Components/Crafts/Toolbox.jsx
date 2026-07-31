@@ -8,10 +8,19 @@ export const Toolbox = () => {
   const { connectors, actions, query } = useEditor();
   const addComponentToRoot = (reactElement) => {
     try {
-      // 1. Chuyển React Element thành NodeTree của Craft.js
-      const nodeTree = query.parseReactElement(reactElement).toNodeTree();
+      // 1. Lấy tất cả các node hiện có trong editor
+      const nodes = query.getNodes();
+      console.log("Danh sách node hiện tại:", query.getNodes());
 
-      // 2. Thêm NodeTree vào node gốc 'ROOT'
+      // 2. Tìm node gốc (node không có parent)
+      const rootNodeId =
+        Object.keys(nodes).find((id) => !nodes[id].data.parent) || "ROOT";
+
+      if (!rootNodeId) {
+        console.warn("Chưa tìm thấy node gốc nào trong Canvas.");
+        return;
+      }
+      const nodeTree = query.parseReactElement(reactElement).toNodeTree();
       actions.addNodeTree(nodeTree, "ROOT");
     } catch (error) {
       console.error("Lỗi khi thêm phần tử:", error);

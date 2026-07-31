@@ -38,7 +38,7 @@ export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
 
     try {
       await createSetting({
-        parent: "custom_page",
+        parent_group: "custom_page",
         setting_key: "page_layout_config",
         setting_group: newGroup,
         setting_value: "{}",

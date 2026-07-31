@@ -11,29 +11,29 @@ import { Topbar } from "./Topbar";
 import { PageDataLoader } from "./PageDataLoader";
 
 // Component nút Lưu dữ liệu
-const SaveButton = () => {
-  const { showAlert } = useAlert();
-  const { query } = useEditor();
+// const SaveButton = () => {
+//   const { showAlert } = useAlert();
+//   const { query } = useEditor();
 
-  const handleSave = async () => {
-    try {
-      const jsonState = query.serialize();
-      await savePageLayout(jsonState, "homepage");
-      showAlert("success", "", "Lưu giao diện thành công!");
-    } catch (error) {
-      console.error("Lỗi lưu giao diện:", error);
-    }
-  };
+//   const handleSave = async () => {
+//     try {
+//       const jsonState = query.serialize();
+//       await savePageLayout(jsonState, "homepage");
+//       showAlert("success", "", "Lưu giao diện thành công!");
+//     } catch (error) {
+//       console.error("Lỗi lưu giao diện:", error);
+//     }
+//   };
 
-  return (
-    <button
-      onClick={handleSave}
-      className="bg-green-600 text-white px-4 py-2 rounded"
-    >
-      Lưu Giao Diện
-    </button>
-  );
-};
+//   return (
+//     <button
+//       onClick={handleSave}
+//       className="bg-green-600 text-white px-4 py-2 rounded"
+//     >
+//       Lưu Giao Diện
+//     </button>
+//   );
+// };
 
 export default function AdminBuilder() {
   const [activeGroup, setActiveGroup] = useState("homepage");
@@ -52,17 +52,20 @@ export default function AdminBuilder() {
         {/* Topbar */}
         <div className="h-14 border-b bg-white flex justify-between items-center px-4">
           <h1 className="font-bold">Visual Page Builder</h1>
-          <SaveButton />
+          {/* <SaveButton /> */}
         </div>
 
         {/* Main Workspace */}
-        <div className="flex flex 1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden">
           <Toolbox />
 
           {/* Màn hình Preview / Canvas */}
+          <PageDataLoader activeSlug={activeGroup} />
           <div className="flex-1 p-8 bg-gray-100 overflow-y-auto">
             <div className="bg-white shadow-md max-w-4xl mx-auto min-h-[600px]">
-              <PageDataLoader activeSlug={activeGroup} />
+              <Frame>
+                <Element is={Container} canvas className="min-h-[600px]" />
+              </Frame>
             </div>
           </div>
 

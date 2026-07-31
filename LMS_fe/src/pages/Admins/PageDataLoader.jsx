@@ -11,60 +11,59 @@ const sanitizeJson = (jsonObj) => {
     .replaceAll('"resolvedName":"Canvas"', '"resolvedName":"Container"')
     .replaceAll('"resolvedName":"Element"', '"resolvedName":"Container"');
 };
-
+const EMPTY_STATE = JSON.stringify({
+  ROOT: {
+    type: { resolvedName: "Container" },
+    isCanvas: true,
+    props: {},
+    displayName: "Container",
+    custom: {},
+    hidden: false,
+    nodes: [],
+    linkedNodes: {},
+  },
+});
 export const PageDataLoader = ({ activeSlug }) => {
   const { actions } = useEditor();
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchPageData = async () => {
-      setLoading(true);
+    async function load() {
+      if (!activeSlug) return;
       try {
         const layoutData = await getPageLayout(
           activeSlug,
           "page_layout_config",
         );
-        console.log("data: ", layoutData);
-
-        if (layoutData) {
-          const cleanJson = sanitizeJson(layoutData);
-          actions.deserialize(cleanJson);
-        } else {
-          // Khởi tạo container trống nếu chưa có dữ liệu
-          actions.deserialize(
-            JSON.stringify({
-              ROOT: {
-                type: { resolvedName: "Container" },
-                isCanvas: true,
-                props: {},
-                nodes: [],
-              },
-            }),
-          );
+        let parsedData = layoutData;
+        if (typeof layoutData === "string") {
+          try {
+            parsedData = JSON.parse(layoutData);
+          } catch {
+            parsedData = null;
+          }
         }
-      } catch (error) {
-        console.error(`Lỗi tải cấu hình group ${activeSlug}:`, error);
-      } finally {
-        setLoading(false);
+        //Bắt các trường hợp dữ liệu RỖNG: null, undefined, hoặc Object {}
+        const isEmpty =
+          !parsedData ||
+          (typeof parsedData === "object" &&
+            Object.keys(parsedData).length === 0);
+
+        if (isEmpty) {
+          // Nạp Canvas rỗng chứa ROOT Node
+          actions.deserialize(EMPTY_STATE);
+          return;
+        }
+
+        const cleanJson = sanitizeJson(layoutData);
+        actions.deserialize(cleanJson);
+      } catch (err) {
+        console.error("Lỗi nạp layout:", err);
+        actions.deserialize(EMPTY_STATE);
       }
-    };
+    }
 
-    fetchPageData();
-  }, [activeSlug]);
+    load();
+  }, [activeSlug, actions]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-400 font-medium text-xs">
-        ⏳ Đang tải trang {activeSlug}...
-      </div>
-    );
-  }
-
-  return (
-    <Frame>
-      {/* <Container padding="p-6" background="bg-white">
-        <Text text={`Chào mừng đến trang: ${activeSlug}`} fontSize="text-xl" />
-      </Container> */}
-    </Frame>
-  );
+  return null;
 };
