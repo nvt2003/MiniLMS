@@ -20,7 +20,11 @@ export const PageDataLoader = ({ activeSlug }) => {
     const fetchPageData = async () => {
       setLoading(true);
       try {
-        const layoutData = await getPageLayout(activeSlug);
+        const layoutData = await getPageLayout(
+          activeSlug,
+          "page_layout_config",
+        );
+        console.log("data: ", layoutData);
 
         if (layoutData) {
           const cleanJson = sanitizeJson(layoutData);

@@ -1,19 +1,23 @@
 import api from './api';
 
 // 1. LẤY CẤU HÌNH GIAO DIỆN
-export const getPageLayout = async (groupName = 'homepage') => {
-  const response = await api.get(`/settings/group/${groupName}`);
-  const settingsList = response.data.data; 
+export const getPageLayout = async (group,key='page_layout_config') => {
+  const response = await api.get(`/settings/group/${group}/${key}`);
+  const settings = response.data.data; 
 
-  // Tìm item có setting_key là 'page_layout_config'
-  const layoutSetting = settingsList.find(item => item.setting_key === 'page_layout_config');
-  
-  if (!layoutSetting || !layoutSetting.setting_value) return null;
+  if (!Array.isArray(settings) || settings.length === 0) {
+    return null;
+  }
 
-  // Nếu DB đã lưu chuỗi JSON, parse ra Object/JSON cho Craft.js
-  return typeof layoutSetting.setting_value === 'string' 
-    ? JSON.parse(layoutSetting.setting_value) 
-    : layoutSetting.setting_value;
+  const setting = settings[0];
+
+  if (!setting.setting_value) {
+    return null;
+  }
+
+  return typeof setting.setting_value === 'string'
+    ? JSON.parse(setting.setting_value)
+    : setting.setting_value;
 };
 
 // 2. LƯU CẤU HÌNH GIAO DIỆN
@@ -34,4 +38,18 @@ export const searchPageGroups = async (keyword = '') => {
     params: { search: keyword },
   });
   return response.data.data || [];
+};
+export const searchSettings = async (parent,group,key) => {
+  const response = await api.get(`/settings/parent`,{
+    params: {
+      parent,
+      group,
+      key,
+    },
+  });
+  return response.data.data || [];
+};
+export const createSetting = async (data) => {
+  const res = await api.post("/settings", data);
+  return res.data.data;
 };

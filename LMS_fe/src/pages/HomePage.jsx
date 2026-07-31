@@ -110,7 +110,7 @@ export default function HomePage() {
   const [jsonConfig, setJsonConfig] = useState(null);
 
   useEffect(() => {
-    getPageLayout("homepage").then((layoutData) => {
+    getPageLayout("homepage", "page_layout_config").then((layoutData) => {
       if (layoutData) {
         // layoutData đã được JSON.parse, sẵn sàng nạp vào Craft.js Frame
         setJsonConfig(layoutData);

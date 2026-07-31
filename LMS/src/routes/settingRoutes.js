@@ -10,5 +10,6 @@ router.put('/group/:group',verifyToken,restrictTo('admin'), SettingController.up
 router.post('/',verifyToken,restrictTo('admin'), SettingController.createSetting);
 router.get("/group/:group/:key", SettingController.getSettingsByGroupAndKey);
 router.get("/group", SettingController.searchGroup);
+router.get("/parent", SettingController.searchParent);
 
 module.exports = router;

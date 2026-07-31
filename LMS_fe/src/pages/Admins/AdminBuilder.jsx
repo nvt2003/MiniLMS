@@ -4,7 +4,7 @@ import { Container } from "../../Components/Crafts/Container";
 import { Text } from "../../Components/Crafts/Text";
 import { Toolbox } from "../../Components/Crafts/Toolbox";
 import { SettingsPanel } from "../../Components/Crafts/SettingsPanel";
-import { getPageLayout, savePageLayout } from "../../services/settingApi";
+import { savePageLayout } from "../../services/settingApi";
 import { CustomImage } from "../../Components/Crafts/CustomImage";
 import useAlert from "../../Components/Alert/useAlert";
 import { Topbar } from "./Topbar";
@@ -34,21 +34,6 @@ const SaveButton = () => {
     </button>
   );
 };
-// Component phụ trách nạp dữ liệu từ DB vào Editor
-const DataLoader = () => {
-  const { actions } = useEditor();
-
-  useEffect(() => {
-    getPageLayout("homepage").then((layoutData) => {
-      if (layoutData) {
-        // Deserialize chuỗi/object JSON từ DB nạp trực tiếp vào cây Canvas
-        actions.deserialize(layoutData);
-      }
-    });
-  }, [actions]);
-
-  return null;
-};
 
 export default function AdminBuilder() {
   const [activeGroup, setActiveGroup] = useState("homepage");
@@ -60,7 +45,6 @@ export default function AdminBuilder() {
         CustomImage,
       }}
     >
-      {/* <DataLoader /> */}
       {/* thanh công cụ */}
       <Topbar activeSlug={activeGroup} setActiveSlug={setActiveGroup} />
 
@@ -78,14 +62,6 @@ export default function AdminBuilder() {
           {/* Màn hình Preview / Canvas */}
           <div className="flex-1 p-8 bg-gray-100 overflow-y-auto">
             <div className="bg-white shadow-md max-w-4xl mx-auto min-h-[600px]">
-              {/* <Frame>
-                <Element is={Container} padding="p-8" canvas>
-                  <Text
-                    text="Chào mừng bạn đến với website!"
-                    fontSize="text-2xl"
-                  />
-                </Element>
-              </Frame> */}
               <PageDataLoader activeSlug={activeGroup} />
             </div>
           </div>

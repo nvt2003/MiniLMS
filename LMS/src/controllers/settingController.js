@@ -75,7 +75,7 @@ const SettingController = {
     },
     createSetting: async (req, res) => {
         try {
-            const { setting_key, setting_value, setting_group, description } = req.body;
+            const { setting_key, setting_value, setting_group,parent_group, description } = req.body;
 
             // Validate đầu vào
             if (!setting_key || setting_value === undefined) {
@@ -86,12 +86,13 @@ const SettingController = {
                 setting_key,
                 setting_value,
                 setting_group,
+                parent_group,
                 description
             });
 
             return res.status(201).json({
                 message: 'Thêm setting thành công',
-                data: { id: insertId, setting_key, setting_value, setting_group, description }
+                data: { id: insertId, setting_key, setting_value, setting_group,parent_group, description }
             });
         } catch (error) {
             // Xử lý trùng lặp setting_key (Lỗi UNIQUE)
@@ -126,6 +127,24 @@ const SettingController = {
         try {
             const { search = '' } = req.query;
             const settings = await SettingModel.searchGroup(search);
+
+            res.json({
+                success: true,
+                data: settings
+            });
+
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).json({
+                success: false,
+                message: "Không thể tìm thấy cấu hình hệ thống"
+            });
+        }
+    },searchParent: async (req, res) => {
+        try {
+            const { parent, group, key } = req.query;
+            const settings = await SettingModel.searchParent(parent, group, key);
 
             res.json({
                 success: true,
