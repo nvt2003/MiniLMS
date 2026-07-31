@@ -142,7 +142,7 @@ function ImageSettings() {
           disabled={uploading}
           className="w-full text-xs"
         />
-        actions.delete(id);
+        {/* actions.delete(id); */}
         {uploading && (
           <span className="text-xs text-blue-600">Đang tải...</span>
         )}
