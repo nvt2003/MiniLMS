@@ -105,6 +105,7 @@ import { Container } from "../Components/Crafts/Container";
 import { Text } from "../Components/Crafts/Text";
 import { CustomImage } from "../Components/Crafts/CustomImage";
 import { getPageLayout } from "../services/settingApi";
+import Navbar from "../Components/Navbar";
 
 export default function HomePage() {
   const [jsonConfig, setJsonConfig] = useState(null);
@@ -121,18 +122,19 @@ export default function HomePage() {
   if (!jsonConfig) return <div>Loading...</div>;
 
   return (
-    // enabled={false} giúp vô hiệu hóa toàn bộ tính năng kéo thả & chỉnh sửa
-    <Editor
-      resolver={{
-        Container,
-        Text,
-        CustomImage,
-        Element: Container,
-        Canvas: Container,
-      }}
-      enabled={false}
-    >
-      <Frame data={jsonConfig} />
-    </Editor>
+    <>
+      <Navbar />
+      {/* enabled={false} giúp vô hiệu hóa toàn bộ tính năng kéo thả & chỉnh sửa */}
+      <Editor
+        resolver={{
+          Container,
+          Text,
+          CustomImage,
+        }}
+        enabled={false}
+      >
+        <Frame data={jsonConfig} />
+      </Editor>
+    </>
   );
 }
