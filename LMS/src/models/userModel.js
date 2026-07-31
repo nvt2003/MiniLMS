@@ -78,14 +78,52 @@ const UserModel = {
       `,
       [token]
     );
-return rows[0];
+  return rows[0];
+    },
+    deleteResetToken: async (token) => {
+      await db.query(
+        `DELETE FROM password_resets
+        WHERE token = ?`,
+        [token]
+      );
+    },
+    findById: async (id) => {
+    const [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+    return rows[0] || null;
   },
-  deleteResetToken: async (token) => {
-    await db.query(
-      `DELETE FROM password_resets
-       WHERE token = ?`,
-      [token]
+
+  // Kích hoạt tài khoản Admin
+  activateAdminUser: async (userId, hashedPassword) => {
+    const [result] = await db.query(
+      `UPDATE users 
+      SET password = ?, status = 'ACTIVE', updated_at = NOW() 
+      WHERE id = ?`,
+      [hashedPassword, userId]
     );
+    return result.affectedRows > 0;
   },
+  updateUserRoleAndStatus: async ({ userId, name, password, role, status, created_by }) => {
+    const [result] = await db.query(
+      `UPDATE users 
+      SET name = ?, 
+          password = ?, 
+          role = ?, 
+          status = ?, 
+          created_by = ?, 
+          updated_at = NOW() 
+      WHERE id = ?`,
+      [name, password, role, status, created_by, userId]
+    );
+    return result.affectedRows > 0;
+  },
+  deactivateUser: async (userId) => {
+    const [result] = await db.query(
+      `UPDATE users 
+      SET status = 'BLOCKED', updated_at = NOW() 
+      WHERE id = ?`,
+      [userId]
+    );
+    return result.affectedRows > 0;
+  }
 };
 module.exports = UserModel;

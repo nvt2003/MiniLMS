@@ -17,4 +17,8 @@ router.put('/reset-pwd',AuthController.resetPassword);
 
 router.post('/register/admin', AuthController.registerAdmin);
 
+router.get('/verify-activation-token/:token', adminAuthController.verifyActivationToken);
+ư
+router.post('/activate-account', adminAuthController.activateAccount);
+
 module.exports = router;

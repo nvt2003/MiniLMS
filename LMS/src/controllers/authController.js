@@ -258,9 +258,28 @@ const AuthController = {
 
       // Kiểm tra email đã được sử dụng hay chưa
       const existingUser = await UserModel.findByEmail(email);
+      let userId;
+      let isUpdated = false;
       if (existingUser) {
-        return res.status(400).json({ message: 'Email này đã tồn tại trên hệ thống' });
-      }
+        // Bảo vệ: Không cho phép tự đổi Role của Super Admin gốc từ API này
+        if (existingUser.role === 'admin' && targetRole !== 'admin') {
+          return res.status(400).json({ 
+            message: 'Không thể hạ cấp hoặc thay đổi Role của tài khoản Super Admin sẵn có!' 
+          });
+          await UserModel.updateUserRoleAndStatus({
+            userId: existingUser.id,
+            name: name,
+            password: hashedPassword,
+            role: targetRole,
+            status: 'PENDING',
+            created_by: creatorId
+          });
+
+          userId = existingUser.id;
+          isUpdated = true;
+        }
+      }else{
+        
       //Xử lý Role cho Admin mới
       // Danh sách các Sub-Admin hợp lệ trong hệ thống
       const allowedAdminRoles = ['admin', 'admin_teacher', 'admin_student', 'admin_pages', 'admin_finance'];
@@ -276,7 +295,7 @@ const AuthController = {
             email,
             password: hashedPassword,
             role: targetRole,
-            status: 'PENDING',//đợi email kích hoạt
+            status: 'PENDING',
             created_by: creatorId
           });
       return res.status(201).json({
@@ -289,8 +308,109 @@ const AuthController = {
         createdBy: creatorId
       }
     });
+      }
     } catch (error) {
       return res.status(500).json({ error: 'Lỗi server: ' + error.message });
+    }
+  },
+  
+  verifyActivationToken: async (req, res) => {
+    try {
+      const { token } = req.params;
+
+      if (!token) {
+        return res.status(400).json({ message: 'Mã kích hoạt không được để trống' });
+      }
+
+      // Xác thực JWT Token (Giả định Secret key lưu trong .env)
+      const decoded = jwt.verify(token, process.env.JWT_ACTIVATION_SECRET);
+
+      // Tìm user trong DB để đảm bảo user tồn tại và vẫn ở trạng thái PENDING
+      const user = await UserModel.findById(decoded.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'Tài khoản không tồn tại trên hệ thống' });
+      }
+
+      if (user.status === 'ACTIVE') {
+        return res.status(400).json({ message: 'Tài khoản này đã được kích hoạt trước đó' });
+      }
+      const activationToken = jwt.sign(
+        { userId: newUserId, email: email },
+        process.env.JWT_ACTIVATION_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      await sendAdminInviteEmail(email, name, activationToken, targetRole);
+      return res.status(200).json({
+        message: isUpdated 
+          ? 'Tài khoản đã tồn tại! Đã cập nhật Role mới và gửi email kích hoạt lại.' 
+          : 'Tạo tài khoản Quản trị viên mới thành công!',
+        data: {
+          userId: userId,
+          email: email,
+          role: targetRole,
+          status: 'PENDING',
+          isUpdated: isUpdated
+        }
+      });
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return res.status(400).json({ message: 'Link kích hoạt đã hết hạn (quá 24h). Vui lòng liên hệ Super Admin gửi lại lời mời.' });
+      }
+      return res.status(400).json({ message: 'Mã kích hoạt không hợp lệ hoặc đã bị chỉnh sửa' });
+    }
+  },
+  activateAccount: async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+
+      // Validate dữ liệu đầu vào
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ token và mật khẩu mới' });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'Mật khẩu mới phải chứa ít nhất 6 ký tự' });
+      }
+
+      // Giải mã token
+      let decoded;
+      try {
+        decoded = jwt.verify(token, process.env.JWT_ACTIVATION_SECRET);
+      } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+          return res.status(400).json({ message: 'Link kích hoạt đã hết hạn' });
+        }
+        return res.status(400).json({ message: 'Mã kích hoạt không hợp lệ' });
+      }
+
+      // Kiểm tra sự tồn tại của User
+      const user = await UserModel.findById(decoded.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'Tài khoản không tồn tại' });
+      }
+
+      if (user.status === 'ACTIVE') {
+        return res.status(400).json({ message: 'Tài khoản này đã được kích hoạt từ trước' });
+      }
+
+      // Mã hóa mật khẩu mới
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+      // Cập nhật Database: Đổi mật khẩu, chuyển status thành ACTIVE
+      await UserModel.activateAdminUser(decoded.userId, hashedPassword);
+
+      return res.status(200).json({
+        message: 'Kích hoạt tài khoản thành công! Bạn hiện có thể đăng nhập vào hệ thống.'
+      });
+
+    } catch (error) {
+      console.error('Lỗi activateAccount:', error);
+      return res.status(500).json({ 
+        message: 'Lỗi máy chủ nội bộ', 
+        error: error.message 
+      });
     }
   },
 };
