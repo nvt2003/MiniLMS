@@ -85,7 +85,7 @@ function App() {
         <Route path="/teacher/score/:examId?" element={<ExamGradebookPage />} />
         <Route path="/admin/builder" element={<AdminBuilder />} />
         <Route path="/admin/manager" element={<AdminManagement />} />
-        <Route path="/admin/active" element={<ActivateAccount />} />
+        <Route path="/admin/activate-account" element={<ActivateAccount />} />
       </Routes>
     </BrowserRouter>
   );
