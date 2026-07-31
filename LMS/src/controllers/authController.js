@@ -281,38 +281,46 @@ const AuthController = {
       }else{
         
       //Xử lý Role cho Admin mới
-      // Danh sách các Sub-Admin hợp lệ trong hệ thống
-      const allowedAdminRoles = ['admin', 'admin_teacher', 'admin_student', 'admin_pages', 'admin_finance'];
-      // Nếu truyền role không hợp lệ -> Mặc định gán là 'admin_teacher' (Tránh vô tình tạo nhầm Super Admin)
-      const targetRole = allowedAdminRoles.includes(role) ? role : 'admin_teacher';
-      // Mã hóa (băm) mật khẩu bảo mật
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      userId = await UserModel.create({
+          name,
+          email,
+          password: hashedPassword,
+          role: targetRole,
+          status: 'PENDING',
+          created_by: creatorId
+        });
+      }
 
-      // const newUserId = await UserModel.create(name, email, hashedPassword, 'admin');
-      const newUserId = await UserModel.create({
-            name,
-            email,
-            password: hashedPassword,
-            role: targetRole,
-            status: 'PENDING',
-            created_by: creatorId
-          });
-      return res.status(201).json({
-      message: 'Tạo tài khoản Quản trị viên thành công!',
+    // 3. Tạo Token kích hoạt và Gửi Email
+    const activationToken = jwt.sign(
+      { userId: userId, email: email },
+      process.env.JWT_ACTIVATION_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    await sendAdminInviteEmail(email, name, activationToken, targetRole);
+
+    return res.status(200).json({
+      message: isUpdated 
+        ? 'Tài khoản đã tồn tại! Đã cập nhật Role mới và gửi email kích hoạt lại.' 
+        : 'Tạo tài khoản Quản trị viên mới thành công!',
       data: {
-        userId: newUserId,
+        userId: userId,
         email: email,
         role: targetRole,
         status: 'PENDING',
-        createdBy: creatorId
+        isUpdated: isUpdated
       }
     });
-      }
+
     } catch (error) {
-      return res.status(500).json({ error: 'Lỗi server: ' + error.message });
-    }
-  },
+        console.error('Lỗi registerAdmin:', error);
+        return res.status(500).json({ 
+          message: 'Lỗi máy chủ nội bộ', 
+          error: error.message 
+        });
+      }
+    },
   
   verifyActivationToken: async (req, res) => {
     try {
