@@ -29,6 +29,7 @@ export default function ActivateAccount() {
       try {
         const res = await api.get(`/auth/verify-activation-token/${token}`);
         setUserInfo(res.data.data);
+        setVerifying(false);
       } catch (err) {
         setVerifyError(
           err.response?.data?.message ||
@@ -53,13 +54,10 @@ export default function ActivateAccount() {
     setSubmitError("");
 
     try {
-      /*
-      await axios.post('/api/admin/activate-account', { token, newPassword });
-      */
-      setTimeout(() => {
-        setIsSuccess(true);
-        setSubmitting(false);
-      }, 1000);
+      const res = api.post("/auth/activate-account", { token, newPassword });
+      if (res.success) {
+        navigate("/");
+      }
     } catch (err) {
       setSubmitError(
         err.response?.data?.message || "Kích hoạt thất bại. Vui lòng thử lại!",

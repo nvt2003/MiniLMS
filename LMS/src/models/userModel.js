@@ -96,7 +96,7 @@ const UserModel = {
   activateAdminUser: async (userId, hashedPassword) => {
     const [result] = await db.query(
       `UPDATE users 
-      SET password = ?, status = 'ACTIVE', updated_at = NOW() 
+      SET password = ?, status = 'ACTIVE', created_at = NOW() 
       WHERE id = ?`,
       [hashedPassword, userId]
     );
@@ -119,7 +119,7 @@ const UserModel = {
   deactivateUser: async (userId) => {
     const [result] = await db.query(
       `UPDATE users 
-      SET status = 'BLOCKED', updated_at = NOW() 
+      SET status = 'BLOCKED', create_at = NOW() 
       WHERE id = ?`,
       [userId]
     );
