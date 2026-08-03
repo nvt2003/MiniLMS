@@ -152,13 +152,15 @@ export const ColorPickerModal = ({
                           key={colorClass}
                           type="button"
                           onClick={() => handleSelect(colorClass)}
-                          className={`w-8 h-8 rounded border transition-transform hover:scale-110 relative ${displayBg} ${
+                          className={`w-8 h-8 rounded border transition-transform hover:scale-110 relative ${colorClass} ${
                             isSelected
                               ? "ring-2 ring-blue-500 ring-offset-1 z-10"
                               : ""
                           }`}
                           title={colorClass}
-                        />
+                        >
+                          {isText ? "a" : ""}
+                        </button>
                       );
                     })}
                   </div>
