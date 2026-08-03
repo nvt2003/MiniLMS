@@ -7,7 +7,7 @@ import { SettingsPanel } from "../../Components/Crafts/SettingsPanel";
 import { CustomImage } from "../../Components/Crafts/CustomImage";
 import { Topbar } from "./Topbar";
 import { PageDataLoader } from "./PageDataLoader";
-import { Slider } from "../../Components/Crafts/Slider";
+import { Slider, SlideItem } from "../../Components/Crafts/Slider";
 
 export default function AdminBuilder() {
   const [activeGroup, setActiveGroup] = useState("homepage");
@@ -18,6 +18,7 @@ export default function AdminBuilder() {
         Text,
         CustomImage,
         Slider,
+        SlideItem,
       }}
     >
       {/* thanh công cụ */}
@@ -29,7 +30,6 @@ export default function AdminBuilder() {
           <h1 className="font-bold">Visual Page Builder</h1>
           {/* <SaveButton /> */}
         </div>
-
         {/* Main Workspace */}
         <div className="flex flex-1 overflow-hidden">
           <Toolbox />

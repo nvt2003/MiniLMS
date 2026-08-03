@@ -3,7 +3,7 @@ import { useEditor } from "@craftjs/core";
 import { Text } from "./Text";
 import { Container } from "./Container";
 import { CustomImage } from "./CustomImage";
-import { Slider } from "./Slider";
+import { Slider, SlideItem } from "./Slider";
 
 export const Toolbox = () => {
   const { connectors, actions, query } = useEditor();

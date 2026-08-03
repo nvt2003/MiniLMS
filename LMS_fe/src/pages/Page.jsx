@@ -7,7 +7,7 @@ import { Text } from "../Components/Crafts/Text";
 import { CustomImage } from "../Components/Crafts/CustomImage";
 import Navbar from "../Components/Navbar";
 import { getPageLayout } from "../services/settingApi";
-import { Slider } from "../Components/Crafts/Slider";
+import { Slider, SlideItem } from "../Components/Crafts/Slider";
 export default function Page() {
   const { slug } = useParams();
   const [page, setPage] = useState(null);
@@ -56,6 +56,7 @@ export default function Page() {
           Text,
           CustomImage,
           Slider,
+          SlideItem,
           Element: Container,
           Canvas: Container,
         }}
