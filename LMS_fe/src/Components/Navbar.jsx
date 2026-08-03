@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { io } from "socket.io-client";
-const Backend = import.meta.env.VITE_API_BASE_URL;
 const SocketURL = import.meta.env.VITE_SOCKET_URL;
 import useAlert from "./Alert/useAlert";
+import { searchSettings } from "../services/settingApi";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [customNavItems, setCustomNavItems] = useState([]);
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   const notiRef = useRef(null);
   const profileRef = useRef(null);
@@ -77,15 +79,38 @@ const Navbar = () => {
       navigate("/login");
     });
   };
+  useEffect(() => {
+    const fetchNavbarConfig = async () => {
+      try {
+        // Tìm setting chứa danh sách navbar đã cấu hình
+        const res = await searchSettings(
+          "page_layout_config",
+          "navbar",
+          "navbar_custom_config",
+        );
+        if (res && res.length > 0) {
+          // res[0].value chứa mảng json các custom link
+          const parsedConfig =
+            typeof res[0].value === "string"
+              ? JSON.parse(res[0].value)
+              : res[0].value;
+          setCustomNavItems(parsedConfig || []);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải cấu hình Navbar:", error);
+      }
+    };
 
+    fetchNavbarConfig();
+  }, []);
   return (
     <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 h-16 px-6 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-6">
-        {/* <Link to="/dashboard" className="flex items-center gap-2"> */}
-        <span className="text-2xl font-black text-blue-600 tracking-tight">
-          Mini-LMS
-        </span>
-        {/* </Link> */}
+        <Link to="/home" className="flex items-center gap-2">
+          <span className="text-2xl font-black text-blue-600 tracking-tight">
+            Mini-LMS
+          </span>
+        </Link>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 ml-4">
           <Link to="/dashboard" className="hover:text-blue-600 transition">
@@ -94,6 +119,54 @@ const Navbar = () => {
           <Link to="/browse-courses" className="hover:text-blue-600 transition">
             Khám phá khóa học
           </Link>
+          {/* --- DYNAMIC CUSTOM NAVBAR ITEMS --- */}
+          {customNavItems.map((item) => {
+            if (item.type === "link") {
+              return (
+                <Link
+                  key={item.id}
+                  to={`/page/${item.slug}`}
+                  className="hover:text-blue-600 transition"
+                >
+                  {item.label}
+                </Link>
+              );
+            }
+
+            if (item.type === "dropdown") {
+              return (
+                <div
+                  key={item.id}
+                  className="relative group"
+                  onMouseEnter={() => setActiveDropdown(item.id)}
+                  onMouseLeave={() => setActiveDropdown(null)}
+                >
+                  <button className="flex items-center gap-1 hover:text-blue-600 transition py-2">
+                    <span>{item.label}</span>
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                    </svg>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {activeDropdown === item.id && (
+                    <div className="absolute left-0 top-full w-48 bg-white shadow-lg rounded-md border border-slate-100 py-2 z-50">
+                      {item.children?.map((child) => (
+                        <Link
+                          key={child.id}
+                          to={`/page/${child.slug}`}
+                          className="block px-4 py-2 text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return null;
+          })}
           {userRole === "teacher" && (
             <>
               <Link

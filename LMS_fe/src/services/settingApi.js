@@ -53,3 +53,7 @@ export const createSetting = async (data) => {
   const res = await api.post("/settings", data);
   return res.data.data;
 };
+export const updateSettingValueApi = async (data) => {
+  const res = await api.put("/settings", data);
+  return res.data;
+};

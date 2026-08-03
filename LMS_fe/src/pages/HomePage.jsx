@@ -5,6 +5,7 @@ import { Text } from "../Components/Crafts/Text";
 import { CustomImage } from "../Components/Crafts/CustomImage";
 import { getPageLayout } from "../services/settingApi";
 import { Slider, SlideItem } from "../Components/Crafts/Slider";
+import Navbar from "../Components/Navbar";
 
 export default function HomePage() {
   const [jsonConfig, setJsonConfig] = useState(null);
@@ -20,19 +21,22 @@ export default function HomePage() {
   if (!jsonConfig) return <div>Loading...</div>;
 
   return (
-    <Editor
-      resolver={{
-        Container,
-        Text,
-        CustomImage,
-        Slider,
-        SlideItem,
-        Element: Container,
-        Canvas: Container,
-      }}
-      enabled={false}
-    >
-      <Frame data={jsonConfig} />
-    </Editor>
+    <>
+      <Navbar />
+      <Editor
+        resolver={{
+          Container,
+          Text,
+          CustomImage,
+          Slider,
+          SlideItem,
+          Element: Container,
+          Canvas: Container,
+        }}
+        enabled={false}
+      >
+        <Frame data={jsonConfig} />
+      </Editor>
+    </>
   );
 }
