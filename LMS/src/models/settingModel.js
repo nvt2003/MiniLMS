@@ -78,5 +78,19 @@ const SettingModel = {
 
         return res;
     },
+    updateValue: async (parent, group, key, value, description = null) => {
+        const [result] = await db.query(
+        `
+        UPDATE system_settings
+        SET setting_value = ?, 
+            description = COALESCE(?, description),
+            updated_at = NOW()
+        WHERE parent_group = ? AND setting_group = ? AND setting_key = ?
+        `,
+        [value, description, parent, group, key]
+        );
+
+        return result.affectedRows;
+    }
 }
 module.exports = SettingModel
