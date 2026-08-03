@@ -7,10 +7,14 @@ export const SlideItem = ({ children }) => {
     connectors: { connect, drag },
   } = useNode();
 
+  const { enabled } = useEditor((state) => ({
+    enabled: state.options.enabled,
+  }));
+
   return (
     <div
       ref={(ref) => connect(drag(ref))}
-      className="w-full h-full flex flex-col justify-center items-center p-4 border-2 border-dashed border-gray-300 bg-gray-50/50 hover:border-blue-400 transition-colors relative min-h-[250px]"
+      className={`w-full h-full flex flex-col justify-center items-center p-4 ${enabled ? "border-2 border-dashed border-gray-300 bg-gray-50/50 hover:border-blue-400" : ""} transition-colors relative min-h-[250px]`}
     >
       {/* Khung hướng dẫn hiển thị khi Slide trống */}
       {React.Children.count(children) === 0 && (
@@ -102,9 +106,10 @@ export const SliderSettings = () => {
           </label>
           <select
             value={maxWidth}
-            onChange={(e) =>
-              setProp((props) => (props.maxWidth = e.target.value))
-            }
+            onChange={(e) => {
+              console.log("Đổi Width:", e.target.value);
+              setProp((props) => (props.maxWidth = e.target.value));
+            }}
             className="w-full p-2 border rounded text-xs bg-white"
           >
             <option value="max-w-full">Tràn màn hình (100%)</option>
@@ -247,45 +252,46 @@ export const Slider = ({
   return (
     <div
       ref={(ref) => connect(drag(ref))}
-      className={`relative w-full mx-auto my-4 bg-white rounded-lg border shadow-sm transition-all overflow-hidden ${maxWidth} ${
+      className={`relative w-full mx-auto my-4 bg-white rounded-lg shadow-sm transition-all overflow-hidden ${maxWidth} ${
         selected ? "ring-2 ring-blue-500" : ""
       }`}
     >
       {/* Thanh tab chuyển slide khi dùng trong Editor */}
-      <div className="bg-gray-100 px-4 py-2 flex items-center justify-between border-b border-gray-200 z-10 relative">
-        <div className="flex items-center space-x-2 overflow-x-auto py-1">
-          <span className="text-xs text-gray-500 font-semibold whitespace-nowrap">
-            Danh sách Slide:
-          </span>
-          {slideIds.length === 0 && (
-            <span className="text-xs text-red-500 italic">
-              Trống - Bấm cài đặt để thêm slide
+      {enabled && (
+        <div className="bg-gray-100 px-4 py-2 flex items-center justify-between border-b border-gray-200 z-10 relative">
+          <div className="flex items-center space-x-2 overflow-x-auto py-1">
+            <span className="text-xs text-gray-500 font-semibold whitespace-nowrap">
+              Danh sách Slide:
             </span>
-          )}
-          {slideIds.map((id, idx) => (
-            <button
-              key={id}
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveTab(idx);
-              }}
-              className={`px-3 py-1 text-xs rounded transition-all whitespace-nowrap ${
-                activeTab === idx
-                  ? "bg-blue-600 text-white font-bold shadow-sm"
-                  : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              Slide {idx + 1}
-            </button>
-          ))}
-        </div>
+            {slideIds.length === 0 && (
+              <span className="text-xs text-red-500 italic">
+                Trống - Bấm cài đặt để thêm slide
+              </span>
+            )}
+            {slideIds.map((id, idx) => (
+              <button
+                key={id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTab(idx);
+                }}
+                className={`px-3 py-1 text-xs rounded transition-all whitespace-nowrap ${
+                  activeTab === idx
+                    ? "bg-blue-600 text-white font-bold shadow-sm"
+                    : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Slide {idx + 1}
+              </button>
+            ))}
+          </div>
 
-        {/* Cảnh báo trạng thái Autoplay trên thanh Tab */}
-        <div className="text-[10px] text-gray-400 font-medium whitespace-nowrap ml-2">
-          {autoplay ? `Tự động: ${interval / 1000}s` : "Tắt tự động"}
+          {/* Cảnh báo trạng thái Autoplay trên thanh Tab */}
+          <div className="text-[10px] text-gray-400 font-medium whitespace-nowrap ml-2">
+            {autoplay ? `Tự động: ${interval / 1000}s` : "Tắt tự động"}
+          </div>
         </div>
-      </div>
-
+      )}
       {/* Vùng hiển thị nội dung các Slide */}
       <div
         style={{ height: `${height}px` }}
