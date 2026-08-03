@@ -121,7 +121,6 @@ export default function HomePage() {
   if (!jsonConfig) return <div>Loading...</div>;
 
   return (
-    // enabled={false} giúp vô hiệu hóa toàn bộ tính năng kéo thả & chỉnh sửa
     <Editor
       resolver={{
         Container,

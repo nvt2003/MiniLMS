@@ -1,39 +1,12 @@
 import { useEffect, useState } from "react";
-import { Editor, Frame, Element, useEditor } from "@craftjs/core";
+import { Editor, Frame, Element } from "@craftjs/core";
 import { Container } from "../../Components/Crafts/Container";
 import { Text } from "../../Components/Crafts/Text";
 import { Toolbox } from "../../Components/Crafts/Toolbox";
 import { SettingsPanel } from "../../Components/Crafts/SettingsPanel";
-import { savePageLayout } from "../../services/settingApi";
 import { CustomImage } from "../../Components/Crafts/CustomImage";
-import useAlert from "../../Components/Alert/useAlert";
 import { Topbar } from "./Topbar";
 import { PageDataLoader } from "./PageDataLoader";
-
-// Component nút Lưu dữ liệu
-// const SaveButton = () => {
-//   const { showAlert } = useAlert();
-//   const { query } = useEditor();
-
-//   const handleSave = async () => {
-//     try {
-//       const jsonState = query.serialize();
-//       await savePageLayout(jsonState, "homepage");
-//       showAlert("success", "", "Lưu giao diện thành công!");
-//     } catch (error) {
-//       console.error("Lỗi lưu giao diện:", error);
-//     }
-//   };
-
-//   return (
-//     <button
-//       onClick={handleSave}
-//       className="bg-green-600 text-white px-4 py-2 rounded"
-//     >
-//       Lưu Giao Diện
-//     </button>
-//   );
-// };
 
 export default function AdminBuilder() {
   const [activeGroup, setActiveGroup] = useState("homepage");
