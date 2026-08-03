@@ -126,6 +126,7 @@ export default function HomePage() {
         Container,
         Text,
         CustomImage,
+        Slider,
         Element: Container,
         Canvas: Container,
       }}

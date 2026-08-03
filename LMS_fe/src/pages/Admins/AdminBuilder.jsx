@@ -7,6 +7,7 @@ import { SettingsPanel } from "../../Components/Crafts/SettingsPanel";
 import { CustomImage } from "../../Components/Crafts/CustomImage";
 import { Topbar } from "./Topbar";
 import { PageDataLoader } from "./PageDataLoader";
+import { Slider } from "../../Components/Crafts/Slider";
 
 export default function AdminBuilder() {
   const [activeGroup, setActiveGroup] = useState("homepage");
@@ -16,6 +17,7 @@ export default function AdminBuilder() {
         Container,
         Text,
         CustomImage,
+        Slider,
       }}
     >
       {/* thanh công cụ */}

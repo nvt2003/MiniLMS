@@ -3,6 +3,7 @@ import { useEditor } from "@craftjs/core";
 import { Text } from "./Text";
 import { Container } from "./Container";
 import { CustomImage } from "./CustomImage";
+import { Slider } from "./Slider";
 
 export const Toolbox = () => {
   const { connectors, actions, query } = useEditor();
@@ -10,7 +11,6 @@ export const Toolbox = () => {
     try {
       // 1. Lấy tất cả các node hiện có trong editor
       const nodes = query.getNodes();
-      console.log("Danh sách node hiện tại:", query.getNodes());
 
       // 2. Tìm node gốc (node không có parent)
       const rootNodeId =
@@ -21,7 +21,7 @@ export const Toolbox = () => {
         return;
       }
       const nodeTree = query.parseReactElement(reactElement).toNodeTree();
-      actions.addNodeTree(nodeTree, "ROOT");
+      actions.addNodeTree(nodeTree, rootNodeId);
     } catch (error) {
       console.error("Lỗi khi thêm phần tử:", error);
     }
@@ -80,6 +80,22 @@ export const Toolbox = () => {
         </button>
         <button
           onClick={() => addComponentToRoot(<CustomImage />)}
+          className="px-2 bg-blue-50 border border-blue-200 text-blue-600 rounded text-xs hover:bg-blue-100"
+          title="Bấm để chèn nhanh"
+        >
+          + Thêm
+        </button>
+      </div>
+      {/* 3. Thẻ Slider */}
+      <div className="flex gap-1">
+        <button
+          ref={(ref) => connectors.create(ref, <Slider />)}
+          className="p-2 bg-white border rounded shadow-sm hover:bg-gray-100 text-left flex items-center gap-2"
+        >
+          Slider
+        </button>
+        <button
+          onClick={() => addComponentToRoot(<Slider />)}
           className="px-2 bg-blue-50 border border-blue-200 text-blue-600 rounded text-xs hover:bg-blue-100"
           title="Bấm để chèn nhanh"
         >
