@@ -15,7 +15,6 @@ const resolver = {
 };
 
 export default function Page() {
-  console.log("Component render");
   const { slug } = useParams();
   const [page, setPage] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,18 +23,14 @@ export default function Page() {
   useEffect(() => {
     const fetchPage = async () => {
       try {
-        console.log("get");
         const res = await getPageLayout(
           `${slug || "homepage"}`,
           "page_layout_config",
         );
-
         if (res.status === 404) {
           setNotFound(true);
           return;
         }
-
-        //const data = await res.json();
 
         setPage(res);
       } catch (err) {
@@ -47,7 +42,6 @@ export default function Page() {
     };
 
     fetchPage();
-    console.log(page);
   }, [slug]);
 
   if (loading) {
@@ -62,7 +56,6 @@ export default function Page() {
     <>
       <Navbar />
 
-      {/* <Editor resolver={resolver} enabled={false}> */}
       <Editor
         resolver={{
           Container,
@@ -73,7 +66,7 @@ export default function Page() {
         }}
         enabled={false}
       >
-        <Frame data={page.content} />
+        <Frame data={page} />
       </Editor>
     </>
   );
