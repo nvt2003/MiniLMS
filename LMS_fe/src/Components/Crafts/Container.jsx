@@ -9,6 +9,7 @@ export const Container = ({
   cols = "grid-cols-3",
   gap = "gap-4",
   alignItems = "items-center",
+  justifyContent = "justify-start",
   children,
 }) => {
   const {
@@ -26,12 +27,34 @@ export const Container = ({
   const { enabled } = useEditor((state) => ({
     enabled: state.options.enabled,
   }));
-
+  const gridCols = {
+    1: "grid-cols-1",
+    2: "grid-cols-2",
+    3: "grid-cols-3",
+    4: "grid-cols-4",
+    5: "grid-cols-5",
+    6: "grid-cols-6",
+    7: "grid-cols-7",
+    8: "grid-cols-8",
+    9: "grid-cols-9",
+    10: "grid-cols-10",
+    11: "grid-cols-11",
+    12: "grid-cols-12",
+  };
   const getLayoutClasses = () => {
-    if (layout === "flex-row")
-      return `flex flex-row flex-wrap ${alignItems} ${gap}`;
-    if (layout === "grid") return `grid ${cols} ${gap}`;
-    return "flex flex-col";
+    if (layout === "flex-row") {
+      return `flex flex-row flex-wrap ${justifyContent} ${alignItems} ${gap}`;
+    }
+
+    if (layout === "flex-col") {
+      return `flex flex-col ${justifyContent} ${alignItems} ${gap}`;
+    }
+
+    if (layout === "grid") {
+      return `grid ${gridCols[cols] || "grid-cols-3"} ${gap}`;
+    }
+
+    return `flex flex-col ${justifyContent} ${alignItems} ${gap}`;
   };
   return (
     <div
@@ -40,7 +63,7 @@ export const Container = ({
       //   e.stopPropagation();
       //   selectNode(id);
       // }}
-      className={`min-h-[60px] transition-all relative ${getLayoutClasses()} ${
+      className={`w-full max-w-full min-h-[60px] transition-all relative ${getLayoutClasses()} ${
         selected
           ? "outline outline-2 outline-blue-500"
           : `${enabled ? "border border-dashed border-gray-300" : ""}`
@@ -74,6 +97,32 @@ function ContainerSettings() {
         />
       </div>
       <div>
+        <label>Căn ngang</label>
+        <select
+          value={props.justifyContent}
+          onChange={(e) => setProp((p) => (p.justifyContent = e.target.value))}
+          className="w-full p-2 border rounded bg-white"
+        >
+          <option value="justify-start">Trái</option>
+          <option value="justify-center">Giữa</option>
+          <option value="justify-end">Phải</option>
+          <option value="justify-between">Giãn đều</option>
+        </select>
+      </div>
+      <div>
+        <label>Căn dọc</label>
+        <select
+          value={props.alignItems}
+          onChange={(e) => setProp((p) => (p.alignItems = e.target.value))}
+          className="w-full p-2 border rounded bg-white"
+        >
+          <option value="items-start">Trên</option>
+          <option value="items-center">Giữa</option>
+          <option value="items-end">Dưới</option>
+          <option value="items-stretch">Kéo giãn</option>
+        </select>
+      </div>
+      <div>
         <label className="font-semibold block mb-1 text-gray-700">
           Bố trí (Layout)
         </label>
@@ -105,15 +154,10 @@ function ContainerSettings() {
             type="number"
             min={1}
             max={12}
-            value={
-              parseInt(
-                (props.cols || "grid-cols-3").replace("grid-cols-", ""),
-                10,
-              ) || 1
-            }
+            value={props.cols || 3}
             onChange={(e) => {
               const val = Math.max(1, parseInt(e.target.value, 10) || 1);
-              setProp((p) => (p.cols = `grid-cols-${val}`));
+              setProp((p) => (p.cols = val));
             }}
             className="w-full p-2 border rounded bg-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="Nhập số cột (VD: 3)"
@@ -130,10 +174,10 @@ function ContainerSettings() {
             onChange={(e) => setProp((p) => (p.gap = e.target.value))}
             className="w-full p-2 border rounded bg-white"
           >
-            <option value="gap-2">Nhỏ (8px)</option>
-            <option value="gap-4">Vừa (16px)</option>
-            <option value="gap-8">Lớn (32px)</option>
-            <option value="justify-between">Căn đều</option>
+            <option value="gap-2">Nhỏ</option>
+            <option value="gap-4">Vừa</option>
+            <option value="gap-8">Lớn</option>
+            <option value="gap-12">Rất lớn</option>
           </select>
         </div>
       )}
@@ -168,6 +212,11 @@ Container.craft = {
   defaultProps: {
     background: "bg-white",
     padding: "p-4",
+    layout: "flex-col",
+    cols: 3,
+    gap: "gap-4",
+    justifyContent: "justify-start",
+    alignItems: "items-start",
   },
   related: {
     settings: ContainerSettings,
