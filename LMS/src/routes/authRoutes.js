@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const AuthController = require('../controllers/authController');
-const { verifyToken, restrictTo} = require('../middlewares/authMiddleware');
+const { verifyToken, restrictTo, requireAdmin} = require('../middlewares/authMiddleware');
 
 router.post('/register', AuthController.register);
 
