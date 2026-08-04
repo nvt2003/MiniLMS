@@ -2,37 +2,41 @@ import { useState } from "react";
 import AlertContext from "./AlertContext";
 import Alert from "./Alert";
 
+const defaults = {
+  isOpen: false,
+  mode: "alert",
+  type: "info",
+  title: "",
+  message: "",
+  value: "",
+  onConfirm: null,
+};
 export default function AlertProvider({ children }) {
-  const [alert, setAlert] = useState({
-    isOpen: false,
-    mode: "alert",
-    type: "info",
-    title: "",
-    message: "",
-    onConfirm: null,
-  });
+  const [alert, setAlert] = useState(defaults);
 
-  const showAlert = (type, title, message) => {
-    setAlert({
-      isOpen: true,
-      mode: "alert",
-      type,
-      title,
-      message,
-      onConfirm: null,
-    });
-  };
+  // const showAlert = (type, title, message) => {
+  //   setAlert({
+  //     isOpen: true,
+  //     mode: "alert",
+  //     type,
+  //     title,
+  //     message,
+  //     onConfirm: null,
+  //   });
+  // };
 
-  const confirm = (title, message, onConfirm, type = "warning") => {
-    setAlert({
-      isOpen: true,
-      mode: "confirm",
-      type,
-      title,
-      message,
-      onConfirm,
-    });
-  };
+  // const confirm = (title, message, onConfirm, type = "warning") => {
+  //   setAlert({
+  //     isOpen: true,
+  //     mode: "confirm",
+  //     type,
+  //     title,
+  //     message,
+  //     onConfirm,
+  //   });
+  // };
+
+  const open = (options) => setAlert({ ...defaults, isOpen: true, ...options });
 
   const close = () =>
     setAlert((prev) => ({
@@ -40,27 +44,67 @@ export default function AlertProvider({ children }) {
       isOpen: false,
     }));
 
-  const handleConfirm = () => {
-    if (alert.onConfirm) {
-      alert.onConfirm();
-    }
+  // const handleConfirm = () => {
+  //   if (alert.onConfirm) {
+  //     alert.onConfirm();
+  //   }
+  //   close();
+  // };
+  const handleConfirm = (value) => {
+    alert.onConfirm?.(value);
     close();
   };
-
+  const prompt = (
+    message,
+    title = "Nhập thông tin",
+    type = "info",
+    defaultValue = "",
+  ) => {
+    return new Promise((resolve) => {
+      open({
+        mode: "prompt",
+        type,
+        title,
+        message,
+        value: defaultValue,
+        onConfirm: resolve,
+      });
+    });
+  };
+  const confirm = (message, title = "Xác nhận", type = "warning") => {
+    return new Promise((resolve) => {
+      open({
+        mode: "confirm",
+        type,
+        title,
+        message,
+        onConfirm: () => resolve(true),
+        onCancel: () => resolve(false),
+      });
+    });
+  };
   return (
     <AlertContext.Provider
       value={{
-        showAlert,
+        showAlert: (type, title, message) =>
+          open({ mode: "alert", type, title, message }),
+
+        // confirm: (title, message, onConfirm, type = "warning") =>
+        //   open({ mode: "confirm", type, title, message, onConfirm }),
         confirm,
+        prompt,
 
         success: (msg, title = "Thành công") =>
-          showAlert("success", title, msg),
+          open({ type: "success", title, message: msg }),
 
-        error: (msg, title = "Lỗi") => showAlert("error", title, msg),
+        error: (msg, title = "Lỗi") =>
+          open({ type: "error", title, message: msg }),
 
-        warning: (msg, title = "Cảnh báo") => showAlert("warning", title, msg),
+        warning: (msg, title = "Cảnh báo") =>
+          open({ type: "warning", title, message: msg }),
 
-        info: (msg, title = "Thông báo") => showAlert("info", title, msg),
+        info: (msg, title = "Thông báo") =>
+          open({ type: "info", title, message: msg }),
       }}
     >
       {children}

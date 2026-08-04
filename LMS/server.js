@@ -12,13 +12,14 @@ const questionRoutes = require('./src/routes/questionRoutes');
 const examRoutes = require('./src/routes/examRoutes');
 const examAttemptRoutes = require('./src/routes/examAttemptRoute');
 const gradingRoutes = require('./src/routes/gradingRoutes');
+const settingRoutes = require('./src/routes/settingRoutes');
 const initCleanOrphanImagesJob = require('./src/jobs/cleanOrphanImagesJob');
 const FRONT_END = process.env.FRONT_END;
 const app = express();
 const cors = require("cors");
 const corsOptions = {
   origin:FRONT_END,
-  methods:["GET","POST","PUT","DELETE"],
+  methods:["GET","POST","PUT","DELETE","PATCH"],
   allowedHeaders:["Content-Type","Authorization"]
 }
 
@@ -39,6 +40,7 @@ app.use('/api/exams',examRoutes);
 app.use('/api/attemps',examAttemptRoutes);
 app.use('/api/attempts',examAttemptRoutes);
 app.use('/api/grading',gradingRoutes);
+app.use("/api/settings", settingRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {

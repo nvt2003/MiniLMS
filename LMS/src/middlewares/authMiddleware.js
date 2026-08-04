@@ -52,7 +52,19 @@ const AuthMiddleware = {
     } else {
       return res.status(403).json({ message: 'Quyền truy cập bị từ chối! Tính năng này chỉ dành cho Giáo viên.' });
     }
+  },
+  requireAdmin: (req, res, next) => {
+  const userRole = req.user?.role;
+
+  // Cho phép nếu là Super Admin ('admin') hoặc bất kỳ Sub-Admin nào ('admin_teacher', 'admin_pages',...)
+  if (userRole === 'admin' || (userRole && userRole.startsWith('admin_'))) {
+    return next();
   }
+
+  return res.status(403).json({
+    message: 'Truy cập bị từ chối: Bạn không có quyền truy cập tài nguyên này!'
+  });
+}
 };
 
 module.exports = AuthMiddleware;
