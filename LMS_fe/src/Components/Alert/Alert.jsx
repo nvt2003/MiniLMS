@@ -68,7 +68,10 @@ const Alert = ({
               Hủy
             </button>
 
-            <button style={{ background: colors[type] }} onClick={onConfirm}>
+            <button
+              style={{ background: colors[type] }}
+              onClick={() => onConfirm(mode === "prompt" ? input : true)}
+            >
               Xác nhận
             </button>
           </div>

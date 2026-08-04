@@ -54,34 +54,52 @@ export default function AlertProvider({ children }) {
     alert.onConfirm?.(value);
     close();
   };
-  const prompt = (title, message, onConfirm, type = "info", value = "") => {
-    setAlert({
-      isOpen: true,
-      mode: "prompt",
-      type,
-      title,
-      message,
-      value,
-      onConfirm,
+  const prompt = (
+    message,
+    title = "Nhập thông tin",
+    type = "info",
+    defaultValue = "",
+  ) => {
+    return new Promise((resolve) => {
+      open({
+        mode: "prompt",
+        type,
+        title,
+        message,
+        value: defaultValue,
+        onConfirm: resolve,
+      });
+    });
+  };
+  const confirm = (
+    message,
+    title = "Xác nhận",
+    type = "warning",
+    onConfirmCallback = null,
+  ) => {
+    return new Promise((resolve) => {
+      open({
+        mode: "confirm",
+        type,
+        title,
+        message,
+        onConfirm: (val) => {
+          onConfirmCallback?.(val);
+          resolve(true);
+        },
+      });
     });
   };
   return (
     <AlertContext.Provider
       value={{
-        show: (type, title, message) =>
+        showAlert: (type, title, message) =>
           open({ mode: "alert", type, title, message }),
 
-        confirm: (title, message, onConfirm, type = "warning") =>
-          open({ mode: "confirm", type, title, message, onConfirm }),
-        prompt: (title, message, onConfirm, type = "info", value = "") =>
-          open({
-            mode: "prompt",
-            type,
-            title,
-            message,
-            value,
-            onConfirm,
-          }),
+        // confirm: (title, message, onConfirm, type = "warning") =>
+        //   open({ mode: "confirm", type, title, message, onConfirm }),
+        confirm,
+        prompt,
 
         success: (msg, title = "Thành công") =>
           open({ type: "success", title, message: msg }),
