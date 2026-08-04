@@ -1,15 +1,22 @@
 import "./Alert.css";
-
+import { useState, useEffect } from "react";
 const Alert = ({
   isOpen,
   type = "info",
   mode = "alert",
   title,
   message,
+  value = "",
   onClose,
   onConfirm,
   onCancel,
 }) => {
+  const [input, setInput] = useState(value);
+
+  useEffect(() => {
+    setInput(value);
+  }, [value, isOpen]);
+
   if (!isOpen) return null;
 
   const colors = {
@@ -33,11 +40,23 @@ const Alert = ({
   };
 
   return (
-    <div className="alert-overlay" onClick={handleOverlayClick}>
+    <div
+      className="alert-overlay"
+      onClick={() => canCloseByOverlay && onClose()}
+    >
       <div className="alert-box" onClick={handleBoxClick}>
         <h3 style={{ color: colors[type] }}>{title}</h3>
 
         <p>{message}</p>
+
+        {mode === "prompt" && (
+          <input
+            className="alert-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            autoFocus
+          />
+        )}
 
         {mode === "alert" ? (
           <button style={{ background: colors[type] }} onClick={onClose}>

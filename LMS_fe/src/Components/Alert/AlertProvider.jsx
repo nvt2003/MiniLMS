@@ -44,13 +44,27 @@ export default function AlertProvider({ children }) {
       isOpen: false,
     }));
 
-  const handleConfirm = () => {
-    if (alert.onConfirm) {
-      alert.onConfirm();
-    }
+  // const handleConfirm = () => {
+  //   if (alert.onConfirm) {
+  //     alert.onConfirm();
+  //   }
+  //   close();
+  // };
+  const handleConfirm = (value) => {
+    alert.onConfirm?.(value);
     close();
   };
-
+  const prompt = (title, message, onConfirm, type = "info", value = "") => {
+    setAlert({
+      isOpen: true,
+      mode: "prompt",
+      type,
+      title,
+      message,
+      value,
+      onConfirm,
+    });
+  };
   return (
     <AlertContext.Provider
       value={{
