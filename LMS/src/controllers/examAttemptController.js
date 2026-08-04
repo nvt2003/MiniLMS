@@ -223,6 +223,30 @@ const ExamAttemptController = {
       console.error('Lỗi getAttempts:', error);
       return res.status(500).json({ success: false, message: 'Lỗi server' });
     }
+  },
+  autoSaveDraft: async (req, res) => {
+    try {
+      const studentId = req.user.id;
+      const { attemptId, answers = [] } = req.body;
+
+      // Kiểm tra lượt làm bài còn đang diễn ra hay không
+      const attempt = await ExamAttemptModel.getAttemptWithExam(attemptId, studentId);
+      if (!attempt || attempt.status !== 'in_progress') {
+        return res.status(400).json({ success: false, message: "Bài thi không hợp lệ hoặc đã nộp" });
+      }
+
+      // Lưu bản nháp vào DB
+      await ExamAttemptModel.autoSaveAnswersTransaction(attemptId, answers);
+
+      res.json({
+        success: true,
+        message: "Đã tự động lưu bản nháp",
+        savedAt: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error("Lỗi Auto-save:", err);
+      res.status(500).json({ success: false, message: "Lỗi lưu bản nháp" });
+    }
   }
 };
 

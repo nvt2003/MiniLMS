@@ -30,7 +30,23 @@ const ExamAttemptModel = {
        WHERE exam_id = ? AND student_id = ? AND status = 'in_progress'`,
       [examId, studentId]
     );
-    return rows[0];
+    if (rows.length === 0) return null;
+
+    const attempt = rows[0];
+
+    // 2. Lấy lại tất cả câu trả lời đã lưu nháp trước đó của lượt làm bài này
+    const [savedAnswers] = await db.query(
+      `SELECT question_id, selected_option_id, essay_answer
+       FROM student_answers
+       WHERE attempt_id = ?`,
+      [attempt.id]
+    );
+
+    // 3. Trả về thông tin attempt kèm danh sách câu trả lời nháp
+    return {
+      ...attempt,
+      saved_answers: savedAnswers || []
+    };
   },
 
   // Tạo lượt làm bài mới
@@ -53,10 +69,10 @@ const ExamAttemptModel = {
   // Lấy lượt làm bài + phương thức chấm
   getAttemptWithExam: async (attemptId, studentId) => {
     const [rows] = await db.query(
-      `SELECT ea.id, ea.exam_id, e.grading_method 
+      `SELECT ea.id, ea.exam_id, e.grading_method, ea.status 
        FROM exam_attempts ea 
        JOIN exams e ON ea.exam_id = e.id 
-       WHERE ea.id = ? AND ea.student_id = ? AND ea.status = 'in_progress'`,
+       WHERE ea.id = ? AND ea.student_id = ?`,
       [attemptId, studentId]
     );
     return rows[0];
@@ -109,7 +125,12 @@ const ExamAttemptModel = {
       });
 
       await db.query(
-        `INSERT INTO student_answers (attempt_id, question_id, selected_option_id, essay_answer, score_given) VALUES ?`,
+        `INSERT INTO student_answers (attempt_id, question_id, selected_option_id, essay_answer, score_given) 
+          VALUES ? 
+          ON DUPLICATE KEY UPDATE 
+            selected_option_id = VALUES(selected_option_id),
+            essay_answer = VALUES(essay_answer),
+            score_given = VALUES(score_given);`,
         [values]
       );
     }
@@ -265,6 +286,37 @@ const ExamAttemptModel = {
     );
 
     return rows;
+  },
+  autoSaveAnswersTransaction: async (attemptId, answers) => {
+    if (!answers || answers.length === 0) return;
+
+    const values = answers.map((a) => {
+      let selectedOptStr = null;
+
+      if (Array.isArray(a.selected_option_ids) && a.selected_option_ids.length > 0) {
+        selectedOptStr = a.selected_option_ids.join(",");
+      } else if (a.selected_option_id) {
+        selectedOptStr = String(a.selected_option_id);
+      }
+
+      return [
+        attemptId,
+        a.question_id,
+        selectedOptStr,
+        a.essay_answer || null,
+      ];
+    });
+
+    // Cú pháp UPSERT: Nếu trùng (attempt_id, question_id) thì UPDATE lại câu trả lời
+    const sql = `
+      INSERT INTO student_answers (attempt_id, question_id, selected_option_id, essay_answer) 
+      VALUES ? 
+      ON DUPLICATE KEY UPDATE 
+        selected_option_id = VALUES(selected_option_id),
+        essay_answer = VALUES(essay_answer);
+    `;
+
+    await db.query(sql, [values]);
   }
 };
 

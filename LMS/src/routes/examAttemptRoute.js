@@ -9,5 +9,6 @@ router.post('/submit', verifyToken, restrictTo("student"), ExamAttemptController
 router.post('/check-answer', verifyToken, restrictTo("student"), ExamAttemptController.checkPracticeAnswer);
 router.get('/result/:attemptId', verifyToken, ExamAttemptController.getExamResult);
 router.get('/', verifyToken, ExamAttemptController.getAttempts);
+router.post("/auto-save", verifyToken,restrictTo('student'), ExamAttemptController.autoSaveDraft);
 
 module.exports = router;
