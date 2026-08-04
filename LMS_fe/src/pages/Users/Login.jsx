@@ -29,7 +29,9 @@ const Login = () => {
 
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Sai tài khoản hoặc mật khẩu!");
+      if (err.response?.status === 403) setError(err.response?.data?.message);
+      else
+        setError(err.response?.data?.message || "Sai tài khoản hoặc mật khẩu!");
     } finally {
       setLoading(false);
     }

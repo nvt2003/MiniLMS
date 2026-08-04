@@ -119,14 +119,25 @@ const UserModel = {
   deactivateUser: async (userId) => {
     const [result] = await db.query(
       `UPDATE users 
-      SET status = 'BLOCKED', create_at = NOW() 
+      SET status = 'BLOCKED', created_at = NOW() 
       WHERE id = ?`,
       [userId]
     );
     return result.affectedRows > 0;
   },
-  
-getList: async ({ search = '', role = 'ALL', status = 'ALL', page = 1, limit = 10 }) => {
+  activateUser: async (userId) => {
+    const [result] = await db.query(
+      `UPDATE users 
+      SET status = 'ACTIVE', created_at = NOW() 
+      WHERE id = ?`,
+      [userId]
+    );
+    
+    // Trả về true nếu có ít nhất 1 dòng bản ghi được cập nhật thành công
+    return result.affectedRows > 0;
+  },
+    
+  getList: async ({ search = '', role = 'ALL', status = 'ALL', page = 1, limit = 10 }) => {
   const offset = (page - 1) * limit;
   
   let whereClause = "WHERE 1=1";

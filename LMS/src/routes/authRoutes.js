@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const AuthController = require('../controllers/authController');
-const { verifyToken, restrictTo} = require('../middlewares/authMiddleware');
+const { verifyToken, restrictTo, requireAdmin} = require('../middlewares/authMiddleware');
 
 router.post('/register', AuthController.register);
 
@@ -22,5 +22,9 @@ router.get('/verify-activation-token/:token', AuthController.verifyActivationTok
 router.post('/activate-account', AuthController.activateAccount);
 
 router.get('/list', AuthController.getList);
+
+router.patch('/:id/deactivate', verifyToken, requireAdmin, AuthController.deactivateUser);
+
+router.patch('/:id/activate', verifyToken, requireAdmin, AuthController.activateUser);
 
 module.exports = router;

@@ -73,11 +73,11 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    confirm("Đăng xuất", "Bạn muốn đăng xuất khỏi hệ thống?", () => {
+  const handleLogout = async () => {
+    if (await confirm("Đăng xuất", "Bạn muốn đăng xuất khỏi hệ thống?")) {
       localStorage.clear();
       navigate("/login");
-    });
+    }
   };
   useEffect(() => {
     const fetchNavbarConfig = async () => {
@@ -218,6 +218,9 @@ const Navbar = () => {
                 className="hover:text-blue-600 transition"
               >
                 Quản lý header
+              </Link>
+            </>
+          )}
           {userRole === "admin" && (
             <>
               <Link

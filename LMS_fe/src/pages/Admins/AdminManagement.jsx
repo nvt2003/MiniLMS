@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import api from "../../services/api";
 import useDebounce from "../../hooks/useDebounce";
+import useAlert from "../../Components/Alert/useAlert";
 
 const ROLE_MAP = {
   admin: {
@@ -74,6 +75,8 @@ export default function AdminManagement() {
 
   const debouncedSearch = useDebounce(searchTerm);
   const debouncedRole = useDebounce(roleFilter);
+  const { showAlert, confirm } = useAlert();
+
   const fetchList = async () => {
     setLoading(true);
     try {
@@ -88,6 +91,7 @@ export default function AdminManagement() {
       });
       console.log("response", res.data.data);
       setAdmins(res.data.data);
+      setLoading(false);
     } catch (err) {
       console.error(err);
       setLoading(false);
@@ -96,7 +100,6 @@ export default function AdminManagement() {
 
   useEffect(() => {
     fetchList();
-    setLoading(false);
   }, [debouncedSearch, debouncedRole, statusFilter]);
 
   // Xử lý Thêm / Cập nhật Admin
@@ -116,7 +119,56 @@ export default function AdminManagement() {
       setSubmitting(false);
     }
   };
+  const handleDeactivate = async (userId) => {
+    if (!(await confirm("Bạn có chắc chắn muốn khóa tài khoản này không?"))) {
+      return;
+    }
 
+    try {
+      const res = await api.patch(`auth/${userId}/deactivate`);
+
+      if (res.data.success) {
+        showAlert("success", "", res.data.message);
+        // Gọi lại hàm fetch danh sách để cập nhật UI ngay lập tức
+        fetchList();
+      }
+    } catch (error) {
+      console.error("Lỗi khi khóa tài khoản:", error);
+      showAlert(
+        "error",
+        "",
+        error.response?.data?.message ||
+          "Có lỗi xảy ra khi vô hiệu hóa tài khoản!",
+      );
+    }
+  };
+
+  const handleActivate = async (userId) => {
+    if (
+      !(await confirm(
+        "Bạn có chắc chắn muốn mở khóa / kích hoạt lại tài khoản này?",
+      ))
+    ) {
+      return;
+    }
+
+    try {
+      const res = await api.patch(`auth/${userId}/activate`);
+
+      if (res.data.success) {
+        showAlert("success", "", res.data.message);
+        fetchList();
+      }
+    } catch (error) {
+      console.error("Lỗi kích hoạt tài khoản:", error);
+      showAlert(
+        "error",
+        "",
+        error.response?.data?.message ||
+          "Có lỗi xảy ra khi kích hoạt tài khoản!",
+      );
+    }
+  };
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -287,6 +339,7 @@ export default function AdminManagement() {
                               <button
                                 className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md"
                                 title="Mở khóa tài khoản"
+                                onClick={() => handleActivate(admin.id)}
                               >
                                 <Unlock className="w-4 h-4" />
                               </button>
@@ -294,6 +347,7 @@ export default function AdminManagement() {
                               <button
                                 className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-md"
                                 title="Khóa tài khoản"
+                                onClick={() => handleDeactivate(admin.id)}
                               >
                                 <Lock className="w-4 h-4" />
                               </button>
