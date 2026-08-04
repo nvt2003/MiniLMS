@@ -76,13 +76,13 @@ export default function NavbarSettingManager() {
 
   // Lưu cấu hình xuống Backend
   const handleSave = async () => {
+    const payload = {
+      parent_group: "navbar_layout_config",
+      setting_group: "navbar",
+      setting_key: "page_layout_config",
+      setting_value: JSON.stringify(navConfig),
+    };
     try {
-      const payload = {
-        parent_group: "navbar_layout_config",
-        setting_group: "navbar",
-        setting_key: "page_custom_config",
-        setting_value: JSON.stringify(navConfig),
-      };
       await createSetting(payload);
       alert("Đã lưu cấu hình Navbar thành công!");
     } catch (error) {
@@ -94,12 +94,6 @@ export default function NavbarSettingManager() {
 
       if (isConflict) {
         try {
-          const payload = {
-            parent_group: "navbar_layout_config",
-            setting_group: "navbar",
-            setting_key: "page_custom_config",
-            setting_value: JSON.stringify(navConfig),
-          };
           // Chuyển sang gọi API Update
           await updateSettingValueApi(payload);
           alert("Cấu hình đã tồn tại, đã cập nhật Navbar thành công!");
