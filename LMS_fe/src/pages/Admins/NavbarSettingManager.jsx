@@ -8,6 +8,7 @@ import {
 import useAlert from "../../Components/Alert/useAlert";
 import Navbar from "../../Components/Navbar";
 import { Link } from "react-router-dom";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 export default function NavbarSettingManager() {
   const [availablePages, setAvailablePages] = useState([]);
@@ -131,6 +132,42 @@ export default function NavbarSettingManager() {
       }
     }
   };
+  // Di chuyển phần tử trong mảng chính (Parent)
+  const moveItem = (index, direction) => {
+    const newConfig = [...navConfig];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+    if (targetIndex < 0 || targetIndex >= newConfig.length) return;
+
+    // Swap vị trí
+    [newConfig[index], newConfig[targetIndex]] = [
+      newConfig[targetIndex],
+      newConfig[index],
+    ];
+    setNavConfig(newConfig);
+  };
+
+  // Di chuyển phần tử con trong Dropdown (Child)
+  const moveSubItem = (parentId, subIndex, direction) => {
+    setNavConfig(
+      navConfig.map((item) => {
+        if (item.id === parentId) {
+          const newChildren = [...item.children];
+          const targetIndex = direction === "up" ? subIndex - 1 : subIndex + 1;
+
+          if (targetIndex < 0 || targetIndex >= newChildren.length) return item;
+
+          // Swap vị trí con
+          [newChildren[subIndex], newChildren[targetIndex]] = [
+            newChildren[targetIndex],
+            newChildren[subIndex],
+          ];
+          return { ...item, children: newChildren };
+        }
+        return item;
+      }),
+    );
+  };
   return (
     <>
       <Navbar />
@@ -181,7 +218,7 @@ export default function NavbarSettingManager() {
           <div>
             <h3 className="font-semibold mb-2">Cấu trúc Navbar hiện tại:</h3>
             <div className="space-y-3 border p-4 rounded bg-slate-50 min-h-[200px]">
-              {navConfig.map((item) => (
+              {navConfig.map((item, index) => (
                 <div
                   key={item.id}
                   className="p-2 border bg-white rounded shadow-sm"
@@ -190,12 +227,30 @@ export default function NavbarSettingManager() {
                     <span>
                       [{item.type.toUpperCase()}] {item.label}
                     </span>
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="text-red-500 text-xs"
-                    >
-                      Xóa
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => moveItem(index, "up")}
+                        disabled={index === 0}
+                        className="p-1 text-slate-500 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-slate-500"
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveItem(index, "down")}
+                        disabled={index === navConfig.length - 1}
+                        className="p-1 text-slate-500 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-slate-500"
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="text-red-500 text-xs"
+                      >
+                        Xóa
+                      </button>
+                    </div>
                   </div>
 
                   {/* Nếu là dropdown, hiển thị danh sách con và nút thêm con */}
@@ -232,48 +287,50 @@ export default function NavbarSettingManager() {
               </div>
             </div>
           </div>
-          <div className="">
-            <h3 className="font-semibold">Xem trước:</h3>
-            <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 h-16 px-6 flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-6">
-                <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 ml-4">
-                  <Link>[Logo]</Link>
-                  {/* --- DYNAMIC CUSTOM NAVBAR ITEMS --- */}
-                  {navConfig.map((item) => {
-                    if (item.type === "link") {
-                      return (
-                        <Link
-                          key={item.id}
-                          to={`/${item.slug}`}
-                          className="hover:text-blue-600 transition"
-                        >
-                          {item.label}
-                        </Link>
-                      );
-                    }
+        </div>
+        <div className="">
+          <h3 className="font-semibold">Xem trước:</h3>
+          <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 h-16 px-6 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-6">
+              <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 ml-4">
+                <Link>[Logo]</Link>
+                {/* --- DYNAMIC CUSTOM NAVBAR ITEMS --- */}
+                {navConfig.map((item, subIndex) => {
+                  if (item.type === "link") {
+                    return (
+                      <Link
+                        key={item.id}
+                        to={`/${item.slug}`}
+                        className="hover:text-blue-600 transition"
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  }
 
-                    if (item.type === "dropdown") {
-                      return (
-                        <div
-                          key={item.id}
-                          className="relative group"
-                          onMouseEnter={() => setActiveDropdown(item.id)}
-                          onMouseLeave={() => setActiveDropdown(null)}
-                        >
-                          <button className="flex items-center gap-1 hover:text-blue-600 transition py-2">
-                            <span>{item.label}</span>
-                            <svg
-                              className="w-4 h-4 fill-current"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                            </svg>
-                          </button>
+                  if (item.type === "dropdown") {
+                    return (
+                      <div
+                        key={item.id}
+                        className="relative group"
+                        onMouseEnter={() => setActiveDropdown(item.id)}
+                        onMouseLeave={() => setActiveDropdown(null)}
+                      >
+                        <button className="flex items-center gap-1 hover:text-blue-600 transition py-2">
+                          <span>{item.label}</span>
+                          <svg
+                            className="w-4 h-4 fill-current"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                          </svg>
+                        </button>
 
-                          {/* Dropdown Menu */}
-                          {activeDropdown === item.id && (
-                            <div className="absolute left-0 top-full w-48 bg-white shadow-lg rounded-md border border-slate-100 py-2 z-50">
-                              {item.children?.map((child) => (
+                        {/* Dropdown Menu */}
+                        {activeDropdown === item.id && (
+                          <div className="absolute left-0 top-full w-48 bg-white shadow-lg rounded-md border border-slate-100 py-2 z-50">
+                            {item.children?.map((child) => (
+                              <>
                                 <Link
                                   key={child.id}
                                   to={`/${child.slug}`}
@@ -281,19 +338,43 @@ export default function NavbarSettingManager() {
                                 >
                                   {child.label}
                                 </Link>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
-                  <Link>[Các mục mặc định..]</Link>
-                </div>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      moveSubItem(item.id, subIndex, "up")
+                                    }
+                                    disabled={subIndex === 0}
+                                    className="p-0.5 text-slate-500 hover:text-blue-600 disabled:opacity-30"
+                                  >
+                                    <ArrowUp className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      moveSubItem(item.id, subIndex, "down")
+                                    }
+                                    disabled={
+                                      subIndex === item.children.length - 1
+                                    }
+                                    className="p-0.5 text-slate-500 hover:text-blue-600 disabled:opacity-30"
+                                  >
+                                    <ArrowDown className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+                <Link>[Các mục mặc định..]</Link>
               </div>
-            </nav>
-          </div>
+            </div>
+          </nav>
         </div>
       </div>
     </>
