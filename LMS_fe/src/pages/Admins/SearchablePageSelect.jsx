@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { searchPageGroups } from "../../services/settingApi";
+import { searchSettings, createSetting } from "../../services/settingApi";
 import useDebounce from "../../hooks/useDebounce";
 
 export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
@@ -11,11 +11,11 @@ export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
   const debouncedSearch = useDebounce(searchTerm);
 
   // 1. Gọi API tìm kiếm tên các Group/Page
-  const fetchGroups = async (keyword = "") => {
+  const fetchGroups = async (parent = "custom_page", group, key) => {
     setLoading(true);
     try {
-      // Truyền từ khóa tìm kiếm lên API
-      const res = await searchPageGroups(keyword);
+      const res = await searchSettings(parent, group, key);
+
       setOptions(res || []);
     } catch (error) {
       console.error("Lỗi khi tải danh sách trang /group:", error);
@@ -25,9 +25,35 @@ export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
   };
 
   useEffect(() => {
-    fetchGroups(searchTerm);
+    fetchGroups("custom_page", searchTerm, "page_layout_config");
   }, [debouncedSearch]);
+  const groupExists = options.some(
+    (item) =>
+      item.setting_group.toLowerCase() === searchTerm.trim().toLowerCase(),
+  );
+  const handleCreateGroup = async () => {
+    if (!searchTerm.trim()) return;
 
+    const newGroup = searchTerm.trim();
+
+    try {
+      await createSetting({
+        parent_group: "custom_page",
+        setting_key: "page_layout_config",
+        setting_group: newGroup,
+        setting_value: "{}",
+        description: "",
+      });
+
+      await fetchGroups("");
+
+      onSelectPage(newGroup);
+      setSearchTerm("");
+      setIsOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -40,7 +66,8 @@ export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
   }, []);
   // Tên hiển thị của slug hiện tại
   const selectedLabel =
-    options.find((opt) => opt.setting_group === activeSlug)?.name || activeSlug;
+    options.find((opt) => opt.setting_group === activeSlug)?.setting_group ||
+    activeSlug;
 
   return (
     <div className="relative w-72" ref={dropdownRef}>
@@ -51,7 +78,7 @@ export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
         className="w-full flex justify-between items-center p-2 border rounded-md bg-gray-50 text-xs font-semibold text-gray-800 shadow-sm hover:bg-gray-100"
       >
         <span className="truncate">
-          📄 {selectedLabel || "Chọn trang/group..."}
+          {selectedLabel || "Chọn trang/group..."}
         </span>
         <span className="text-gray-400 text-[10px] ml-1">▼</span>
       </button>
@@ -63,7 +90,7 @@ export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
           <div className="relative">
             <input
               type="text"
-              placeholder="🔍 Tìm tên trang, group..."
+              placeholder="Tìm tên trang, group..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full p-2 border rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -75,7 +102,7 @@ export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
           <div className="overflow-y-auto flex-1 flex flex-col gap-1 pr-1">
             {loading ? (
               <div className="text-center py-3 text-xs text-gray-400">
-                ⏳ Đang tìm kiếm...
+                Đang tìm kiếm...
               </div>
             ) : options.length > 0 ? (
               options.map((item) => (
@@ -101,6 +128,15 @@ export const SearchablePageSelect = ({ activeSlug, onSelectPage }) => {
             ) : (
               <div className="text-center py-3 text-xs text-gray-400">
                 Không tìm thấy trang nào
+                {searchTerm.trim() && !groupExists && (
+                  <button
+                    type="button"
+                    onClick={handleCreateGroup}
+                    className="w-full p-2 mt-1 rounded bg-green-500 text-white text-xs hover:bg-green-600"
+                  >
+                    Tạo trang "{searchTerm}"
+                  </button>
+                )}
               </div>
             )}
           </div>

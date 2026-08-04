@@ -2,16 +2,18 @@ import React from "react";
 import { useEditor } from "@craftjs/core";
 import { SearchablePageSelect } from "./SearchablePageSelect";
 import { savePageLayout } from "../../services/settingApi";
+import useAlert from "../../Components/Alert/useAlert";
 
 export const Topbar = ({ activeSlug, setActiveSlug }) => {
   const { query } = useEditor();
+  const { success } = useAlert();
 
   const handleSave = async () => {
     try {
       const jsonContent = query.serialize();
       await savePageLayout(jsonContent, activeSlug);
 
-      alert(`Đã lưu trang "${activeSlug}" thành công!`);
+      success(`Đã lưu trang "${activeSlug}" thành công!`);
     } catch (error) {
       console.error("Lỗi khi lưu:", error);
     }

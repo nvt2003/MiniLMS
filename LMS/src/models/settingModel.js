@@ -46,28 +46,51 @@ const SettingModel = {
             connection.release();
         }
     },
-    create: async ({ setting_key, setting_value, setting_group = 'general', description = null }) => {
+    create: async ({ setting_key, setting_value, setting_group = 'general',parent_group=null, description = null }) => {
         const [result] = await db.query(
-            `INSERT INTO system_settings (setting_key, setting_value, setting_group, description) 
-             VALUES (?, ?, ?, ?)`,
-            [setting_key, setting_value, setting_group, description]
+            `INSERT INTO system_settings (setting_key, setting_value, setting_group,parent_group, description) 
+             VALUES (?, ?, ?, ?, ?)`,
+            [setting_key, setting_value, setting_group, parent_group, description]
         );
         return result.insertId;
     },
     getByGroupAndKey: async (group,key)=>{
-        const [res] = await db.query(`SELECT setting_value, description 
+        const [res] = await db.query(`SELECT setting_value, description, setting_group 
         FROM system_settings 
         WHERE setting_group = ? AND setting_key = ?`,[group,key])
         return res;
     },
     searchGroup: async (keyword) => {
-    const [res] = await db.query(`
-        SELECT DISTINCT setting_group
-        FROM system_settings
-        WHERE setting_group LIKE ?
-    `, [`%${keyword}%`]);
+        const [res] = await db.query(`
+            SELECT DISTINCT setting_group
+            FROM system_settings
+            WHERE setting_group LIKE ?
+        `, [`%${keyword}%`]);
 
-    return res;
-},
+        return res;
+    },
+    searchParent: async (parent,group,key) => {
+        const [res] = await db.query(`
+            SELECT DISTINCT setting_group, setting_key, parent_group ,setting_value, description 
+            FROM system_settings
+            WHERE parent_group = ? AND setting_group LIKE ? AND setting_key LIKE ?
+        `, [parent,`%${group}%`,`%${key}%`]);
+
+        return res;
+    },
+    updateValue: async (parent, group, key, value, description = null) => {
+        const [result] = await db.query(
+        `
+        UPDATE system_settings
+        SET setting_value = ?, 
+            description = COALESCE(?, description),
+            updated_at = NOW()
+        WHERE parent_group = ? AND setting_group = ? AND setting_key = ?
+        `,
+        [value, description, parent, group, key]
+        );
+
+        return result.affectedRows;
+    }
 }
 module.exports = SettingModel

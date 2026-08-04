@@ -75,8 +75,8 @@ const SettingController = {
     },
     createSetting: async (req, res) => {
         try {
-            const { setting_key, setting_value, setting_group, description } = req.body;
-
+            const { setting_key, setting_value, setting_group,parent_group, description } = req.body;
+            console.log(parent_group);
             // Validate đầu vào
             if (!setting_key || setting_value === undefined) {
                 return res.status(400).json({ message: 'setting_key và setting_value là bắt buộc' });
@@ -86,12 +86,13 @@ const SettingController = {
                 setting_key,
                 setting_value,
                 setting_group,
+                parent_group,
                 description
             });
 
             return res.status(201).json({
                 message: 'Thêm setting thành công',
-                data: { id: insertId, setting_key, setting_value, setting_group, description }
+                data: { id: insertId, setting_key, setting_value, setting_group,parent_group, description }
             });
         } catch (error) {
             // Xử lý trùng lặp setting_key (Lỗi UNIQUE)
@@ -140,6 +141,69 @@ const SettingController = {
                 message: "Không thể tìm thấy cấu hình hệ thống"
             });
         }
+    },searchParent: async (req, res) => {
+        try {
+            const { parent, group, key } = req.query;
+            const settings = await SettingModel.searchParent(parent, group, key);
+
+            res.json({
+                success: true,
+                data: settings
+            });
+
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).json({
+                success: false,
+                message: "Không thể tìm thấy cấu hình hệ thống"
+            });
+        }
     },
+    updateSettingValue: async (req, res) => {
+        try {
+            const { parent_group, setting_group, setting_key, setting_value, description } = req.body;
+
+            // Validate dữ liệu đầu vào
+            if (!parent_group || !setting_group || !setting_key) {
+            return res.status(400).json({
+                success: false,
+                message: "Thiếu thông tin định danh: parent_group, setting_group, hoặc setting_key"
+            });
+            }
+
+            // Chuyển kiểu dữ liệu sang String nếu value truyền lên là Object/Array (như cấu hình Navbar JSON)
+            const formattedValue = typeof setting_value === "object" 
+            ? JSON.stringify(setting_value) 
+            : setting_value;
+
+            const affectedRows = await SettingModel.updateValue(
+            parent_group,
+            setting_group,
+            setting_key,
+            formattedValue,
+            description
+            );
+
+            if (affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy cấu hình tương ứng để cập nhật"
+            });
+            }
+
+            return res.status(200).json({
+            success: true,
+            message: "Cập nhật cấu hình thành công"
+            });
+        } catch (error) {
+            console.error("Lỗi khi update setting:", error);
+            return res.status(500).json({
+            success: false,
+            message: "Lỗi máy chủ nội bộ",
+            error: error.message
+            });
+        }
+        }
 }
 module.exports = SettingController
