@@ -97,7 +97,7 @@ function ContainerSettings() {
         />
       </div>
       <div>
-        <label>Căn ngang</label>
+        <label>{props.layout === "flex-col" ? "Căn dọc" : "Căn ngang"}</label>
         <select
           value={props.justifyContent}
           onChange={(e) => setProp((p) => (p.justifyContent = e.target.value))}
@@ -110,7 +110,7 @@ function ContainerSettings() {
         </select>
       </div>
       <div>
-        <label>Căn dọc</label>
+        <label>{props.layout === "flex-col" ? "Căn ngang" : "Căn dọc"}</label>
         <select
           value={props.alignItems}
           onChange={(e) => setProp((p) => (p.alignItems = e.target.value))}
