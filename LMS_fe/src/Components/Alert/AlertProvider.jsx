@@ -2,37 +2,41 @@ import { useState } from "react";
 import AlertContext from "./AlertContext";
 import Alert from "./Alert";
 
+const defaults = {
+  isOpen: false,
+  mode: "alert",
+  type: "info",
+  title: "",
+  message: "",
+  value: "",
+  onConfirm: null,
+};
 export default function AlertProvider({ children }) {
-  const [alert, setAlert] = useState({
-    isOpen: false,
-    mode: "alert",
-    type: "info",
-    title: "",
-    message: "",
-    onConfirm: null,
-  });
+  const [alert, setAlert] = useState(defaults);
 
-  const showAlert = (type, title, message) => {
-    setAlert({
-      isOpen: true,
-      mode: "alert",
-      type,
-      title,
-      message,
-      onConfirm: null,
-    });
-  };
+  // const showAlert = (type, title, message) => {
+  //   setAlert({
+  //     isOpen: true,
+  //     mode: "alert",
+  //     type,
+  //     title,
+  //     message,
+  //     onConfirm: null,
+  //   });
+  // };
 
-  const confirm = (title, message, onConfirm, type = "warning") => {
-    setAlert({
-      isOpen: true,
-      mode: "confirm",
-      type,
-      title,
-      message,
-      onConfirm,
-    });
-  };
+  // const confirm = (title, message, onConfirm, type = "warning") => {
+  //   setAlert({
+  //     isOpen: true,
+  //     mode: "confirm",
+  //     type,
+  //     title,
+  //     message,
+  //     onConfirm,
+  //   });
+  // };
+
+  const open = (options) => setAlert({ ...defaults, isOpen: true, ...options });
 
   const close = () =>
     setAlert((prev) => ({
@@ -50,17 +54,32 @@ export default function AlertProvider({ children }) {
   return (
     <AlertContext.Provider
       value={{
-        showAlert,
-        confirm,
+        show: (type, title, message) =>
+          open({ mode: "alert", type, title, message }),
+
+        confirm: (title, message, onConfirm, type = "warning") =>
+          open({ mode: "confirm", type, title, message, onConfirm }),
+        prompt: (title, message, onConfirm, type = "info", value = "") =>
+          open({
+            mode: "prompt",
+            type,
+            title,
+            message,
+            value,
+            onConfirm,
+          }),
 
         success: (msg, title = "Thành công") =>
-          showAlert("success", title, msg),
+          open({ type: "success", title, message: msg }),
 
-        error: (msg, title = "Lỗi") => showAlert("error", title, msg),
+        error: (msg, title = "Lỗi") =>
+          open({ type: "error", title, message: msg }),
 
-        warning: (msg, title = "Cảnh báo") => showAlert("warning", title, msg),
+        warning: (msg, title = "Cảnh báo") =>
+          open({ type: "warning", title, message: msg }),
 
-        info: (msg, title = "Thông báo") => showAlert("info", title, msg),
+        info: (msg, title = "Thông báo") =>
+          open({ type: "info", title, message: msg }),
       }}
     >
       {children}
