@@ -23,4 +23,6 @@ router.post('/activate-account', AuthController.activateAccount);
 
 router.get('/list', AuthController.getList);
 
+router.patch('/:id/deactivate', verifyToken, requireAdmin, AuthController.deactivateUser);
+
 module.exports = router;

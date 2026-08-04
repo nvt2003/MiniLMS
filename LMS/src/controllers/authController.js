@@ -491,6 +491,50 @@ const AuthController = {
         error: error.message
       });
     }
+  },
+  deactivateUser: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // 1. Kiểm tra xem userId có hợp lệ không
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: 'Mã người dùng (userId) không hợp lệ!'
+        });
+      }
+
+      // 2. Không cho phép Admin tự vô hiệu hóa chính mình
+      if (req.user && req.user.id === Number(id)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bạn không thể tự vô hiệu hóa tài khoản của chính mình!'
+        });
+      }
+
+      // 3. Gọi hàm model deactivateUser
+      const isSuccess = await UserModel.deactivateUser(id);
+
+      if (!isSuccess) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy người dùng hoặc tài khoản đã bị khóa từ trước!'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Vô hiệu hóa tài khoản thành công!'
+      });
+
+    } catch (error) {
+      console.error('Lỗi deactivateUser API:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi máy chủ nội bộ!',
+        error: error.message
+      });
+    }
   }
 };
 
