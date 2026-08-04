@@ -84,16 +84,15 @@ const Navbar = () => {
       try {
         // Tìm setting chứa danh sách navbar đã cấu hình
         const res = await searchSettings(
-          "page_layout_config",
+          "navbar_layout_config",
           "navbar",
-          "navbar_custom_config",
+          "page_layout_config",
         );
         if (res && res.length > 0) {
-          // res[0].value chứa mảng json các custom link
           const parsedConfig =
-            typeof res[0].value === "string"
-              ? JSON.parse(res[0].value)
-              : res[0].value;
+            typeof res[0].setting_value === "string"
+              ? JSON.parse(res[0].setting_value)
+              : res[0].setting_value;
           setCustomNavItems(parsedConfig || []);
         }
       } catch (error) {
@@ -125,7 +124,7 @@ const Navbar = () => {
               return (
                 <Link
                   key={item.id}
-                  to={`/page/${item.slug}`}
+                  to={`/${item.slug}`}
                   className="hover:text-blue-600 transition"
                 >
                   {item.label}
@@ -154,7 +153,7 @@ const Navbar = () => {
                       {item.children?.map((child) => (
                         <Link
                           key={child.id}
-                          to={`/page/${child.slug}`}
+                          to={`/${child.slug}`}
                           className="block px-4 py-2 text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition"
                         >
                           {child.label}

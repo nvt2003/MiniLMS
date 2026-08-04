@@ -3,12 +3,23 @@ import {
   searchSettings,
   createSetting,
   updateSettingValueApi,
+  getPageLayout,
 } from "../../services/settingApi";
+import useAlert from "../../Components/Alert/useAlert";
 
 export default function NavbarSettingManager() {
   const [availablePages, setAvailablePages] = useState([]);
   const [navConfig, setNavConfig] = useState([]);
+  const { showAlert, prompt } = useAlert();
 
+  const loadNavbar = async () => {
+    const navbar = await getPageLayout("navbar");
+    setNavConfig(navbar);
+  };
+
+  useEffect(() => {
+    loadNavbar();
+  }, []);
   // Load danh sách tất cả custom page từ API
   useEffect(() => {
     const loadPages = async () => {
@@ -34,8 +45,9 @@ export default function NavbarSettingManager() {
   };
 
   // Thêm Dropdown nhóm vào Navbar
-  const addDropdownGroup = () => {
-    const title = prompt("Nhập tên Menu Dropdown:");
+  const addDropdownGroup = async () => {
+    const title = await prompt("", "Nhập tên Menu Dropdown:");
+    console.log(title);
     if (!title) return;
 
     const newItem = {
@@ -84,7 +96,7 @@ export default function NavbarSettingManager() {
     };
     try {
       await createSetting(payload);
-      alert("Đã lưu cấu hình Navbar thành công!");
+      showAlert("success", "", "Đã lưu cấu hình Navbar thành công!");
     } catch (error) {
       // 2. Kiểm tra nếu gặp lỗi Conflict (HTTP 409) hoặc lỗi trùng lặp dữ liệu từ Backend
       const isConflict =
@@ -96,15 +108,23 @@ export default function NavbarSettingManager() {
         try {
           // Chuyển sang gọi API Update
           await updateSettingValueApi(payload);
-          alert("Cấu hình đã tồn tại, đã cập nhật Navbar thành công!");
+          showAlert(
+            "success",
+            "",
+            "Cấu hình đã tồn tại, đã cập nhật Navbar thành công!",
+          );
         } catch (updateError) {
           console.error("Lỗi khi cập nhật setting:", updateError);
-          alert("Lỗi khi cập nhật cấu hình Navbar!");
+          showAlert("error", "", "Lỗi khi cập nhật cấu hình Navbar!");
         }
       } else {
         // Các lỗi khác (500, 401, Mất kết nối...)
         console.error("Lỗi khi tạo setting:", error);
-        alert(error.response?.data?.message || "Lỗi khi lưu cấu hình!");
+        showAlert(
+          "error",
+          "",
+          error.response?.data?.message || "Lỗi khi lưu cấu hình!",
+        );
       }
     }
   };
@@ -137,10 +157,10 @@ export default function NavbarSettingManager() {
           <div className="space-y-2">
             {availablePages.map((page) => (
               <div
-                key={page.id}
+                key={`${page.setting_group}-${page.setting_key}`}
                 className="flex items-center justify-between p-2 border rounded"
               >
-                <span>/page/{page.setting_group}</span>
+                <span>/{page.setting_group}</span>
                 <button
                   onClick={() => addSingleLink(page)}
                   className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded"
@@ -190,11 +210,11 @@ export default function NavbarSettingManager() {
                       Thêm vào nhóm này:
                       {availablePages.map((page) => (
                         <button
-                          key={page.id}
+                          key={`${page.setting_group}-${page.setting_key}`}
                           onClick={() => addPageToDropdown(item.id, page)}
                           className="ml-2 text-blue-500 underline"
                         >
-                          +{page.group}
+                          +{page.setting_group}
                         </button>
                       ))}
                     </div>

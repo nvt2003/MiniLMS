@@ -2,22 +2,27 @@ import api from './api';
 
 // 1. LẤY CẤU HÌNH GIAO DIỆN
 export const getPageLayout = async (group,key='page_layout_config') => {
-  const response = await api.get(`/settings/group/${group}/${key}`);
-  const settings = response.data.data; 
+  try{
+    const response = await api.get(`/settings/group/${group}/${key}`);
+    const settings = response.data.data; 
 
-  if (!Array.isArray(settings) || settings.length === 0) {
-    return null;
-  }
+    if (!Array.isArray(settings) || settings.length === 0) {
+      return null;
+    }
 
-  const setting = settings[0];
+    const setting = settings[0];
 
-  if (!setting.setting_value) {
-    return null;
-  }
+    if (!setting.setting_value) {
+      return null;
+    }
 
-  return typeof setting.setting_value === 'string'
-    ? JSON.parse(setting.setting_value)
+    return typeof setting.setting_value === 'string'
+      ? JSON.parse(setting.setting_value)
     : setting.setting_value;
+  }catch (error) {
+    console.error("Lỗi lấy page layout:", error);
+    return [];
+  }
 };
 
 // 2. LƯU CẤU HÌNH GIAO DIỆN
