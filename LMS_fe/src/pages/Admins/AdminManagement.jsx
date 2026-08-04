@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -12,6 +13,7 @@ import {
   MoreVertical,
   Edit2,
   AlertCircle,
+  ArrowLeft,
 } from "lucide-react";
 import api from "../../services/api";
 import useDebounce from "../../hooks/useDebounce";
@@ -174,9 +176,13 @@ export default function AdminManagement() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
+          <Link className="flex items-center" to="/home">
+            <ArrowLeft size={16} />
+            Trang chủ
+          </Link>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Shield className="w-7 h-7 text-blue-600" />
-            Quản lý Quản trị viên (Admin)
+            Quản lý Quản trị viên
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Quản lý phân quyền, thêm mới Sub-Admin và theo dõi trạng thái kích
