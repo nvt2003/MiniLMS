@@ -218,6 +218,19 @@ const Navbar = () => {
                 className="hover:text-blue-600 transition"
               >
                 Quản lý header
+          {userRole === "admin" && (
+            <>
+              <Link
+                to="/admin/manager"
+                className="hover:text-blue-600 transition"
+              >
+                Quản lý
+              </Link>
+              <Link
+                to="/admin/builder"
+                className="hover:text-blue-600 transition"
+              >
+                Chỉnh sửa trang
               </Link>
             </>
           )}

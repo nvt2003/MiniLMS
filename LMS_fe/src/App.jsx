@@ -29,6 +29,8 @@ import HomePage from "./pages/HomePage";
 import AdminBuilder from "./pages/Admins/AdminBuilder";
 import Page from "./pages/Page";
 import NavbarSettingManager from "./pages/Admins/NavbarSettingManager";
+import AdminManagement from "./pages/Admins/AdminManagement";
+import ActivateAccount from "./pages/Admins/ActivateAccount";
 
 function App() {
   return (
@@ -89,6 +91,8 @@ function App() {
           element={<NavbarSettingManager />}
         />
         <Route path="/:slug" element={<Page />} />
+        <Route path="/admin/manager" element={<AdminManagement />} />
+        <Route path="/activate-account/:token" element={<ActivateAccount />} />
       </Routes>
     </BrowserRouter>
   );

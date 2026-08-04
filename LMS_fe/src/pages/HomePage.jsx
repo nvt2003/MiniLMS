@@ -28,10 +28,6 @@ export default function HomePage() {
           Container,
           Text,
           CustomImage,
-          Slider,
-          SlideItem,
-          Element: Container,
-          Canvas: Container,
         }}
         enabled={false}
       >
