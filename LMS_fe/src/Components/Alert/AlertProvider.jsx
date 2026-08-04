@@ -71,34 +71,33 @@ export default function AlertProvider({ children }) {
       });
     });
   };
-  const confirm = (
-    message,
-    title = "Xác nhận",
-    type = "warning",
-    onConfirmCallback = null,
-  ) => {
-    return new Promise((resolve) => {
-      open({
-        mode: "confirm",
-        type,
-        title,
-        message,
-        onConfirm: (val) => {
-          onConfirmCallback?.(val);
-          resolve(true);
-        },
-      });
-    });
-  };
+  // const confirm = (
+  //   message,
+  //   title = "Xác nhận",
+  //   type = "warning",
+  //   onConfirmCallback = null,
+  // ) => {
+  //   return new Promise((resolve) => {
+  //     open({
+  //       mode: "confirm",
+  //       type,
+  //       title,
+  //       message,
+  //       onConfirm: (val) => {
+  //         onConfirmCallback?.(val);
+  //         resolve(true);
+  //       },
+  //     });
+  //   });
+  // };
   return (
     <AlertContext.Provider
       value={{
         showAlert: (type, title, message) =>
           open({ mode: "alert", type, title, message }),
 
-        // confirm: (title, message, onConfirm, type = "warning") =>
-        //   open({ mode: "confirm", type, title, message, onConfirm }),
-        confirm,
+        confirm: (title, message, onConfirm, type = "warning") =>
+          open({ mode: "confirm", type, title, message, onConfirm }),
         prompt,
 
         success: (msg, title = "Thành công") =>
