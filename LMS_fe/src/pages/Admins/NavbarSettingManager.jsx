@@ -6,11 +6,14 @@ import {
   getPageLayout,
 } from "../../services/settingApi";
 import useAlert from "../../Components/Alert/useAlert";
+import Navbar from "../../Components/Navbar";
+import { Link } from "react-router-dom";
 
 export default function NavbarSettingManager() {
   const [availablePages, setAvailablePages] = useState([]);
   const [navConfig, setNavConfig] = useState([]);
   const { showAlert, prompt } = useAlert();
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   const loadNavbar = async () => {
     const navbar = await getPageLayout("navbar");
@@ -129,102 +132,170 @@ export default function NavbarSettingManager() {
     }
   };
   return (
-    <div className="p-6 bg-white rounded-lg shadow max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">
-        Cấu hình các trang tự tạo vào Navbar
-      </h2>
+    <>
+      <Navbar />
+      <div className="p-6 bg-white rounded-lg shadow max-w-4xl mx-auto">
+        <h2 className="text-xl font-bold mb-4">
+          Cấu hình các trang tự tạo vào Navbar
+        </h2>
 
-      {/* Hành động chính */}
-      <div className="flex gap-3 mb-6">
-        <button
-          onClick={addDropdownGroup}
-          className="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700"
-        >
-          + Thêm Danh mục (Dropdown)
-        </button>
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
-        >
-          Lưu thay đổi
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-        {/* Danh sách trang có sẵn */}
-        <div>
-          <h3 className="font-semibold mb-2">Trang Custom khả dụng:</h3>
-          <div className="space-y-2">
-            {availablePages.map((page) => (
-              <div
-                key={`${page.setting_group}-${page.setting_key}`}
-                className="flex items-center justify-between p-2 border rounded"
-              >
-                <span>/{page.setting_group}</span>
-                <button
-                  onClick={() => addSingleLink(page)}
-                  className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded"
-                >
-                  + Thêm dạng Link
-                </button>
-              </div>
-            ))}
-          </div>
+        {/* Hành động chính */}
+        <div className="flex gap-3 mb-6">
+          <button
+            onClick={addDropdownGroup}
+            className="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700"
+          >
+            + Thêm Danh mục (Dropdown)
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+          >
+            Lưu thay đổi
+          </button>
         </div>
 
-        {/* Xem trước Cấu trúc Navbar */}
-        <div>
-          <h3 className="font-semibold mb-2">Cấu trúc Navbar hiện tại:</h3>
-          <div className="space-y-3 border p-4 rounded bg-slate-50 min-h-[200px]">
-            {navConfig.map((item) => (
-              <div
-                key={item.id}
-                className="p-2 border bg-white rounded shadow-sm"
-              >
-                <div className="flex justify-between items-center font-medium">
-                  <span>
-                    [{item.type.toUpperCase()}] {item.label}
-                  </span>
+        <div className="grid grid-cols-2 gap-6">
+          {/* Danh sách trang có sẵn */}
+          <div>
+            <h3 className="font-semibold mb-2">Trang Custom khả dụng:</h3>
+            <div className="space-y-2">
+              {availablePages.map((page) => (
+                <div
+                  key={`${page.setting_group}-${page.setting_key}`}
+                  className="flex items-center justify-between p-2 border rounded"
+                >
+                  <span>/{page.setting_group}</span>
                   <button
-                    onClick={() => removeItem(item.id)}
-                    className="text-red-500 text-xs"
+                    onClick={() => addSingleLink(page)}
+                    className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded"
                   >
-                    Xóa
+                    + Thêm dạng Link
                   </button>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                {/* Nếu là dropdown, hiển thị danh sách con và nút thêm con */}
-                {item.type === "dropdown" && (
-                  <div className="ml-4 mt-2 border-l-2 pl-2 space-y-1">
-                    {item.children?.map((child) => (
-                      <div
-                        key={child.id}
-                        className="text-xs flex justify-between bg-slate-100 p-1 rounded"
-                      >
-                        <span>
-                          {child.label} (/page/{child.slug})
-                        </span>
-                      </div>
-                    ))}
-                    <div className="mt-1 text-xs text-slate-500">
-                      Thêm vào nhóm này:
-                      {availablePages.map((page) => (
-                        <button
-                          key={`${page.setting_group}-${page.setting_key}`}
-                          onClick={() => addPageToDropdown(item.id, page)}
-                          className="ml-2 text-blue-500 underline"
-                        >
-                          +{page.setting_group}
-                        </button>
-                      ))}
-                    </div>
+          {/* Xem trước Cấu trúc Navbar */}
+          <div>
+            <h3 className="font-semibold mb-2">Cấu trúc Navbar hiện tại:</h3>
+            <div className="space-y-3 border p-4 rounded bg-slate-50 min-h-[200px]">
+              {navConfig.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-2 border bg-white rounded shadow-sm"
+                >
+                  <div className="flex justify-between items-center font-medium">
+                    <span>
+                      [{item.type.toUpperCase()}] {item.label}
+                    </span>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="text-red-500 text-xs"
+                    >
+                      Xóa
+                    </button>
                   </div>
-                )}
+
+                  {/* Nếu là dropdown, hiển thị danh sách con và nút thêm con */}
+                  {item.type === "dropdown" && (
+                    <div className="ml-4 mt-2 border-l-2 pl-2 space-y-1">
+                      {item.children?.map((child) => (
+                        <div
+                          key={child.id}
+                          className="text-xs flex justify-between bg-slate-100 p-1 rounded"
+                        >
+                          <span>
+                            {child.label} (/{child.slug})
+                          </span>
+                        </div>
+                      ))}
+                      <div className="mt-1 text-xs text-slate-500">
+                        Thêm vào nhóm này:
+                        {availablePages.map((page) => (
+                          <button
+                            key={`${page.setting_group}-${page.setting_key}`}
+                            onClick={() => addPageToDropdown(item.id, page)}
+                            className="ml-2 text-blue-500 underline"
+                          >
+                            +{page.setting_group}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div className="flex justify-between items-center font-medium border">
+                <span>--- Các mục mặc định trên navbar ---</span>
               </div>
-            ))}
+            </div>
+          </div>
+          <div className="">
+            <h3 className="font-semibold">Xem trước:</h3>
+            <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 h-16 px-6 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-6">
+                <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 ml-4">
+                  <Link>[Logo]</Link>
+                  {/* --- DYNAMIC CUSTOM NAVBAR ITEMS --- */}
+                  {navConfig.map((item) => {
+                    if (item.type === "link") {
+                      return (
+                        <Link
+                          key={item.id}
+                          to={`/${item.slug}`}
+                          className="hover:text-blue-600 transition"
+                        >
+                          {item.label}
+                        </Link>
+                      );
+                    }
+
+                    if (item.type === "dropdown") {
+                      return (
+                        <div
+                          key={item.id}
+                          className="relative group"
+                          onMouseEnter={() => setActiveDropdown(item.id)}
+                          onMouseLeave={() => setActiveDropdown(null)}
+                        >
+                          <button className="flex items-center gap-1 hover:text-blue-600 transition py-2">
+                            <span>{item.label}</span>
+                            <svg
+                              className="w-4 h-4 fill-current"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                            </svg>
+                          </button>
+
+                          {/* Dropdown Menu */}
+                          {activeDropdown === item.id && (
+                            <div className="absolute left-0 top-full w-48 bg-white shadow-lg rounded-md border border-slate-100 py-2 z-50">
+                              {item.children?.map((child) => (
+                                <Link
+                                  key={child.id}
+                                  to={`/${child.slug}`}
+                                  className="block px-4 py-2 text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition"
+                                >
+                                  {child.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                  <Link>[Các mục mặc định..]</Link>
+                </div>
+              </div>
+            </nav>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

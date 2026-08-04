@@ -112,12 +112,6 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 ml-4">
-          <Link to="/dashboard" className="hover:text-blue-600 transition">
-            Khóa học của tôi
-          </Link>
-          <Link to="/browse-courses" className="hover:text-blue-600 transition">
-            Khám phá khóa học
-          </Link>
           {/* --- DYNAMIC CUSTOM NAVBAR ITEMS --- */}
           {customNavItems.map((item) => {
             if (item.type === "link") {
@@ -166,6 +160,13 @@ const Navbar = () => {
             }
             return null;
           })}
+          <Link to="/dashboard" className="hover:text-blue-600 transition">
+            Khóa học của tôi
+          </Link>
+          <Link to="/browse-courses" className="hover:text-blue-600 transition">
+            Khám phá khóa học
+          </Link>
+
           {userRole === "teacher" && (
             <>
               <Link
@@ -201,6 +202,22 @@ const Navbar = () => {
                 className="hover:text-blue-600 transition"
               >
                 Kết quả kiểm tra
+              </Link>
+            </>
+          )}
+          {userRole === "admin_pages" && (
+            <>
+              <Link
+                to="/admin/builder"
+                className="hover:text-blue-600 transition"
+              >
+                Chỉnh sửa trang
+              </Link>
+              <Link
+                to="/admin/navbar-manager"
+                className="hover:text-blue-600 transition"
+              >
+                Quản lý header
               </Link>
             </>
           )}
