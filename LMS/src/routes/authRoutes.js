@@ -25,4 +25,6 @@ router.get('/list', AuthController.getList);
 
 router.patch('/:id/deactivate', verifyToken, requireAdmin, AuthController.deactivateUser);
 
+router.patch('/:id/activate', verifyToken, requireAdmin, AuthController.activateUser);
+
 module.exports = router;

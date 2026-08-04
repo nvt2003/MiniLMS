@@ -535,6 +535,43 @@ const AuthController = {
         error: error.message
       });
     }
+  },
+  activateUser: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // 1. Kiểm tra ID truyền vào
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: 'Mã người dùng (userId) không hợp lệ!'
+        });
+      }
+
+      // 2. Gọi hàm Model xử lý
+      const isSuccess = await UserModel.activateUser(id);
+
+      if (!isSuccess) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy người dùng hoặc tài khoản đã ở trạng thái ACTIVE!'
+        });
+      }
+
+      // 3. Trả về phản hồi thành công
+      return res.status(200).json({
+        success: true,
+        message: 'Kích hoạt lại tài khoản thành công!'
+      });
+
+    } catch (error) {
+      console.error('Lỗi activateUser API:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi máy chủ nội bộ!',
+        error: error.message
+      });
+    }
   }
 };
 
