@@ -79,7 +79,11 @@ const AuthController = {
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
       );
-
+      if (user.status !== "ACTIVE") {
+        return res.status(403).json({
+          message: "Tài khoản đã bị vô hiệu hóa."
+        });
+      }
       // Trả về thành công kèm token để phía Frontend lưu lại
       return res.status(200).json({
         message: 'Đăng nhập thành công!',

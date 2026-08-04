@@ -119,7 +119,7 @@ const UserModel = {
   deactivateUser: async (userId) => {
     const [result] = await db.query(
       `UPDATE users 
-      SET status = 'BLOCKED', create_at = NOW() 
+      SET status = 'BLOCKED', created_at = NOW() 
       WHERE id = ?`,
       [userId]
     );
@@ -128,7 +128,7 @@ const UserModel = {
   activateUser: async (userId) => {
     const [result] = await db.query(
       `UPDATE users 
-      SET status = 'ACTIVE', updated_at = NOW() 
+      SET status = 'ACTIVE', created_at = NOW() 
       WHERE id = ?`,
       [userId]
     );

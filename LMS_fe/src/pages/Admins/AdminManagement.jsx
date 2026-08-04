@@ -75,7 +75,7 @@ export default function AdminManagement() {
 
   const debouncedSearch = useDebounce(searchTerm);
   const debouncedRole = useDebounce(roleFilter);
-  const { showAlert } = useAlert();
+  const { showAlert, confirm } = useAlert();
 
   const fetchList = async () => {
     setLoading(true);
@@ -91,6 +91,7 @@ export default function AdminManagement() {
       });
       console.log("response", res.data.data);
       setAdmins(res.data.data);
+      setLoading(false);
     } catch (err) {
       console.error(err);
       setLoading(false);
@@ -99,7 +100,6 @@ export default function AdminManagement() {
 
   useEffect(() => {
     fetchList();
-    setLoading(false);
   }, [debouncedSearch, debouncedRole, statusFilter]);
 
   // Xử lý Thêm / Cập nhật Admin
@@ -120,12 +120,12 @@ export default function AdminManagement() {
     }
   };
   const handleDeactivate = async (userId) => {
-    if (!confirm("Bạn có chắc chắn muốn khóa tài khoản này không?")) {
+    if (!(await confirm("Bạn có chắc chắn muốn khóa tài khoản này không?"))) {
       return;
     }
 
     try {
-      const res = await api.patch(`users/${userId}/deactivate`);
+      const res = await api.patch(`auth/${userId}/deactivate`);
 
       if (res.data.success) {
         showAlert("success", "", res.data.message);
@@ -145,15 +145,15 @@ export default function AdminManagement() {
 
   const handleActivate = async (userId) => {
     if (
-      !window.confirm(
+      !(await confirm(
         "Bạn có chắc chắn muốn mở khóa / kích hoạt lại tài khoản này?",
-      )
+      ))
     ) {
       return;
     }
 
     try {
-      const res = await api.patch(`users/${userId}/activate`);
+      const res = await api.patch(`auth/${userId}/activate`);
 
       if (res.data.success) {
         showAlert("success", "", res.data.message);
