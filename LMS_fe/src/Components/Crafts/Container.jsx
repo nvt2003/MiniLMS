@@ -22,6 +22,11 @@ export const Container = ({
   const {
     actions: { selectNode },
   } = useEditor();
+
+  const { enabled } = useEditor((state) => ({
+    enabled: state.options.enabled,
+  }));
+
   const getLayoutClasses = () => {
     if (layout === "flex-row")
       return `flex flex-row flex-wrap ${alignItems} ${gap}`;
@@ -38,7 +43,7 @@ export const Container = ({
       className={`min-h-[60px] transition-all relative ${getLayoutClasses()} ${
         selected
           ? "outline outline-2 outline-blue-500"
-          : "border border-dashed border-gray-300"
+          : `${enabled ? "border border-dashed border-gray-300" : ""}`
       } ${background || "bg-white"} ${padding || "p-4"}`}
     >
       {children}
@@ -87,7 +92,7 @@ function ContainerSettings() {
           <label className="font-semibold block mb-1 text-gray-700">
             Số cột chia
           </label>
-          <select
+          {/* <select
             value={props.cols || "grid-cols-3"}
             onChange={(e) => setProp((p) => (p.cols = e.target.value))}
             className="w-full p-2 border rounded bg-white"
@@ -95,7 +100,24 @@ function ContainerSettings() {
             <option value="grid-cols-2">2 Cột</option>
             <option value="grid-cols-3">3 Cột</option>
             <option value="grid-cols-4">4 Cột</option>
-          </select>
+          </select> */}
+          <input
+            type="number"
+            min={1}
+            max={12}
+            value={
+              parseInt(
+                (props.cols || "grid-cols-3").replace("grid-cols-", ""),
+                10,
+              ) || 1
+            }
+            onChange={(e) => {
+              const val = Math.max(1, parseInt(e.target.value, 10) || 1);
+              setProp((p) => (p.cols = `grid-cols-${val}`));
+            }}
+            className="w-full p-2 border rounded bg-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+            placeholder="Nhập số cột (VD: 3)"
+          />
         </div>
       )}
       {(props.layout === "flex-row" || props.layout === "grid") && (
