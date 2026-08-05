@@ -166,21 +166,19 @@ const BrowseCourses = () => {
                 onClick={() =>
                   setViewMode(viewMode === "grid" ? "list" : "grid")
                 }
-                className="px-4 py-2 bg-white border rounded-xl hover:bg-slate-100 text-sm"
+                className="flex px-4 py-2 bg-white border rounded-xl hover:bg-slate-100 text-sm"
               >
-                <button className="flex items-center gap-2">
-                  {viewMode === "grid" ? (
-                    <>
-                      <Grid size={18} />
-                      Lưới
-                    </>
-                  ) : (
-                    <>
-                      <List size={18} />
-                      Danh sách
-                    </>
-                  )}
-                </button>
+                {viewMode === "grid" ? (
+                  <>
+                    <Grid size={18} />
+                    Lưới
+                  </>
+                ) : (
+                  <>
+                    <List size={18} />
+                    Danh sách
+                  </>
+                )}
               </button>
             </div>
             {viewMode === "grid" ? (
@@ -196,10 +194,7 @@ const BrowseCourses = () => {
                     >
                       <div>
                         <ImageModal
-                          src={
-                            course.thumbnail_url ||
-                            "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
-                          }
+                          src={course.thumbnail_url}
                           alt={course.title}
                           className="w-full h-44 object-cover rounded-xl mb-4 bg-slate-100"
                         />

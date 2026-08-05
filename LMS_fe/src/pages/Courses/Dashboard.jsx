@@ -174,10 +174,7 @@ const Dashboard = () => {
                   >
                     <div>
                       <ImageModal
-                        src={
-                          course.thumbnail_url ||
-                          "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
-                        }
+                        src={course.thumbnail_url}
                         alt={course.title}
                         className="w-full h-64 object-cover rounded-lg"
                       />
