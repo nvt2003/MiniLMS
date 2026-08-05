@@ -5,6 +5,7 @@ import api from "../../services/api";
 import Navbar from "../../Components/Navbar";
 import useAlert from "../../Components/Alert/useAlert";
 import ImageModal from "../../Components/ImageModal";
+import LessonThumbnail from "./LessonThumbnail";
 
 const CourseLanding = () => {
   const { id } = useParams(); // courseId
@@ -196,14 +197,18 @@ const CourseLanding = () => {
                     >
                       {/* Thumbnail */}
                       <div className="relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
-                        <ImageModal
+                        {/* <ImageModal
                           src={lesson.thumbnail_url}
                           width="80"
                           height="48"
                           alt={lesson.title}
                           className="w-full h-full object-cover"
+                        /> */}
+                        <LessonThumbnail
+                          lesson={lesson}
+                          idx={idx}
+                          isCompleted={isCompleted}
                         />
-
                         {/* Badge số thứ tự */}
                         <div className="absolute top-1 left-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
                           {idx + 1}
