@@ -4,6 +4,7 @@ import api from "../../../services/api";
 import useAlert from "../../../Components/Alert/useAlert";
 import ImageModal from "../../../Components/ImageModal";
 import TextEditor from "../../../Components/TextEditor";
+import Navbar from "../../../Components/Navbar";
 
 const EditLesson = () => {
   const { id } = useParams();
@@ -163,153 +164,150 @@ const EditLesson = () => {
     return <div className="text-center p-10">Đang tải dữ liệu bài học...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
-        <button
-          onClick={() => navigate(`/teacher/course/${courseId}`)}
-          className="mb-6 text-sm font-semibold text-slate-500 hover:text-blue-600 flex items-center gap-1"
-        >
-          ← Quay lại
-        </button>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center">
+        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
+          <button
+            onClick={() => navigate(`/teacher/course/${courseId}`)}
+            className="mb-6 text-sm font-semibold text-slate-500 hover:text-blue-600 flex items-center gap-1"
+          >
+            ← Quay lại
+          </button>
 
-        <h2 className="text-3xl font-extrabold text-slate-800 mb-2">
-          Chỉnh Sửa Bài Học
-        </h2>
+          <h2 className="text-3xl font-extrabold text-slate-800 mb-2">
+            Chỉnh Sửa Bài Học
+          </h2>
 
-        {error && (
-          <div className="mb-4 text-sm text-red-500 bg-red-50 p-4 rounded-xl">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mb-4 text-sm text-red-500 bg-red-50 p-4 rounded-xl">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">
-              Tiêu đề bài học *
-            </label>
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">
-              Video hiện tại
-            </label>
-            {currentVideoUrl ? (
-              <video
-                src={currentVideoUrl}
-                controls
-                className="w-full max-h-48 rounded-xl bg-black mb-2"
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">
+                Tiêu đề bài học *
+              </label>
+              <input
+                type="text"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            ) : (
-              <p className="text-sm text-slate-400 mb-2">
-                Bài học này chưa có video giảng dạy.
-              </p>
-            )}
+            </div>
 
-            <label className="block text-xs font-semibold text-slate-500 mb-1">
-              Thay đổi video bài giảng mới (Tùy chọn)
-            </label>
-            <input
-              type="file"
-              accept="video/*"
-              onChange={(e) => setNewVideoFile(e.target.files[0])}
-              className="w-full px-4 py-2 border rounded-xl"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">
-              Ảnh bìa hiện tại
-            </label>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">
+                Video hiện tại
+              </label>
+              {currentVideoUrl ? (
+                <video
+                  src={currentVideoUrl}
+                  controls
+                  className="w-full max-h-48 rounded-xl bg-black mb-2"
+                />
+              ) : (
+                <p className="text-sm text-slate-400 mb-2">
+                  Bài học này chưa có video giảng dạy.
+                </p>
+              )}
 
-            {currentThumbnailUrl ? (
-              <ImageModal
-                src={currentThumbnailUrl}
-                alt="Ảnh bìa bài học"
-                className="w-full max-h-48 object-cover rounded-xl border mb-2"
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                Thay đổi video bài giảng mới (Tùy chọn)
+              </label>
+              <input
+                type="file"
+                accept="video/*"
+                onChange={(e) => setNewVideoFile(e.target.files[0])}
+                className="w-full px-4 py-2 border rounded-xl"
               />
-            ) : (
-              <p className="text-sm text-slate-400 mb-2">
-                Bài học này chưa có ảnh bìa.
-              </p>
-            )}
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">
+                Ảnh bìa hiện tại
+              </label>
 
-            <label className="block text-xs font-semibold text-slate-500 mb-1">
-              Thay đổi ảnh bìa mới (Tùy chọn)
-            </label>
+              {currentThumbnailUrl ? (
+                <ImageModal
+                  src={currentThumbnailUrl}
+                  alt="Ảnh bìa bài học"
+                  className="w-full max-h-48 object-cover rounded-xl border mb-2"
+                />
+              ) : (
+                <p className="text-sm text-slate-400 mb-2">
+                  Bài học này chưa có ảnh bìa.
+                </p>
+              )}
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setNewThumbnailFile(e.target.files[0])}
-              className="w-full px-4 py-2 border rounded-xl"
-            />
-            {previewUrl ? (
-              <ImageModal
-                src={previewUrl}
-                alt="Ảnh bìa"
-                className="w-full max-h-48 object-cover rounded-xl border mb-2"
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
+                Thay đổi ảnh bìa mới (Tùy chọn)
+              </label>
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setNewThumbnailFile(e.target.files[0])}
+                className="w-full px-4 py-2 border rounded-xl"
               />
-            ) : (
-              <p className="text-sm text-slate-400 mb-2">Chọn ảnh để xem</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">
-              Thứ tự hiển thị
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200"
-            />
-          </div>
+              {previewUrl ? (
+                <ImageModal
+                  src={previewUrl}
+                  alt="Ảnh bìa"
+                  className="w-full max-h-48 object-cover rounded-xl border mb-2"
+                />
+              ) : (
+                <p className="text-sm text-slate-400 mb-2">Chọn ảnh để xem</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">
+                Thứ tự hiển thị
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">
-              Nội dung văn bản
-            </label>
-            {/* <textarea
-              rows="4"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200"
-            /> */}
-            <TextEditor
-              value={content}
-              onChange={setContent}
-              onImageUploaded={(image) => {
-                setUploadedImages((prev) => [...prev, image]);
-              }}
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">
+                Nội dung văn bản
+              </label>
+              <TextEditor
+                value={content}
+                onChange={setContent}
+                onImageUploaded={(image) => {
+                  setUploadedImages((prev) => [...prev, image]);
+                }}
+              />
+            </div>
 
-          <div className="flex gap-4 justify-end pt-4 border-t">
-            <button
-              type="button"
-              onClick={() => navigate(`/teacher/course/${courseId}`)}
-              className="px-6 py-3 rounded-xl bg-slate-100 font-medium"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 rounded-xl text-white bg-blue-600 font-medium disabled:opacity-50"
-            >
-              {loading ? "Đang lưu thay đổi..." : "Cập nhật bài học"}
-            </button>
-          </div>
-        </form>
+            <div className="flex gap-4 justify-end pt-4 border-t">
+              <button
+                type="button"
+                onClick={() => navigate(`/teacher/course/${courseId}`)}
+                className="px-6 py-3 rounded-xl bg-slate-100 font-medium"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-3 rounded-xl text-white bg-blue-600 font-medium disabled:opacity-50"
+              >
+                {loading ? "Đang lưu thay đổi..." : "Cập nhật bài học"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

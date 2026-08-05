@@ -76,27 +76,7 @@ const ExamTakingPage = () => {
           );
           setTimeLeft(remainingSeconds);
         }
-        // // Fetch chi tiết bài kiểm tra & danh sách câu hỏi
-        // const examRes = await api.get(`/exams/${examId}/student`);
-        // const fetchedExam = examRes.data.data;
-        // setExam(fetchedExam);
-        // setQuestions(fetchedExam.questions || []);
 
-        // // Tính toán thời gian còn lại (seconds)
-        // if (fetchedExam.duration_minutes && fetchedExam.duration_minutes > 0) {
-        //   const startTime = new Date(attemptData.start_time).getTime();
-        //   const durationMs = fetchedExam.duration_minutes * 60 * 1000;
-        //   const endTime = startTime + durationMs;
-        //   const now = new Date().getTime();
-        //   const remainingSeconds = Math.max(
-        //     0,
-        //     Math.floor((endTime - now) / 1000),
-        //   );
-
-        //   setTimeLeft(remainingSeconds);
-        // }
-
-        //KHÔI PHỤC BẢN NHÁP CŨ NẾU CÓ
         if (
           Array.isArray(attemptData.saved_answers) &&
           attemptData.saved_answers.length > 0

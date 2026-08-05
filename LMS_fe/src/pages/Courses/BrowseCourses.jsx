@@ -6,6 +6,7 @@ import Navbar from "../../Components/Navbar";
 import useAlert from "../../Components/Alert/useAlert";
 import ImageModal from "../../Components/ImageModal";
 import useDebounce from "../../hooks/useDebounce";
+import { Grid, List } from "lucide-react";
 
 const BrowseCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -160,14 +161,26 @@ const BrowseCourses = () => {
           </div>
         ) : (
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 m-2">
               <button
                 onClick={() =>
                   setViewMode(viewMode === "grid" ? "list" : "grid")
                 }
                 className="px-4 py-2 bg-white border rounded-xl hover:bg-slate-100 text-sm"
               >
-                {viewMode === "grid" ? "🔲 Lưới" : "📋 Danh sách"}
+                <button className="flex items-center gap-2">
+                  {viewMode === "grid" ? (
+                    <>
+                      <Grid size={18} />
+                      Lưới
+                    </>
+                  ) : (
+                    <>
+                      <List size={18} />
+                      Danh sách
+                    </>
+                  )}
+                </button>
               </button>
             </div>
             {viewMode === "grid" ? (
@@ -185,7 +198,7 @@ const BrowseCourses = () => {
                         <ImageModal
                           src={
                             course.thumbnail_url ||
-                            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3"
+                            "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
                           }
                           alt={course.title}
                           className="w-full h-44 object-cover rounded-xl mb-4 bg-slate-100"
