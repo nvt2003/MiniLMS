@@ -5,6 +5,7 @@ import api from "../../services/api";
 import Navbar from "../../Components/Navbar";
 import useAlert from "../../Components/Alert/useAlert";
 import ImageModal from "../../Components/ImageModal";
+import LessonThumbnail from "./LessonThumbnail";
 
 const CourseLanding = () => {
   const { id } = useParams(); // courseId
@@ -93,7 +94,7 @@ const CourseLanding = () => {
               ← Khóa học của tôi
             </Link>
             <ImageModal
-              src={course.thumbnail_url || "https://placehold.co/600x400"}
+              src={course.thumbnail_url}
               alt={course.title}
               className="w-full md:w-64 aspect-video object-cover rounded-xl shadow-lg bg-slate-700"
             />
@@ -185,23 +186,17 @@ const CourseLanding = () => {
                       onClick={() =>
                         navigate(`/learning/${id}/lesson/${lesson.id}`)
                       }
-                      className={`flex items-center gap-4 p-4 cursor-pointer transition group ${
-                        isCompleted
-                          ? "bg-green-50 hover:bg-green-100"
-                          : "hover:bg-slate-50"
+                      className={`flex items-center gap-4 p-4 cursor-pointer group ${
+                        isCompleted ? "bg-green-50" : ""
                       }`}
                     >
                       {/* Thumbnail */}
                       <div className="relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
-                        <ImageModal
-                          src={
-                            lesson.thumbnail_url ||
-                            "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
-                          }
-                          alt={lesson.title}
-                          className="w-full h-full object-cover"
+                        <LessonThumbnail
+                          lesson={lesson}
+                          idx={idx}
+                          isCompleted={isCompleted}
                         />
-
                         {/* Badge số thứ tự */}
                         <div className="absolute top-1 left-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
                           {idx + 1}
@@ -218,7 +213,7 @@ const CourseLanding = () => {
                       {/* Thông tin */}
                       <div className="flex-1 min-w-0">
                         <h3
-                          className={`text-sm font-semibold truncate ${
+                          className={`text-sm font-semibold truncate  ${
                             isCompleted
                               ? "text-green-700"
                               : "text-slate-700 group-hover:text-blue-600"
@@ -237,7 +232,7 @@ const CourseLanding = () => {
                         className={`text-xs font-medium ${
                           isCompleted
                             ? "text-green-600"
-                            : "text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                            : "text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                         }`}
                       >
                         {isCompleted ? "✓ Đã học" : "Học →"}

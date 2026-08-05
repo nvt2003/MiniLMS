@@ -143,10 +143,7 @@ const CourseView = () => {
                   {/* Thumbnail */}
                   <div className="relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
                     <ImageModal
-                      src={
-                        lesson.thumbnail_url ||
-                        "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
-                      }
+                      src={lesson.thumbnail_url}
                       alt={lesson.title}
                       className="w-full h-full object-cover"
                     />

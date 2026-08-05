@@ -46,24 +46,6 @@ const CourseModel = {
     return course;
 },
 
-  // old create and update
-//   create: async (teacherId, title, description, thumbnailUrl) => {
-//     const [result] = await db.query(
-//       'INSERT INTO courses (teacher_id, title, description, thumbnail_url) VALUES (?, ?, ?, ?)',
-//       [teacherId, title, description, thumbnailUrl]
-//     );
-//     return result.insertId;
-//   },
-// update: async (courseId, title, description, thumbnailUrl) => {
-//   const [result] = await db.query(
-//     `UPDATE courses
-//      SET title = ?, description = ?, thumbnail_url = ?
-//      WHERE id = ?`,
-//     [title, description, thumbnailUrl, courseId]
-//   );
-
-//   return result.affectedRows;
-// },
 
   create: async (teacherId, title, description, thumbnailUrl) => {
     // 1. Tạo chuỗi văn bản gộp từ title và description để sinh vector
@@ -168,7 +150,7 @@ const CourseModel = {
   // ==========================================
   if (!search) {
     let query = `
-      SELECT c.id, c.title, c.description, c.teacher_id, c.created_at, u.name AS teacher_name
+      SELECT c.id, c.title, c.description, c.thumbnail_url, c.teacher_id, c.created_at, u.name AS teacher_name
       FROM courses c
       JOIN users u ON c.teacher_id = u.id
       WHERE 1 = 1
@@ -209,7 +191,7 @@ const CourseModel = {
   // (Hybrid Vector + Keyword Search trên Node.js)
   // ==========================================
   let query = `
-    SELECT c.id, c.title, c.description, c.teacher_id, c.embedding, c.created_at, u.name AS teacher_name
+    SELECT c.id, c.title, c.description, c.thumbnail_url, c.teacher_id, c.embedding, c.created_at, u.name AS teacher_name
     FROM courses c
     JOIN users u ON c.teacher_id = u.id
     WHERE 1 = 1

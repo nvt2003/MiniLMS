@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 
-export default function ImageModal({ src, alt, className = "" }) {
+export default function ImageModal({
+  src,
+  alt,
+  className = "",
+  width,
+  height,
+}) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -20,8 +26,14 @@ export default function ImageModal({ src, alt, className = "" }) {
   return (
     <>
       <img
-        src={src}
+        src={
+          src || "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
+        }
         alt={alt}
+        loading="lazy"
+        decoding="async"
+        width={width}
+        height={height}
         onClick={() => setOpen(true)}
         className={className}
       />

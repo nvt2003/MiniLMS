@@ -157,6 +157,7 @@ const CreateLesson = () => {
                 type="file"
                 accept="image/*"
                 onChange={(e) => setThumbnail(e.target.files[0])}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
               />
               {thumbnail && <p>{thumbnail.name}</p>}
               {thumbnail && (
