@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 
-export default function ImageModal({ src, alt, className = "" }) {
+export default function ImageModal({
+  src,
+  alt,
+  className = "",
+  width,
+  height,
+}) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -25,6 +31,9 @@ export default function ImageModal({ src, alt, className = "" }) {
         }
         alt={alt}
         loading="lazy"
+        decoding="async"
+        width={width}
+        height={height}
         onClick={() => setOpen(true)}
         className={className}
       />
