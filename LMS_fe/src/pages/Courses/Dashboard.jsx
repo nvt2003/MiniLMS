@@ -4,6 +4,7 @@ import api from "../../services/api";
 import Navbar from "../../Components/Navbar";
 import useAlert from "../../Components/Alert/useAlert";
 import ImageModal from "../../Components/ImageModal";
+import { Grid, List } from "lucide-react";
 
 const Dashboard = () => {
   const [courses, setCourses] = useState([]);
@@ -142,14 +143,26 @@ const Dashboard = () => {
               Danh sách khóa học trên hệ thống
             </h3>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 m-2">
               <button
                 onClick={() =>
                   setViewMode(viewMode === "grid" ? "list" : "grid")
                 }
                 className="px-4 py-2 bg-white border rounded-xl hover:bg-slate-100 text-sm"
               >
-                {viewMode === "grid" ? "🔲 Lưới" : "📋 Danh sách"}
+                <button className="flex items-center gap-2">
+                  {viewMode === "grid" ? (
+                    <>
+                      <Grid size={18} />
+                      Lưới
+                    </>
+                  ) : (
+                    <>
+                      <List size={18} />
+                      Danh sách
+                    </>
+                  )}
+                </button>
               </button>
             </div>
             {viewMode === "grid" ? (
