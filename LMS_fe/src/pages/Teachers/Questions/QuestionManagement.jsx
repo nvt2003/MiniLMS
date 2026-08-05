@@ -105,7 +105,7 @@ export default function QuestionManagement() {
   return (
     <div>
       <Navbar />
-      <h2>Quản lý câu hỏi</h2>
+      <h2 className="text-2xl font-bold my-3">Quản lý câu hỏi</h2>
 
       {/* Filter & Actions */}
       <div className="flex gap-3 mb-6">
