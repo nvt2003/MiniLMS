@@ -143,12 +143,7 @@ const CourseView = () => {
                   {/* Thumbnail */}
                   <div className="relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
                     <ImageModal
-                      src={lesson.thumbnail_url.replace(
-                        "/upload/",
-                        "/upload/w_160,h_90,c_fill,q_auto,f_auto/",
-                      )}
-                      width="80"
-                      height="48"
+                      src={lesson.thumbnail_url}
                       alt={lesson.title}
                       className="w-full h-full object-cover"
                     />
