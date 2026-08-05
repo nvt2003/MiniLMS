@@ -94,12 +94,7 @@ const CourseLanding = () => {
               ← Khóa học của tôi
             </Link>
             <ImageModal
-              src={course.thumbnail_url.replace(
-                "/upload/",
-                "/upload/w_160,h_90,c_fill,q_auto,f_auto/",
-              )}
-              width="80"
-              height="48"
+              src={course.thumbnail_url}
               alt={course.title}
               className="w-full md:w-64 aspect-video object-cover rounded-xl shadow-lg bg-slate-700"
             />

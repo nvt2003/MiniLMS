@@ -1,8 +1,12 @@
 import React from "react";
 import ImageModal from "../../Components/ImageModal";
-const LessonThumbnail = ({ lesson, idx, isCompleted }) => {
+
+const LessonThumbnail = React.memo(({ lesson, idx, isCompleted }) => {
   return (
-    <div className="relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
+    <div
+      className="relative w-20 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200"
+      onClick={(e) => e.stopPropagation()}
+    >
       <ImageModal
         src={lesson.thumbnail_url}
         width="80"
@@ -24,6 +28,6 @@ const LessonThumbnail = ({ lesson, idx, isCompleted }) => {
       )}
     </div>
   );
-};
+});
 
-export default React.memo(LessonThumbnail);
+export default LessonThumbnail;
