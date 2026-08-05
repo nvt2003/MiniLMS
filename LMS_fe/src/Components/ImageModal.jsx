@@ -20,8 +20,11 @@ export default function ImageModal({ src, alt, className = "" }) {
   return (
     <>
       <img
-        src={src}
+        src={
+          src || "https://placehold.co/640x400/e2e8f0/64748b?text=No+Thumbnail"
+        }
         alt={alt}
+        loading="lazy"
         onClick={() => setOpen(true)}
         className={className}
       />
