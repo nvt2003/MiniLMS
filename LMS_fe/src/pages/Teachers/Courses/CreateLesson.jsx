@@ -5,6 +5,7 @@ import useAlert from "../../../Components/Alert/useAlert";
 import ImageModal from "../../../Components/ImageModal";
 import TextEditor from "../../../Components/TextEditor";
 import Navbar from "../../../Components/Navbar";
+import { maxChar } from "../../../services/validators";
 
 const CreateLesson = () => {
   const { courseId } = useParams();
@@ -52,7 +53,11 @@ const CreateLesson = () => {
       const deletedImages = uploadedImages.filter(
         (image) => !currentUrls.includes(image.url),
       );
-
+      let validate = maxChar(title, 255, "Tiêu đề");
+      if (validate) {
+        setError(validate);
+        return;
+      }
       const formData = new FormData();
 
       formData.append("courseId", courseId);
@@ -244,7 +249,7 @@ const CreateLesson = () => {
                 {loading ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    Đang tải video lên Cloudinary...
+                    Đang xử lí...
                   </>
                 ) : (
                   "Thêm bài học"

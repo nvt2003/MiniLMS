@@ -5,6 +5,7 @@ import useAlert from "../../../Components/Alert/useAlert";
 import ImageModal from "../../../Components/ImageModal";
 import TextEditor from "../../../Components/TextEditor";
 import Navbar from "../../../Components/Navbar";
+import { maxChar } from "../../../services/validators";
 
 const EditLesson = () => {
   const { id } = useParams();
@@ -49,36 +50,6 @@ const EditLesson = () => {
     fetchLessonDetail();
   }, [id]);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setError("");
-
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("title", title);
-  //     formData.append("content", content);
-  //     formData.append("position", position);
-
-  //     if (newVideoFile) {
-  //       formData.append("video", newVideoFile);
-  //     }
-  //     if (newThumbnailFile) {
-  //       formData.append("thumbnail", newThumbnailFile);
-  //     }
-
-  //     await api.put(`/lessons/${id}`, formData, {
-  //       headers: { "Content-Type": "multipart/form-data" },
-  //     });
-
-  //     showAlert("success", "Thành công", "Cập nhật bài học thành công!");
-  //     navigate(`/teacher/course/${id}`);
-  //   } catch (err) {
-  //     setError(err.response?.data?.message || "Có lỗi xảy ra khi cập nhật.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -106,6 +77,11 @@ const EditLesson = () => {
         (image) => !currentUrls.includes(image.url),
       );
 
+      let validate = maxChar(title, 255, "Tiêu đề");
+      if (validate) {
+        setError(validate);
+        return;
+      }
       const formData = new FormData();
 
       formData.append("title", title);

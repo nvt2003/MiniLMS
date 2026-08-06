@@ -4,6 +4,7 @@ import api from "../../../services/api";
 import Navbar from "../../../Components/Navbar";
 import useAlert from "../../../Components/Alert/useAlert";
 import ImageModal from "../../../Components/ImageModal";
+import { maxChar, minChar, required } from "../../../services/validators";
 
 const CreateCourse = () => {
   const [formData, setFormData] = useState({
@@ -25,6 +26,11 @@ const CreateCourse = () => {
   // Hàm xử lý khi bấm nút Tạo Khóa Học
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let validate = maxChar(formData.title, 255, "Tiêu đề");
+    if (validate) {
+      setError(validate);
+      return;
+    }
     try {
       const data = new FormData();
 

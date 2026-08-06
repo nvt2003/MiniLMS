@@ -109,7 +109,7 @@ updateCourse: async (req, res) => {
     }
 
     // Mặc định giữ ảnh cũ
-    let thumbnailUrl = course.thumbnail;
+    let thumbnailUrl = course.thumbnail_url;
 
     // Nếu upload ảnh mới thì thay thế
     if (req.file) {
