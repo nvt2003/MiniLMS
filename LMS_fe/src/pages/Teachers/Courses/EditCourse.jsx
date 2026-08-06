@@ -4,6 +4,7 @@ import api from "../../../services/api";
 import useAlert from "../../../Components/Alert/useAlert";
 import ImageModal from "../../../Components/ImageModal";
 import Navbar from "../../../Components/Navbar";
+import { maxChar } from "../../../services/validators";
 
 const EditCourse = () => {
   const { id } = useParams(); // Lấy ID khóa học từ URL
@@ -30,6 +31,7 @@ const EditCourse = () => {
         setFormData({
           title: course.title || "",
           description: course.description || "",
+          thumbnail_url: course.thumbnail_url,
         });
         setCurrentThumbnailUrl(course?.thumbnail_url);
       } catch (err) {
@@ -63,10 +65,19 @@ const EditCourse = () => {
     setError("");
     setSubmitting(true);
 
+    let validate = maxChar(formData.title, 255, "Tiêu đề");
+
+    if (validate) {
+      setError(validate);
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const data = new FormData();
       data.append("title", formData.title);
       data.append("description", formData.description);
+      data.append("thumbnail_url", formData.thumbnail_url);
       if (formData.thumbnail) data.append("thumbnail", formData.thumbnail);
       await api.put(`/courses/${id}`, data);
       showAlert(

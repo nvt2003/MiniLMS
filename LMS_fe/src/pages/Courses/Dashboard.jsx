@@ -148,21 +148,19 @@ const Dashboard = () => {
                 onClick={() =>
                   setViewMode(viewMode === "grid" ? "list" : "grid")
                 }
-                className="px-4 py-2 bg-white border rounded-xl hover:bg-slate-100 text-sm"
+                className="flex px-4 py-2 bg-white border rounded-xl hover:bg-slate-100 text-sm"
               >
-                <button className="flex items-center gap-2">
-                  {viewMode === "grid" ? (
-                    <>
-                      <Grid size={18} />
-                      Lưới
-                    </>
-                  ) : (
-                    <>
-                      <List size={18} />
-                      Danh sách
-                    </>
-                  )}
-                </button>
+                {viewMode === "grid" ? (
+                  <>
+                    <Grid size={18} />
+                    Lưới
+                  </>
+                ) : (
+                  <>
+                    <List size={18} />
+                    Danh sách
+                  </>
+                )}
               </button>
             </div>
             {viewMode === "grid" ? (

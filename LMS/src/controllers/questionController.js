@@ -7,8 +7,8 @@ const { deleteImage } = require('../services/CloudinaryServices');
 const QuestionController = {
   getQuestions: async (req, res) => {
     try {
-      const teacherId = req.user.id;
-      const { question_type, search, page, limit } = req.query;
+      // const teacherId = req.user.id;
+      const { teacherId, question_type, search, page, limit } = req.query;
       const offset = (page - 1) * limit;
       const result = await QuestionModel.getQuestions({
       teacherId,
