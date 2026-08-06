@@ -35,7 +35,7 @@ const QuestionModel = {
 
     // 2. Tạo phần điều kiện WHERE chung
     let whereSql = ` WHERE parent_id IS NULL`;
-    const params = [teacherId];
+    const params = [];
     if (teacherId){
       whereSql+= ` AND teacher_id = ? `
           params.push(teacherId);
@@ -54,7 +54,6 @@ const QuestionModel = {
     const countSql = `SELECT COUNT(*) AS total FROM questions ${whereSql}`;
     const [countRows] = await db.query(countSql, params);
     const totalItems = countRows[0]?.total || 0;
-
     // 4. Lấy danh sách câu hỏi theo trang (Query 2)
     // Lưu ý: LIMIT và OFFSET dùng chuỗi template thay vì placeholder (?) để tránh lỗi kiểu dữ liệu ở một số driver MySQL
     const dataSql = `
