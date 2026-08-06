@@ -34,9 +34,12 @@ const QuestionModel = {
     const offset = (pageNum - 1) * limitNum;
 
     // 2. Tạo phần điều kiện WHERE chung
-    let whereSql = ` WHERE teacher_id = ? AND parent_id IS NULL`;
+    let whereSql = ` WHERE parent_id IS NULL`;
     const params = [teacherId];
-
+    if (teacherId){
+      whereSql+= ` AND teacher_id = ? `
+          params.push(teacherId);
+    }
     if (questionType) {
       whereSql += ` AND question_type = ?`;
       params.push(questionType);
