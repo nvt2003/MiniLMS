@@ -66,6 +66,13 @@ const EditCourse = () => {
     setSubmitting(true);
 
     let validate = maxChar(formData.title, 255, "Tiêu đề");
+
+    if (validate) {
+      setError(validate);
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const data = new FormData();
       data.append("title", formData.title);

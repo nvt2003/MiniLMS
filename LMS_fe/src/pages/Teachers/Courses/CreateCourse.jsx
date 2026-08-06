@@ -26,7 +26,7 @@ const CreateCourse = () => {
   // Hàm xử lý khi bấm nút Tạo Khóa Học
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let validate = maxChar(formData.title);
+    let validate = maxChar(formData.title, 255, "Tiêu đề");
     if (validate) {
       setError(validate);
       return;
