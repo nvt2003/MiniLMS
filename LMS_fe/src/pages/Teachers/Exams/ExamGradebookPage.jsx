@@ -4,6 +4,7 @@ import useAlert from "../../../Components/Alert/useAlert";
 import { Search, X, Users, CheckCircle2, Award, BookOpen } from "lucide-react";
 import Navbar from "../../../Components/Navbar";
 import { data, useParams } from "react-router-dom";
+import useDebounce from "../../../hooks/useDebounce";
 
 const ExamGradebookPage = () => {
   const { examId } = useParams();
@@ -24,6 +25,7 @@ const ExamGradebookPage = () => {
   const [selectedExam, setSelectedExam] = useState(null);
   const [showExamSuggestions, setShowExamSuggestions] = useState(false);
   const examSearchRef = useRef(null);
+  const debouncedSearch = useDebounce(searchCourseText);
 
   // --- States cho Bảng điểm & Thống kê ---
   const [loading, setLoading] = useState(false);
@@ -32,25 +34,35 @@ const ExamGradebookPage = () => {
     students: [],
   });
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const user = JSON.parse(localStorage.getItem("userData") || "{}");
-        const teacherId = user?.id;
+  const fetchCourses = async (search = "") => {
+    try {
+      const user = JSON.parse(localStorage.getItem("userData") || "{}");
+      const teacherId = user?.id;
 
-        const res = await api.get(
-          `/courses${teacherId ? `?teacherId=${teacherId}` : ""}`,
-        );
-        if (res?.status === 200) {
-          setCourses(res.data.data.data || []);
-        }
-      } catch (err) {
-        console.error("Lỗi tải khóa học", err);
+      const params = new URLSearchParams();
+
+      if (teacherId) params.append("teacherId", teacherId);
+      if (search.trim()) params.append("search", search);
+      console.log("keyword:", params.toString());
+
+      const res = await api.get(`/courses?${params.toString()}`);
+
+      console.log("result:", res.data.data.data);
+
+      if (res.status === 200) {
+        setFilteredCourses(res.data.data.data || []);
       }
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  useEffect(() => {
     fetchCourses();
   }, []);
 
+  useEffect(() => {
+    fetchCourses(searchCourseText);
+  }, [debouncedSearch]);
   // 2. Tải danh sách đề thi dựa trên khóa học đã chọn
   useEffect(() => {
     const fetchExams = async () => {
@@ -97,10 +109,10 @@ const ExamGradebookPage = () => {
       setShowCourseSuggestions(false);
       handleClearCourse();
     } else {
-      const matches = courses.filter((c) =>
-        c.title.toLowerCase().includes(val.toLowerCase()),
-      );
-      setFilteredCourses(matches);
+      // const matches = courses.filter((c) =>
+      //   c.title.toLowerCase().includes(val.toLowerCase()),
+      // );
+      // setFilteredCourses(matches);
       setShowCourseSuggestions(true);
     }
   };
