@@ -41,6 +41,14 @@ const ROLE_MAP = {
     label: "Quản lý tài chính",
     bg: "bg-emerald-100 text-emerald-800 border-emerald-200",
   },
+  teacher: {
+    label: "Giáo viên",
+    bg: "bg-pink-100 text-pink-800 border-pink-200",
+  },
+  studnet: {
+    label: "Học sinh",
+    bg: "bg-gray-100 text-gray-800 border-gray-200",
+  },
 };
 
 const STATUS_MAP = {
