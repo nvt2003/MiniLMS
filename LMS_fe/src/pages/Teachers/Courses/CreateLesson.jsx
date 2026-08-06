@@ -249,7 +249,7 @@ const CreateLesson = () => {
                 {loading ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    Đang tải video lên Cloudinary...
+                    Đang xử lí...
                   </>
                 ) : (
                   "Thêm bài học"
