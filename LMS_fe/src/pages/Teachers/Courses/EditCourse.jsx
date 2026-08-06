@@ -31,6 +31,7 @@ const EditCourse = () => {
         setFormData({
           title: course.title || "",
           description: course.description || "",
+          thumbnail_url: course.thumbnail_url,
         });
         setCurrentThumbnailUrl(course?.thumbnail_url);
       } catch (err) {
@@ -69,6 +70,7 @@ const EditCourse = () => {
       const data = new FormData();
       data.append("title", formData.title);
       data.append("description", formData.description);
+      data.append("thumbnail_url", formData.thumbnail_url);
       if (formData.thumbnail) data.append("thumbnail", formData.thumbnail);
       await api.put(`/courses/${id}`, data);
       showAlert(
