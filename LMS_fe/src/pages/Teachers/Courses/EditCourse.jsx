@@ -4,6 +4,7 @@ import api from "../../../services/api";
 import useAlert from "../../../Components/Alert/useAlert";
 import ImageModal from "../../../Components/ImageModal";
 import Navbar from "../../../Components/Navbar";
+import { maxChar } from "../../../services/validators";
 
 const EditCourse = () => {
   const { id } = useParams(); // Lấy ID khóa học từ URL
@@ -63,6 +64,7 @@ const EditCourse = () => {
     setError("");
     setSubmitting(true);
 
+    let validate = maxChar(formData.title, 255, "Tiêu đề");
     try {
       const data = new FormData();
       data.append("title", formData.title);
