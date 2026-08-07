@@ -26,6 +26,7 @@ const ExamGradebookPage = () => {
   const [showExamSuggestions, setShowExamSuggestions] = useState(false);
   const examSearchRef = useRef(null);
   const debouncedSearch = useDebounce(searchCourseText);
+  const debouncedSearchExam = useDebounce(searchExamText);
 
   // --- States cho Bảng điểm & Thống kê ---
   const [loading, setLoading] = useState(false);
@@ -71,7 +72,9 @@ const ExamGradebookPage = () => {
         return;
       }
       try {
-        const res = await api.get(`/exams?course_id=${selectedCourse.id}`);
+        const res = await api.get(
+          `/exams?course_id=${selectedCourse.id}&search=${searchExamText}`,
+        );
         if (res.data?.success) {
           setExams(res.data.data || []);
         }
@@ -80,7 +83,7 @@ const ExamGradebookPage = () => {
       }
     };
     fetchExams();
-  }, [selectedCourse]);
+  }, [selectedCourse, debouncedSearchExam]);
 
   // Xử lý click ra ngoài để ẩn danh sách gợi ý
   useEffect(() => {
