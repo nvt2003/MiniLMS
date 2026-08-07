@@ -48,15 +48,17 @@ const CourseLanding = () => {
   }, [id]);
   const handleUnenroll = async (courseId, courseTitle) => {
     try {
-      await confirm(
-        "Hủy tham gia khóa học",
-        `Tiến trình sẽ bị mất, bạn có chắc chắn muốn bỏ tham gia khóa học "${courseTitle}"`,
-        async () => {
-          const res = await api.delete(`/enrollments/${courseId}/unenroll`);
-          showAlert("success", "Thành công", res.data.message);
-          navigate(`../../view-course/${courseId}`);
-        },
-      );
+      if (
+        await confirm(
+          `Tiến trình sẽ bị mất, bạn có chắc chắn muốn bỏ tham gia khóa học "${courseTitle}"`,
+          "Hủy tham gia khóa học",
+        )
+      ) {
+        const res = await api.delete(`/enrollments/${courseId}/unenroll`);
+
+        showAlert("success", "Thành công", res.data.message);
+        navigate(`../../view-course/${courseId}`);
+      }
     } catch (err) {
       console.error(err);
       showAlert(
