@@ -52,6 +52,21 @@ function App() {
 
     check();
   }, []);
+  if (backendStatus === "checking") {
+    return <p>Đang kiểm tra trạng thái server...</p>;
+  }
+
+  if (backendStatus === "offline") {
+    return (
+      <div style={{ color: "orange" }}>
+        <h3>Backend đang khởi động</h3>
+        <p>
+          Server có thể mất khoảng 30–60 giây để thức dậy. Vui lòng đợi một
+          chút.
+        </p>
+      </div>
+    );
+  }
   return (
     <BrowserRouter>
       <Routes>
