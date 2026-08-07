@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Login from "./pages/Users/Login";
 import Register from "./pages/Users/Register";
 import CreateCourse from "./pages/Teachers/Courses/CreateCourse";
@@ -33,6 +34,24 @@ import AdminManagement from "./pages/Admins/AdminManagement";
 import ActivateAccount from "./pages/Admins/ActivateAccount";
 
 function App() {
+  const [backendStatus, setBackendStatus] = useState("checking");
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_SOCKET_URL}/health`);
+
+        if (res.ok) {
+          setBackendStatus("online");
+        } else {
+          setTimeout(check, 5000);
+        }
+      } catch {
+        setTimeout(check, 5000);
+      }
+    };
+
+    check();
+  }, []);
   return (
     <BrowserRouter>
       <Routes>
