@@ -41,6 +41,12 @@ app.use('/api/attemps',examAttemptRoutes);
 app.use('/api/attempts',examAttemptRoutes);
 app.use('/api/grading',gradingRoutes);
 app.use("/api/settings", settingRoutes);
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    time: new Date(),
+  });
+});
 
 const server = http.createServer(app);
 const io = new Server(server, {

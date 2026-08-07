@@ -43,15 +43,16 @@ const CourseDetailManager = () => {
   }, [id]);
   const handleDeleteCourse = async (courseId, courseTitle) => {
     try {
-      confirm(
-        "Xoá khóa học",
-        `Bạn có chắc chắn muốn xóa khóa học: "${courseTitle}"?`,
-        async () => {
-          await api.delete(`/courses/${courseId}`);
-          showAlert("success", "Thành công", "Xóa khóa học thành công!");
-          navigate("/dashboard");
-        },
-      );
+      if (
+        await confirm(
+          `Bạn có chắc chắn muốn xóa khóa học: "${courseTitle}"?`,
+          "Xoá khóa học",
+        )
+      ) {
+        await api.delete(`/courses/${courseId}`);
+        showAlert("success", "Thành công", "Xóa khóa học thành công!");
+        navigate("/dashboard");
+      }
     } catch (err) {
       showAlert(
         "error",
@@ -62,15 +63,16 @@ const CourseDetailManager = () => {
   };
   const handleDeleteLesson = async (lessonId, lessonTitle) => {
     try {
-      confirm(
-        "Xóa bài học",
-        `Bạn có chắc chắn muốn xóa bài học: "${lessonTitle}"?`,
-        async () => {
-          await api.delete(`/lessons/${lessonId}`);
-          showAlert("success", "Thành công", "Xóa bài học thành công!");
-          fetchCourseDetail();
-        },
-      );
+      if (
+        await confirm(
+          `Bạn có chắc chắn muốn xóa bài học: "${lessonTitle}"?`,
+          "Xóa bài học",
+        )
+      ) {
+        await api.delete(`/lessons/${lessonId}`);
+        showAlert("success", "Thành công", "Xóa bài học thành công!");
+        fetchCourseDetail();
+      }
     } catch (err) {
       showAlert(
         "error",

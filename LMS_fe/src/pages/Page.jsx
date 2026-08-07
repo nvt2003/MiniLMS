@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
-import { Editor, Frame } from "@craftjs/core";
+import { Editor, Frame, useEditor } from "@craftjs/core";
 
 import { Container } from "../Components/Crafts/Container";
 import { Text } from "../Components/Crafts/Text";
@@ -8,6 +8,18 @@ import { CustomImage } from "../Components/Crafts/CustomImage";
 import Navbar from "../Components/Navbar";
 import { getPageLayout } from "../services/settingApi";
 import { Slider, SlideItem } from "../Components/Crafts/Slider";
+function PageContent({ data }) {
+  const { actions } = useEditor();
+
+  useEffect(() => {
+    if (data) {
+      // Ép Craft.js load lại layout JSON mới
+      actions.deserialize(data);
+    }
+  }, [data, actions]);
+
+  return <Frame />;
+}
 export default function Page() {
   const { slug } = useParams();
   const [page, setPage] = useState(null);
@@ -62,7 +74,7 @@ export default function Page() {
         }}
         enabled={false}
       >
-        <Frame data={page} />
+        <PageContent data={page} />
       </Editor>
     </>
   );
