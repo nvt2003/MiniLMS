@@ -43,6 +43,7 @@ function App() {
         if (res.ok) {
           setBackendStatus("online");
         } else {
+          setBackendStatus("offline");
           setTimeout(check, 5000);
         }
       } catch {
@@ -59,7 +60,6 @@ function App() {
   if (backendStatus === "offline") {
     return (
       <div style={{ color: "orange" }}>
-        <h3>Backend đang khởi động</h3>
         <p>
           Server có thể mất khoảng 30–60 giây để thức dậy. Vui lòng đợi một
           chút.
