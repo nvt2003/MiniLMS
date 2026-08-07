@@ -235,6 +235,12 @@ const Navbar = () => {
               >
                 Chỉnh sửa trang
               </Link>
+              <Link
+                to="/admin/navbar-manager"
+                className="hover:text-blue-600 transition"
+              >
+                Quản lý header
+              </Link>
             </>
           )}
         </div>
