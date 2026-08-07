@@ -43,7 +43,7 @@ const CourseDetailManager = () => {
   }, [id]);
   const handleDeleteCourse = async (courseId, courseTitle) => {
     try {
-      confirm(
+      await confirm(
         "Xoá khóa học",
         `Bạn có chắc chắn muốn xóa khóa học: "${courseTitle}"?`,
         async () => {
@@ -62,7 +62,7 @@ const CourseDetailManager = () => {
   };
   const handleDeleteLesson = async (lessonId, lessonTitle) => {
     try {
-      confirm(
+      await confirm(
         "Xóa bài học",
         `Bạn có chắc chắn muốn xóa bài học: "${lessonTitle}"?`,
         async () => {

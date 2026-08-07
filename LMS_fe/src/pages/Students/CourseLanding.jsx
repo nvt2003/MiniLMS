@@ -48,7 +48,7 @@ const CourseLanding = () => {
   }, [id]);
   const handleUnenroll = async (courseId, courseTitle) => {
     try {
-      confirm(
+      await confirm(
         "Hủy tham gia khóa học",
         `Tiến trình sẽ bị mất, bạn có chắc chắn muốn bỏ tham gia khóa học "${courseTitle}"`,
         async () => {

@@ -283,7 +283,7 @@ const ExamTakingPage = () => {
     }
     if (!isAutoSubmit) {
       const answeredCount = questions.filter(isQuestionAnswered).length;
-      confirm(
+      await confirm(
         `Bạn đã trả lời ${answeredCount}/${questions.length} câu hỏi.`,
         "Bạn có chắc chắn muốn nộp bài?",
         () => {

@@ -74,7 +74,7 @@ const Dashboard = () => {
   const handleDeleteCourse = async (courseId, courseTitle) => {
     try {
       // Gọi API xóa dữ liệu
-      confirm(
+      await confirm(
         "Xóa khóa học",
         `Bạn có chắc chắn muốn xóa khóa học "${courseTitle}"`,
         async () => {
@@ -94,7 +94,7 @@ const Dashboard = () => {
   };
   const handleUnenroll = async (courseId, courseTitle) => {
     try {
-      confirm(
+      await confirm(
         "Hủy tham gia khóa học",
         `Tiến trình sẽ bị mất, bạn có chắc chắn muốn bỏ tham gia khóa học "${courseTitle}"`,
         async () => {

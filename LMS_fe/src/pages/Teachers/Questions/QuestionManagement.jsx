@@ -92,7 +92,7 @@ export default function QuestionManagement() {
   };
   const handleDelete = async (id, e) => {
     if (e) e.stopPropagation();
-    if (!confirm("Bạn có chắc chắn muốn xóa câu hỏi này?")) return;
+    if (!(await confirm("Bạn có chắc chắn muốn xóa câu hỏi này?"))) return;
     try {
       await api.delete(`/questions/${id}`);
       showAlert("success", "Xóa thành công!", "Câu hỏi đã được xóa");
